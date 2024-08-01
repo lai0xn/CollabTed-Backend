@@ -7,10 +7,17 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "Running golint..."
-golint ./...
+echo "Running golintci-lint..."
+golangci-lint run ./...
 if [ $? -ne 0 ]; then
   echo "golint failed. Please fix linting issues."
+  exit 1
+fi
+
+echo "Running go Sec..."
+gosec ./...
+if [ $? -ne 0 ]; then
+  echo "gosec failed. Please fix security issues."
   exit 1
 fi
 
