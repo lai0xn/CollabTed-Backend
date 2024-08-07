@@ -14,8 +14,13 @@ func main() {
 		w.Header().Add("Content-Type", "application/json")
 		response := make(map[string]interface{})
 		response["message"] = "Server is running"
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	})
 	log.Println("Server is running")
-	http.ListenAndServe(":8080", r)
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
