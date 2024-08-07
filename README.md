@@ -49,7 +49,7 @@ git rebase main
 If there are any conflicts, resolve them and continue the rebase:
 ```bash
 # Resolve conflicts in your editor
-git add .
+git add -all
 git rebase --continue
 ```
 
