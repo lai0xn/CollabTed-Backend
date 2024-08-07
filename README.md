@@ -84,7 +84,6 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 **NB**: Make sure that `$HOME/go/bin` path is added to your profile
 
 ```bash
-chmod +x .githooks/pre-commit
 chmod +x install-hooks.sh
 ./install-hooks.sh
 ```
