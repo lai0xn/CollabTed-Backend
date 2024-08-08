@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -23,8 +24,15 @@ func NewWithConfig(config Config) *Server {
 
 func (s *Server) Run() {
 	r := chi.NewRouter()
-
-	if err := http.ListenAndServe(s.config.ADDR, r); err != nil {
+	server := http.Server{
+		Addr:              s.config.ADDR,
+		Handler:           r,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       10 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	if err := server.ListenAndServe(); err != nil {
 		log.Println(err)
 	}
 }

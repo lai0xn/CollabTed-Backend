@@ -17,3 +17,4 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )
+require github.com/go-chi/chi/v5 v5.1.0
