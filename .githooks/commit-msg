@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# List of allowed prefixes
+allowed_prefixes="[feat]: [fix]: [docs]: [style]: [refactor]: [perf]: [test]: [chore]: [wip]:"
+
+# Read the commit message
+commit_message=$(cat "$1")
+
+# Check if the commit message starts with any of the allowed prefixes
+if echo "$commit_message" | grep -Eq "^\[feat\]:|^\[fix\]:|^\[docs\]:|^\[style\]:|^\[refactor\]:|^\[perf\]:|^\[test\]:|^\[chore\]:|^\[wip\]:"; then
+  exit 0
+else
+  echo "Error: Invalid commit message."
+  echo "Commit message must start with one of the following prefixes:"
+  echo "$allowed_prefixes"
+  exit 1
+fi
