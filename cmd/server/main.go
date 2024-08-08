@@ -1,21 +1,12 @@
 package main
 
-import (
-	"encoding/json"
-	"log"
-	"net/http"
-
-	"github.com/go-chi/chi/v5"
-)
+import "github.com/CollabTed/CollabTed-Backend/internal/server"
 
 func main() {
-	r := chi.NewRouter()
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		response := make(map[string]interface{})
-		response["message"] = "Server is running"
-		json.NewEncoder(w).Encode(response)
+
+	s := server.NewWithConfig(server.Config{
+		ADDR: ":8080",
 	})
-	log.Println("Server is running")
-	http.ListenAndServe(":8080", r)
+
+	s.Run()
 }
