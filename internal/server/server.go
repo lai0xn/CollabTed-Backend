@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/CollabTed/CollabTed-Backend/internal/storage/mongo"
 	"github.com/charmbracelet/log"
 
 	"github.com/go-chi/chi/v5"
@@ -21,12 +22,18 @@ type Server struct {
 
 func NewWithConfig(config Config) *Server {
 	return &Server{
-		Addr:   config.ADDR,
+		Addr:   ":" + config.ADDR,
 		logger: config.Log,
 	}
 }
 
 func (s *Server) Run() {
+	// DB Initialization
+	db := mongo.NewMongoStore()
+	if err := db.Start(); err != nil {
+		panic(err)
+	}
+
 	r := chi.NewRouter()
 	server := http.Server{
 		Addr:              s.Addr,
