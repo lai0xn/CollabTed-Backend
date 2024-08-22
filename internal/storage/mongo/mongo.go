@@ -23,6 +23,10 @@ func (s *MongoStore) Init() {
 }
 
 func (s *MongoStore) Stop() {
+	if err := s.client.Disconnect(context.Background()); err != nil {
+		log.Error("Error while disconnecting from MongoDB", "error", err)
+	}
+	log.Info("🛑 MongoDB connection closed")
 }
 
 func (s *MongoStore) Start() error {

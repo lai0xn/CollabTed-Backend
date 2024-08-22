@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/CollabTed/CollabTed-Backend/internal/storage/mongo"
+	"github.com/CollabTed/CollabTed-Backend/internal/storage/redis"
 	"github.com/charmbracelet/log"
 
 	"github.com/go-chi/chi/v5"
@@ -31,6 +32,12 @@ func (s *Server) Run() {
 	// DB Initialization
 	db := mongo.NewMongoStore()
 	if err := db.Start(); err != nil {
+		panic(err)
+	}
+
+	// Redis Initialization
+	redis := redis.NewRedisStore()
+	if err := redis.Start(); err != nil {
 		panic(err)
 	}
 
