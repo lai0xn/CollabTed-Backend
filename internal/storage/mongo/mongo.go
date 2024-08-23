@@ -13,6 +13,7 @@ import (
 
 type MongoStore struct {
 	client *mongo.Client
+	db     *mongo.Database
 }
 
 func NewMongoStore() *MongoStore {
@@ -47,4 +48,9 @@ func (s *MongoStore) Start() error {
 	log.Info("🗄️ DB Connected")
 	s.client = client
 	return nil
+}
+
+func (s *MongoStore) GetDatabaseName() *mongo.Database {
+	s.db = s.client.Database(viper.GetString("database.dbname"))
+	return s.db
 }
