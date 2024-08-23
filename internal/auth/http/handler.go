@@ -6,7 +6,9 @@ import (
 	"net/http"
 
 	"github.com/CollabTed/CollabTed-Backend/internal/auth/usecase"
-	"github.com/CollabTed/CollabTed-Backend/internal/models"
+	"github.com/CollabTed/CollabTed-Backend/pkg/dto"
+	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
+	"github.com/go-playground/validator/v10"
 )
 
 type AuthHandler struct {
@@ -18,13 +20,18 @@ func NewAuthHandler(useCase usecase.AuthUseCase) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+	var user dto.UserD
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	if err := h.useCase.Register(context.Background(), &user); err != nil {
+	err := utils.Validate.Struct(user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		errors := utils.BuildError(err.(validator.ValidationErrors))
+		json.NewEncoder(w).Encode(errors)
+	}
+	if err := h.useCase.Register(context.Background(), user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
