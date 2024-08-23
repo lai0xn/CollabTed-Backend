@@ -12,7 +12,6 @@ require (
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.22.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.2 // indirect
@@ -52,6 +51,7 @@ require (
 require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/go-chi/chi/v5 v5.1.0
+	github.com/go-playground/validator/v10 v10.22.0
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/spf13/viper v1.19.0
 	go.mongodb.org/mongo-driver v1.16.1
