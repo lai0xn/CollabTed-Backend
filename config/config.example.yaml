@@ -5,3 +5,8 @@ database:
   host:
   port:
   dbname:
+
+redis:
+  adress:
+  username:
+  password:
