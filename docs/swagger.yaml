@@ -1,0 +1,843 @@
+basePath: /api/v1
+definitions:
+  types.AcheivmentPayload:
+    properties:
+      details:
+        type: string
+      eventId:
+        type: string
+      orgId:
+        type: string
+      string:
+        type: string
+    type: object
+  types.CommentPayload:
+    properties:
+      content:
+        type: string
+      postID:
+        type: string
+    type: object
+  types.EventPayload:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      orgId:
+        type: string
+      public:
+        type: boolean
+      title:
+        type: string
+    type: object
+  types.LoginPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  types.OrgPayload:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  types.PostPayload:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+    type: object
+  types.ProfileUpdate:
+    properties:
+      adress:
+        type: string
+      bio:
+        type: string
+      email:
+        type: string
+      links:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
+  types.RegisterPayload:
+    properties:
+      email:
+        type: string
+      gender:
+        type: boolean
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - gender
+    - name
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: backend of the event management app.
+  title: Squid Tech API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.LoginPayload'
+      produces:
+      - application/json
+      responses: {}
+      summary: Login endpoint
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.RegisterPayload'
+      produces:
+      - application/json
+      responses: {}
+      summary: Registration endpoint
+      tags:
+      - auth
+  /auth/verify:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: userid
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: otp
+        in: query
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Verification endpoint
+      tags:
+      - auth
+  /events:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: "1"
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Post endpoint
+      tags:
+      - events
+  /events/acheivment/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.AcheivmentPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create acheivment endpoint
+      tags:
+      - events
+  /events/acheivment/delete/:id:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete acheivment endpoint
+      tags:
+      - organizations
+  /events/acheivment/get/:id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get acheivment endpoint
+      tags:
+      - events
+  /events/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.EventPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create event endpoint
+      tags:
+      - events
+  /events/event/:id/upload:
+    post:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Add Event Image endpoint
+      tags:
+      - events
+  /events/event/get/:id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get event endpoint
+      tags:
+      - events
+  /events/event/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: jhon doe org
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Search event endpoint
+      tags:
+      - events
+  /oauth/facebook/callback:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The OAuth2 authorization code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Handles Facebook OAuth2 callback
+      tags:
+      - auth
+  /oauth/facebook/login:
+    get:
+      produces:
+      - application/json
+      responses: {}
+      summary: Initiates Facebook OAuth2 login
+      tags:
+      - auth
+  /oauth/google/callback:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: The OAuth2 authorization code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Handles Google OAuth2 callback
+      tags:
+      - auth
+  /oauth/google/login:
+    get:
+      produces:
+      - application/json
+      responses: {}
+      summary: Initiates Google OAuth2 login
+      tags:
+      - auth
+  /organizations/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: jhon doe
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.OrgPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Create Organization endpoint
+      tags:
+      - organizations
+  /organizations/me:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Current Organization endpoint
+      tags:
+      - organizations
+  /organizations/org/:id/bg:
+    patch:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change Organization Bg Image endpoint
+      tags:
+      - organizations
+  /organizations/org/:id/pfp:
+    patch:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change Organization Image endpoint
+      tags:
+      - organizations
+  /organizations/org/delete/:id:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete Organization endpoint
+      tags:
+      - organizations
+  /organizations/org/follow/:id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Follow Organization endpoint
+      tags:
+      - organizations
+  /organizations/org/get/:id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Organization endpoint
+      tags:
+      - organizations
+  /organizations/org/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: jhon doe org
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Search Organization endpoint
+      tags:
+      - organizations
+  /organizations/org/update/:id:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: jhon doe
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.OrgPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update Organization endpoint
+      tags:
+      - organizations
+  /posts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: "1"
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Post endpoint
+      tags:
+      - posts
+  /posts/comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.CommentPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: comment post endpoint
+      tags:
+      - posts
+  /posts/comments/:id/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: delete comment endpoint
+      tags:
+      - posts
+  /posts/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.PostPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create post endpoint
+      tags:
+      - posts
+  /posts/post/:id/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete Post endpoint
+      tags:
+      - posts
+  /posts/post/:id/image:
+    post:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Upload post Image endpoint
+      tags:
+      - posts
+  /posts/post/get/:id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Post endpoint
+      tags:
+      - posts
+  /posts/post/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: jhon doe org
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Search Post endpoint
+      tags:
+      - posts
+  /posts/post/update/:id:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: jhon doe
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.OrgPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update Post endpoint
+      tags:
+      - posts
+  /profiles/get/:id:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Profile endpoint
+      tags:
+      - profiles
+  /profiles/profile:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get Current Profile endpoint
+      tags:
+      - profiles
+  /profiles/profile/bg:
+    patch:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change Profile Bg Image endpoint
+      tags:
+      - profiles
+  /profiles/profile/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete Profile endpoint
+      tags:
+      - profiles
+  /profiles/profile/pfp:
+    patch:
+      consumes:
+      - form/multipart
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: file.png
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Change Profile Image endpoint
+      tags:
+      - profiles
+  /profiles/profile/update:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: jhon doe
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/types.ProfileUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update Profile endpoint
+      tags:
+      - profiles
+  /profiles/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: example@gmail.com
+        in: query
+        name: email
+        type: string
+      - description: aymen charfaoui
+        in: query
+        name: full_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Search Profile endpoint
+      tags:
+      - profiles
+swagger: "2.0"
