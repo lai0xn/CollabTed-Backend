@@ -11,13 +11,18 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-var JWT_SECRET string
-var EMAIL string
-var EMAIL_PASSWORD string
+var (
+	JWT_SECRET     string
+	EMAIL          string
+	EMAIL_PASSWORD string
+)
 
 func Load() {
 	// OAuth configuration
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 
 	types.OAuth2Configs = map[string]*types.OAuthProvider{
 		"google": {

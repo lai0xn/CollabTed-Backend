@@ -1,0 +1,18 @@
+#!/bin/sh
+
+echo "Running gofmt..."
+gofmt -w .
+if [ $? -ne 0 ]; then
+  echo "gofmt failed. Please fix formatting issues."
+  exit 1
+fi
+
+
+echo "Running go Sec..."
+gosec ./...
+if [ $? -ne 0 ]; then
+  echo "gosec failed. Please fix security issues."
+  exit 1
+fi
+
+echo "Pre-commit checks passed."
