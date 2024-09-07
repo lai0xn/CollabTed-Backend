@@ -16,7 +16,7 @@ func NewAuthService() *AuthService {
 	return &AuthService{}
 }
 
-func (s *AuthService) CreateUser(name string, email string, password string, gender bool) (*db.UserModel, error) {
+func (s *AuthService) CreateUser(name string, email string, password string) (*db.UserModel, error) {
 	ctx := context.Background()
 
 	encrypted_password, err := utils.Encrypt(password)
@@ -26,17 +26,13 @@ func (s *AuthService) CreateUser(name string, email string, password string, gen
 	result, err := prisma.Client.User.CreateOne(
 		db.User.Email.Set(email),
 		db.User.Name.Set(name),
-		db.User.Bio.Set(""),
-		db.User.Image.Set("uploads/profiles/default.jpg"),
-		db.User.Gender.Set(gender),
 		db.User.Password.Set(encrypted_password),
-		db.User.BgImg.Set("uploads/bgs/default.jpg"),
+		db.User.Active.Set(false),
 	).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
-
 }
 
 func (s *AuthService) CheckUser(email string, password string) (*db.UserModel, error) {
@@ -59,7 +55,6 @@ func (s *AuthService) CheckUser(email string, password string) (*db.UserModel, e
 		return nil, errors.New("wrong credentials")
 	}
 	return user, nil
-
 }
 
 func (s *AuthService) GetUserByEmail(email string) (*db.UserModel, error) {

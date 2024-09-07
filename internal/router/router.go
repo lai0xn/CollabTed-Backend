@@ -11,12 +11,10 @@ import (
 	"github.com/lai0xn/squid-tech/pkg/types"
 )
 
-var (
-	jwtMiddelware echo.MiddlewareFunc
-)
+var jwtMiddelware echo.MiddlewareFunc
 
 func init() {
-	//Initialize the middlware
+	// Initialize the middlware
 	config.Load()
 	jwtMiddelware = echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(config.JWT_SECRET),
@@ -24,7 +22,6 @@ func init() {
 			return new(types.Claims)
 		},
 	})
-
 }
 
 func SetRoutes(e *echo.Echo) {
@@ -35,9 +32,4 @@ func SetRoutes(e *echo.Echo) {
 	e.GET("/notifications", sse.NotificationHandler)
 	v1 := e.Group("/api/v1")
 	AuthRoutes(v1)
-	profileRoutes(v1)
-	orgsRoutes(v1)
-	OAuthRoutes(v1)
-	eventRoutes(v1)
-	postRoutes(v1)
 }
