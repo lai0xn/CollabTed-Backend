@@ -3,10 +3,10 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"github.com/lai0xn/squid-tech/internal/services"
-	"github.com/lai0xn/squid-tech/pkg/types"
 )
 
 type workspaceHandler struct {

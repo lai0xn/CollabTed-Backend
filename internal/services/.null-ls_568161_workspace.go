@@ -3,9 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
-	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 )
 
 type WorkspaceService struct{}
