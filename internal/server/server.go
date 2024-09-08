@@ -1,11 +1,11 @@
 package server
 
 import (
+	middlewares "github.com/CollabTed/CollabTed-Backend/internal/middlewares/rest"
+	"github.com/CollabTed/CollabTed-Backend/internal/router"
+	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	middlewares "github.com/lai0xn/squid-tech/internal/middlewares/rest"
-	"github.com/lai0xn/squid-tech/internal/router"
-	"github.com/lai0xn/squid-tech/pkg/logger"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 

@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "github.com/lai0xn/squid-tech/docs"
-	"github.com/lai0xn/squid-tech/internal/server"
-	"github.com/lai0xn/squid-tech/pkg/redis"
-	"github.com/lai0xn/squid-tech/prisma"
+	_ "github.com/CollabTed/CollabTed-Backend/docs"
+	"github.com/CollabTed/CollabTed-Backend/internal/server"
+	"github.com/CollabTed/CollabTed-Backend/pkg/redis"
+	"github.com/CollabTed/CollabTed-Backend/prisma"
 )
 
 // @title			Squid Tech API

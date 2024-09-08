@@ -3,9 +3,9 @@ package config
 import (
 	"os"
 
+	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTed/CollabTed-Backend/pkg/types"
 	"github.com/joho/godotenv"
-	"github.com/lai0xn/squid-tech/pkg/logger"
-	"github.com/lai0xn/squid-tech/pkg/types"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"

@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/lai0xn/squid-tech/internal/services"
-	"github.com/lai0xn/squid-tech/pkg/logger"
-	"github.com/lai0xn/squid-tech/pkg/types"
-	"github.com/lai0xn/squid-tech/pkg/utils"
+	"github.com/CollabTed/CollabTed-Backend/internal/services"
+	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
 	"golang.org/x/oauth2"
 
 	"github.com/labstack/echo/v4"

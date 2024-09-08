@@ -1,4 +1,4 @@
-module github.com/lai0xn/squid-tech
+module github.com/CollabTed/CollabTed-Backend
 
 go 1.21
 
@@ -12,7 +12,6 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.38.0
-	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
 	golang.org/x/crypto v0.25.0
@@ -21,9 +20,7 @@ require (
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
 require (
