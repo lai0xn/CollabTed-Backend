@@ -1,0 +1,49 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: CollabTed Backend
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.22.5'
+
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Install golangci-lint
+      run:  go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+    - name: Run golangci-lint
+      run: golangci-lint run ./...
+    
+    - name: Install gosec
+      run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+    
+    - name: Run gosec
+      run: gosec ./...
+      
+    - name: Format code
+      run: go fmt ./...
+      
+    - name: Vet code
+      run: go vet ./...
+
+    - name: Build code
+      run: go build -v ./...

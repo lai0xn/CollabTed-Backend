@@ -11,12 +11,10 @@ import (
 	"github.com/lai0xn/squid-tech/pkg/types"
 )
 
-var jwtMiddelware echo.MiddlewareFunc
-
 func init() {
 	// Initialize the middlware
 	config.Load()
-	jwtMiddelware = echojwt.WithConfig(echojwt.Config{
+	echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(config.JWT_SECRET),
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(types.Claims)
