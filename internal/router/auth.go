@@ -1,8 +1,8 @@
 package router
 
 import (
+	"github.com/CollabTed/CollabTed-Backend/internal/handlers"
 	"github.com/labstack/echo/v4"
-	"github.com/lai0xn/squid-tech/internal/handlers"
 )
 
 func AuthRoutes(e *echo.Group) {

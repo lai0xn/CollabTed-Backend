@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"github.com/CollabTed/CollabTed-Backend/pkg/types"
 	"github.com/go-playground/validator/v10"
-	"github.com/lai0xn/squid-tech/pkg/types"
 )
 
 func NewValidationError(errors validator.ValidationErrors) types.ValidationError {

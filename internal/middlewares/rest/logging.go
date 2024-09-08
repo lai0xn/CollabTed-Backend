@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
 	"github.com/labstack/echo/v4"
-	"github.com/lai0xn/squid-tech/pkg/logger"
 )
 
 func LoggingMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

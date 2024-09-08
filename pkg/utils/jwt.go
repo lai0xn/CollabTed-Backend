@@ -3,9 +3,9 @@ package utils
 import (
 	"time"
 
+	"github.com/CollabTed/CollabTed-Backend/config"
+	"github.com/CollabTed/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lai0xn/squid-tech/config"
-	"github.com/lai0xn/squid-tech/pkg/types"
 )
 
 func GenerateJWT(id string, email string, name string) (string, error) {

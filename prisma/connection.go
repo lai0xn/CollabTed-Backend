@@ -1,6 +1,6 @@
 package prisma
 
-import "github.com/lai0xn/squid-tech/prisma/db"
+import "github.com/CollabTed/CollabTed-Backend/prisma/db"
 
 var (
 	Client *db.PrismaClient

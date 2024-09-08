@@ -3,12 +3,12 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/CollabTed/CollabTed-Backend/internal/services"
+	"github.com/CollabTed/CollabTed-Backend/pkg/mail"
+	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/lai0xn/squid-tech/internal/services"
-	"github.com/lai0xn/squid-tech/pkg/mail"
-	"github.com/lai0xn/squid-tech/pkg/types"
-	"github.com/lai0xn/squid-tech/pkg/utils"
 )
 
 type authHandler struct {
