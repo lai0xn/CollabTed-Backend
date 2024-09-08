@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/redis/go-redis/v9"
 )
 

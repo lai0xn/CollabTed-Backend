@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/labstack/echo/v4"
 )
 

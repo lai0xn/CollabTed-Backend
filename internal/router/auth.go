@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/CollabTed/CollabTed-Backend/internal/handlers"
+	"github.com/CollabTED/CollabTed-Backend/internal/handlers"
 	"github.com/labstack/echo/v4"
 )
 

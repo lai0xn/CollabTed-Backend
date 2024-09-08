@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
-	"github.com/CollabTed/CollabTed-Backend/prisma"
-	"github.com/CollabTed/CollabTed-Backend/prisma/db"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/prisma"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 )
 
 type ProfileService struct{}

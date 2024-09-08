@@ -3,8 +3,8 @@ package utils
 import (
 	"time"
 
-	"github.com/CollabTed/CollabTed-Backend/config"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 )
 

@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/CollabTed/CollabTed-Backend/internal/services"
-	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
-	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
+	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"golang.org/x/oauth2"
 
 	"github.com/labstack/echo/v4"

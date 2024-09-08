@@ -9,8 +9,8 @@ import (
 	"net/smtp"
 	"time"
 
-	"github.com/CollabTed/CollabTed-Backend/config"
-	"github.com/CollabTed/CollabTed-Backend/pkg/redis"
+	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	r "github.com/redis/go-redis/v9"
 )
 

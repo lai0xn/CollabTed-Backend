@@ -1,6 +1,6 @@
 package prisma
 
-import "github.com/CollabTed/CollabTed-Backend/prisma/db"
+import "github.com/CollabTED/CollabTed-Backend/prisma/db"
 
 var (
 	Client *db.PrismaClient

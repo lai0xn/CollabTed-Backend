@@ -1,4 +1,4 @@
-module github.com/CollabTed/CollabTed-Backend
+module github.com/CollabTED/CollabTed-Backend
 
 go 1.21
 
