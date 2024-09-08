@@ -1,0 +1,7 @@
+model Workplace {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  workplaceName String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  users         UserWorkplace[]
+}
