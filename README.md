@@ -17,21 +17,6 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
-  <a>
-    <img src="https://svgshare.com/i/187k.svg"alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">ECO backend</h3>
-
-  <p align="center">
-    backend for the eco event managment app
-    <br />
-    <a href="http://echobackend.laindev.me/swagger/index.html"><strong>Explore the docs »</strong></a>
-    <br />
-    <a href="http://echobackend.laindev.me">View Demo</a>
-  </p>
-</div>
 
 
 
@@ -53,7 +38,6 @@
       </ul>
     </li>
     <li><a href="#docs">Documentation</a></li>
-    <li><a href="#graphql">Graphql</a></li>
     <li><a href="#db">DB Diagram</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
   </ol>
@@ -64,9 +48,8 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](http://echobackend.laindev.me/swagger/index.html)
 
-the backend part of the squid-tech hackathon project
+the backend of CollabTED
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -98,7 +81,7 @@ you need to have go installed
 1. Clone the repo 
 
     ```sh
-   git clone https://github.com/lai0xn/squid-tech.git
+   git clone https://github.com/CollabTED/CollabTed-Backend
    ```
 2. Generate the db
 
@@ -128,27 +111,11 @@ docker-compose up web -d
 # Documentation
 Check the docs at /swagger/index.html
 
-<div id="docs">
-    <img src="https://i.imgur.com/akLv58e.png"alt="Logo" >
-</div>
 
 <!-- USAGE EXAMPLES -->
-# GraphQl
-you can use the playground at the route /graphql
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<div id="graphql">
-    <img src="https://i.imgur.com/BCaZA8H.png"alt="Logo">
-  </div>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 # DB Diagram
 
-<div id="db">
-    <img src="https://i.imgur.com/VJbswBg.jpeg">
-</div>
 
 
 <!-- ROADMAP -->
@@ -158,11 +125,6 @@ you can use the playground at the route /graphql
 - [x] Google And Facebook Oath
 - [x] Email Verification
 - [x] Profile Managmenent
-- [x] Event Managment
-- [x] Posts Managment
-- [x] Event Applications
-- [x] Organizations
-- [x] Achievments and Badges
 - [x] Notifications with SSE
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

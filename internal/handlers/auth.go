@@ -73,8 +73,8 @@ func (h *authHandler) Register(c echo.Context) error {
 		e := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(e))
 	}
-	//TODO: fix gender
-	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.Gender)
+	// TODO: fix gender
+	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
