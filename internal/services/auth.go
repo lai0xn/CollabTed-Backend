@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
-	"github.com/CollabTed/CollabTed-Backend/prisma"
-	"github.com/CollabTed/CollabTed-Backend/prisma/db"
+	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
+	"github.com/CollabTED/CollabTed-Backend/prisma"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 )
 
 type AuthService struct{}

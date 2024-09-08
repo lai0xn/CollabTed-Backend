@@ -3,8 +3,8 @@ package config
 import (
 	"os"
 
-	"github.com/CollabTed/CollabTed-Backend/pkg/logger"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"

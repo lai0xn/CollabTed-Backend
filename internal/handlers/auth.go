@@ -3,10 +3,10 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/CollabTed/CollabTed-Backend/internal/services"
-	"github.com/CollabTed/CollabTed-Backend/pkg/mail"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
-	"github.com/CollabTed/CollabTed-Backend/pkg/utils"
+	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/CollabTed/CollabTed-Backend/pkg/redis"
+	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/labstack/echo/v4"
 	r "github.com/redis/go-redis/v9"
 )

@@ -3,9 +3,9 @@ package router
 import (
 	"net/http"
 
-	"github.com/CollabTed/CollabTed-Backend/config"
-	"github.com/CollabTed/CollabTed-Backend/internal/sse"
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/internal/sse"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"

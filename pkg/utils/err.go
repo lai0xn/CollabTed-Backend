@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/CollabTed/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/go-playground/validator/v10"
 )
 
