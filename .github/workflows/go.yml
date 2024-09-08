@@ -24,6 +24,12 @@ jobs:
       with:
         go-version: '1.22.5'
 
+    - name: Generate Prisma db
+      run : go run github.com/steebchen/prisma-client-go generate --schema ./prisma
+
+    - name: Push db
+      run:  go run github.com/steebchen/prisma-client-go db push --schema ./prisma
+
     - name: Install dependencies
       run: go mod tidy
 
