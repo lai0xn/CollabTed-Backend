@@ -7,9 +7,9 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 )
 
-// @title			Squid Tech API
+// @title			CollabTED
 // @version		1.0
-// @description	backend of the event management app.
+// @description	REST Api of the CollabTED project.
 // @host			localhost:8080
 // @BasePath		/api/v1
 func main() {
