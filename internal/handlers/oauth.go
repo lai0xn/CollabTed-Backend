@@ -96,7 +96,7 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token: "+err.Error())
 	}
 
-	redirectURL := os.Getenv("HOST_URL") + "/login?token=" + tokenString
+	redirectURL := os.Getenv("HOST_URL") + "/oauth/callback?token=" + tokenString
 	logger.Logger.Info().Msgf("Redirecting to %s", redirectURL)
 	return c.Redirect(http.StatusFound, redirectURL)
 }

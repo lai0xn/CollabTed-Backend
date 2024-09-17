@@ -30,4 +30,5 @@ func SetRoutes(e *echo.Echo) {
 	e.GET("/notifications", sse.NotificationHandler)
 	v1 := e.Group("/api/v1")
 	AuthRoutes(v1)
+	OAuthRoutes(v1)
 }

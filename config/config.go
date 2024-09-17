@@ -12,7 +12,10 @@ import (
 )
 
 var (
-	JWT_SECRET     string
+	JWT_SECRET string
+
+	EMAIL_HOST     string
+	EMAIL_PORT     string
 	EMAIL          string
 	EMAIL_PASSWORD string
 )
@@ -47,6 +50,10 @@ func Load() {
 
 	// JWT Secret
 	JWT_SECRET = os.Getenv("JWT_SECRET")
+
+	// Email configuration
+	EMAIL_HOST = os.Getenv("EMAIL_HOST")
+	EMAIL_PORT = os.Getenv("EMAIL_PORT")
 	EMAIL = os.Getenv("EMAIL")
 	EMAIL_PASSWORD = os.Getenv("EMAIL_PASSWORD")
 

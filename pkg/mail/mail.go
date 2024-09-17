@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io"
 	"net/smtp"
+	"regexp"
 	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	r "github.com/redis/go-redis/v9"
 )
@@ -39,13 +41,16 @@ func (v *EmailVerifier) GenerateOTP() string {
 }
 
 func (v *EmailVerifier) SendVerfication(userID string, to []string) error {
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
+	smtpHost := config.EMAIL_HOST
+	smtpPort := config.EMAIL_PORT
 	otp := v.GenerateOTP()
 	message := []byte(fmt.Sprintf("Verification code is %s", otp))
-	v.client.Set(context.Background(), "userOTP:"+userID, otp, time.Hour*1)
-	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
 
+	// Log OTP being set
+	logger.LogInfo().Msg(fmt.Sprintf("Storing OTP: %s for key: %s", otp, userID))
+	v.client.Set(context.Background(), userID, otp, time.Hour*1)
+
+	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, to, message)
 	if err != nil {
 		return err
@@ -54,9 +59,23 @@ func (v *EmailVerifier) SendVerfication(userID string, to []string) error {
 }
 
 func (v *EmailVerifier) Verify(userID string, otp string) error {
-	userOTP := v.client.Get(context.Background(), "userOTP:"+userID).Val()
+	logger.LogDebug().Msg(fmt.Sprintf("Verifying OTP: %s for userID: %s", otp, userID))
+
+	userOTP := v.client.Get(context.Background(), userID).Val()
+	logger.LogDebug().Msg(fmt.Sprintf("Retrieved OTP from cache: %s", userOTP))
+
+	if userOTP == "" {
+		return errors.New("verification failed: OTP not found")
+	}
+
 	if userOTP != otp {
-		return errors.New("verification failed")
+		return errors.New("verification failed: OTP does not match")
 	}
 	return nil
+}
+
+func IsValidEmail(email string) bool {
+	const emailPattern = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` // this should be updated later
+	re := regexp.MustCompile(emailPattern)
+	return re.MatchString(email)
 }
