@@ -111,3 +111,10 @@ func (h *authHandler) VerifyUser(c echo.Context) error {
 		"message": "user activated",
 	})
 }
+
+func (h *authHandler) CheckUser(c echo.Context) error {
+	if c.Get("user") == nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
+	}
+	return c.JSON(http.StatusOK, map[string]string{"status": "authenticated"})
+}

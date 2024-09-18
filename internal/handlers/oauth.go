@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"golang.org/x/oauth2"
@@ -91,13 +90,11 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	}
 
 	// Generate JWT token
-	tokenString, err := utils.GenerateJWT(user.ID, user.Email, user.Name)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token: "+err.Error())
+	if err := utils.SetJWTAsCookie(c.Response().Writer, user.ID, user.Email, user.Name); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to set JWT cookie")
 	}
 
-	redirectURL := os.Getenv("HOST_URL") + "/oauth/callback?token=" + tokenString
-	logger.Logger.Info().Msgf("Redirecting to %s", redirectURL)
+	redirectURL := os.Getenv("HOST_URL")
 	return c.Redirect(http.StatusFound, redirectURL)
 }
 
