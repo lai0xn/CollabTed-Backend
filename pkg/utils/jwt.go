@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -17,22 +20,38 @@ func GenerateJWT(id string, email string, name string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	})
+
 	tokenString, err := token.SignedString([]byte(config.JWT_SECRET))
 	if err != nil {
 		return "", err
 	}
+
 	return tokenString, nil
 }
 
-func ParseToken(tokenString string) (*jwt.Token, error) {
-	claims := new(types.Claims)
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-
-		return []byte(config.JWT_SECRET), nil
-	})
+func SetJWTAsCookie(w http.ResponseWriter, id string, email string, name string) error {
+	jwtToken, err := GenerateJWT(id, email, name)
 	if err != nil {
-		return nil, err
+		logger.LogError().Msgf("Error generating JWT: %v", err)
+		return err
 	}
 
-	return token, nil
+	if jwtToken == "" {
+		errMsg := "Generated JWT token is empty"
+		log.Println(errMsg)
+		return http.ErrNoCookie
+	}
+
+	cookie := &http.Cookie{
+		Name:     "jwt",                          // Cookie name
+		Value:    jwtToken,                       // JWT token
+		Expires:  time.Now().Add(72 * time.Hour), // Same as JWT expiration
+		HttpOnly: true,                           // Ensure cookie is HttpOnly
+		Secure:   config.SECURE_COOKIE,           // Set to true in production (requires HTTPS)
+		Path:     "/",                            // Cookie path
+		SameSite: http.SameSiteStrictMode,        // Control cross-site requests
+	}
+
+	http.SetCookie(w, cookie)
+	return nil
 }

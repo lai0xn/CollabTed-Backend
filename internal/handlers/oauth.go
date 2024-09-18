@@ -80,7 +80,7 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	// Check if the user exists
 	existingUser, err := h.srv.GetUserByEmail(user.Email)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to sqdfqsdfqsdf user existence")
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to check user existence")
 	}
 
 	// If user doesn't exist, create a new user

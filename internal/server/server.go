@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/CollabTED/CollabTed-Backend/config"
 	middlewares "github.com/CollabTED/CollabTed-Backend/internal/middlewares/rest"
 	"github.com/CollabTED/CollabTed-Backend/internal/router"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
@@ -26,9 +27,10 @@ func (s *Server) Setup(e *echo.Echo) {
 
 	// CORS configuration
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"}, // TODO: change this
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowOrigins:     []string{config.ALLOWED_ORIGINS},
+		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowCredentials: true,
 	}))
 
 	// logging middleware
