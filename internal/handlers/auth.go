@@ -36,22 +36,24 @@ func (h *authHandler) Login(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	err := validate.Struct(payload)
 	if err != nil {
 		e := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(e))
 	}
+
 	user, err := h.srv.CheckUser(payload.Email, payload.Password)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
-	}
-	// Generate JWT token using the utility function
-	tokenString, err := utils.GenerateJWT(user.ID, user.Email, user.Name)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	if err := utils.SetJWTAsCookie(c.Response().Writer, user.ID, user.Email, user.Name); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to set JWT cookie")
+	}
+
 	return c.JSON(http.StatusOK, types.Response{
-		"token": tokenString,
+		"message": "token set",
 	})
 }
 

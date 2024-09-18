@@ -1,7 +1,9 @@
 package config
 
 import (
+	"log"
 	"os"
+	"strconv"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
@@ -12,15 +14,19 @@ import (
 )
 
 var (
-	JWT_SECRET string
-
-	EMAIL_HOST     string
-	EMAIL_PORT     string
-	EMAIL          string
-	EMAIL_PASSWORD string
+	JWT_SECRET      string
+	EMAIL_HOST      string
+	EMAIL_PORT      string
+	EMAIL           string
+	EMAIL_PASSWORD  string
+	SECURE_COOKIE   bool
+	ALLOWED_ORIGINS string
 )
 
 func Load() {
+	// Initialize the logger
+	logger.NewLogger()
+
 	// OAuth configuration
 	err := godotenv.Load()
 	if err != nil {
@@ -57,6 +63,13 @@ func Load() {
 	EMAIL = os.Getenv("EMAIL")
 	EMAIL_PASSWORD = os.Getenv("EMAIL_PASSWORD")
 
-	// Initialize the logger
-	logger.NewLogger()
+	// Secure Cookie
+	SECURE_COOKIE, err = strconv.ParseBool(os.Getenv("SECURE_COOKIE"))
+	if err != nil {
+		log.Printf("Error parsing SECURE_COOKIE environment variable: %v", err)
+		SECURE_COOKIE = false
+	}
+
+	// Allowed Origins
+	ALLOWED_ORIGINS = os.Getenv("ALLOWED_ORIGINS")
 }
