@@ -71,8 +71,8 @@ func (h *workspaceHandler) GetWorkspace(c echo.Context) error {
 //	@Accept		json
 //	@Produce	json
 //	@Param		Authorization	header	string	true	"Bearer token"
-//	@Param		body		body		types.Invitation	true	"Invitation details"
-//	@Success	200		{object}	types.Invitation
+//	@Param		body		body		types.InvitationD	true	"Invitation details"
+//	@Success	200		{object}	types.InvitationD
 //	@Security	BearerAuth
 //	@Router		/invitations [post]
 func (h *workspaceHandler) CreateInvitation(c echo.Context) error {

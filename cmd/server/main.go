@@ -13,8 +13,8 @@ import (
 // @host			localhost:8080
 // @BasePath		/api/v1
 func main() {
+	redis.Connect()
 	s := server.NewServer(":8080")
 	prisma.Connect()
-	redis.Connect()
 	s.Run()
 }

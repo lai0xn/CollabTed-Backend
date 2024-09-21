@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
 	"os"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
@@ -16,12 +17,16 @@ func Connect() {
 		Addr:     os.Getenv("REDIS_ADDR"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		Username: os.Getenv("REDIS_USERNAME"),
+
+		// #nosec G402
+		TLSConfig: &tls.Config{}, // could be changed to TLSConfig: &tls.Config{InsecureSkipVerify: true} when working on local redis instnace
 	})
 
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
 		logger.Logger.Err(err)
 	}
+
 	logger.Logger.Info().Msg("Connected to Redis successfully!")
 }
 
