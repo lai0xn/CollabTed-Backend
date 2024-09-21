@@ -9,6 +9,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func GenerateJWT(id string, email string, name string) (string, error) {
@@ -54,4 +55,9 @@ func SetJWTAsCookie(w http.ResponseWriter, id string, email string, name string)
 
 	http.SetCookie(w, cookie)
 	return nil
+}
+
+func GenerateInvitationToken() (string, error) {
+	toekn := uuid.NewString()
+	return toekn, nil
 }

@@ -128,3 +128,10 @@ func (h *authHandler) CheckUser(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "authenticated"})
 }
+
+func (h *authHandler) Me(c echo.Context) error {
+	if c.Get("user") == nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
+	}
+	return c.JSON(http.StatusOK, c.Get("user"))
+}

@@ -31,4 +31,5 @@ func SetRoutes(e *echo.Echo) {
 	v1 := e.Group("/api/v1")
 	AuthRoutes(v1)
 	OAuthRoutes(v1)
+	WorkspaceRoutes(v1)
 }
