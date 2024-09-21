@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -14,21 +15,52 @@ func NewWorkspaceService() *WorkspaceService {
 	return &WorkspaceService{}
 }
 
-func (s *WorkspaceService) CreateWorksapce(data types.WorkspaceD) (*db.WorkplaceModel, error) {
-	result, err := prisma.Client.Workplace.CreateOne(
-		db.Workplace.WorkplaceName.Set(data.Name),
+func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.WorkspaceModel, error) {
+	result, err := prisma.Client.Workspace.CreateOne(
+		db.Workspace.WorkspaceName.Set(data.Name),
+		db.Workspace.Owner.Link(
+			db.User.ID.Equals(data.OwnerID),
+		),
 	).Exec(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
-	return result, err
+
+	_, err = prisma.Client.UserWorkspace.CreateOne(
+		db.UserWorkspace.User.Link(
+			db.User.ID.Equals(data.OwnerID),
+		),
+		db.UserWorkspace.Workspace.Link(
+			db.Workspace.ID.Equals(result.ID),
+		),
+		db.UserWorkspace.Role.Set(db.UserRoleAdmin),
+		db.UserWorkspace.JoinedAt.Set(time.Now()),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
-func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkplaceModel, error) {
-	result, err := prisma.Client.Workplace.FindMany(
-		db.Workplace.Users.Some(
-			db.UserWorkplace.UserID.Equals(userID),
+func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkspaceModel, error) {
+	result, err := prisma.Client.Workspace.FindMany(
+		db.Workspace.Users.Some(
+			db.UserWorkspace.UserID.Equals(userID),
 		),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *WorkspaceService) GetWorkspace(workspaceId string) (*db.WorkspaceModel, error) {
+	result, err := prisma.Client.Workspace.FindUnique(
+		db.Workspace.ID.Equals(workspaceId),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err

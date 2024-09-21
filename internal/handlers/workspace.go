@@ -34,7 +34,7 @@ func (h *workspaceHandler) Create(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	data, err := h.srv.CreateWorksapce(payload)
+	data, err := h.srv.CreateWorkspace(payload)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

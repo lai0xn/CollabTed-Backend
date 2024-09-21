@@ -43,6 +43,7 @@ func (h *oauthHandler) handleLogin(c echo.Context, provider string) error {
 }
 
 func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
+	var user types.OAuthUser
 	oauthConfig, err := h.getConfig(provider)
 	if err != nil {
 		return err
@@ -66,12 +67,6 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	}
 	defer userInfo.Body.Close()
 
-	var user struct {
-		ID    string `json:"id"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
 	if err := json.NewDecoder(userInfo.Body).Decode(&user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to decode user info: "+err.Error())
 	}
@@ -82,9 +77,8 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to check user existence")
 	}
 
-	// If user doesn't exist, create a new user
 	if existingUser == nil {
-		if _, err := h.srv.CreateUser(user.Name, user.Email, ""); err != nil {
+		if _, err := h.srv.CreateUser(user.ID, user.Name, user.Email, user.ProfilePicture); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user: "+err.Error())
 		}
 	}

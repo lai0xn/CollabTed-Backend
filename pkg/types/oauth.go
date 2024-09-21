@@ -8,3 +8,10 @@ type OAuthProvider struct {
 }
 
 var OAuth2Configs map[string]*OAuthProvider
+
+type OAuthUser struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Email          string `json:"email"`
+	ProfilePicture string `json:"picture"`
+}
