@@ -43,6 +43,7 @@ func (h *oauthHandler) handleLogin(c echo.Context, provider string) error {
 }
 
 func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
+	var user types.RegisterPayload
 	oauthConfig, err := h.getConfig(provider)
 	if err != nil {
 		return err
@@ -66,12 +67,6 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	}
 	defer userInfo.Body.Close()
 
-	var user struct {
-		ID    string `json:"id"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
 	if err := json.NewDecoder(userInfo.Body).Decode(&user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to decode user info: "+err.Error())
 	}
@@ -82,15 +77,20 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to check user existence")
 	}
 
-	// If user doesn't exist, create a new user
+	var userID string
+
 	if existingUser == nil {
-		if _, err := h.srv.CreateUser(user.Name, user.Email, ""); err != nil {
+		newUser, err := h.srv.CreateUser(user.Name, user.Email, "", user.ProfilePicture)
+		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user: "+err.Error())
 		}
+		userID = newUser.ID
+	} else {
+		userID = existingUser.ID
 	}
 
 	// Generate JWT token
-	if err := utils.SetJWTAsCookie(c.Response().Writer, user.ID, user.Email, user.Name); err != nil {
+	if err := utils.SetJWTAsCookie(c.Response().Writer, userID, user.Email, user.Name); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to set JWT cookie")
 	}
 

@@ -46,8 +46,6 @@ func (v *EmailVerifier) SendVerfication(userID string, to []string) error {
 	otp := v.GenerateOTP()
 	message := []byte(fmt.Sprintf("Verification code is %s", otp))
 
-	// Log OTP being set
-	logger.LogInfo().Msg(fmt.Sprintf("Storing OTP: %s for key: %s", otp, userID))
 	v.client.Set(context.Background(), userID, otp, time.Hour*1)
 
 	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)

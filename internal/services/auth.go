@@ -16,7 +16,7 @@ func NewAuthService() *AuthService {
 	return &AuthService{}
 }
 
-func (s *AuthService) CreateUser(name string, email string, password string) (*db.UserModel, error) {
+func (s *AuthService) CreateUser(name string, email string, password string, profilePicture string) (*db.UserModel, error) {
 	ctx := context.Background()
 
 	encrypted_password, err := utils.Encrypt(password)
@@ -27,6 +27,7 @@ func (s *AuthService) CreateUser(name string, email string, password string) (*d
 		db.User.Email.Set(email),
 		db.User.Name.Set(name),
 		db.User.Password.Set(encrypted_password),
+		db.User.ProfilePicture.Set(profilePicture),
 		db.User.Active.Set(false),
 	).Exec(ctx)
 	if err != nil {

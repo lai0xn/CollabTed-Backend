@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
@@ -70,19 +72,27 @@ func (h *authHandler) Register(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	err := validate.Struct(payload)
 	if err != nil {
 		e := err.(validator.ValidationErrors)
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(e))
 	}
-	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password)
+
+	if payload.ProfilePicture == "" {
+		payload.ProfilePicture = fmt.Sprintf("https://ui-avatars.com/api/?name=%s", url.QueryEscape(payload.Name))
+	}
+
+	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = h.verifier.SendVerfication(user.ID, []string{user.Email})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, types.Response{
 		"message": "verification email sent",
 		"userID":  user.ID,
@@ -117,4 +127,11 @@ func (h *authHandler) CheckUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "authenticated"})
+}
+
+func (h *authHandler) Me(c echo.Context) error {
+	if c.Get("user") == nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
+	}
+	return c.JSON(http.StatusOK, c.Get("user"))
 }

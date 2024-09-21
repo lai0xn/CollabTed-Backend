@@ -1,0 +1,17 @@
+model Invitation {
+    id          String           @id @default(auto()) @map("_id") @db.ObjectId
+    email       String
+    token       String
+    status      InvitationStatus @default(PENDING)
+    workSpaceId String           @db.ObjectId
+    workspace   Workspace        @relation(fields: [workSpaceId], references: [id])
+    createdAt   DateTime         @default(now())
+    updatedAt   DateTime         @updatedAt
+}
+
+enum InvitationStatus {
+    PENDING
+    ACCEPTED
+    DECLINED
+}
+
