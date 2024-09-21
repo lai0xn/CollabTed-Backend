@@ -5,7 +5,6 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -52,8 +51,12 @@ func (h *workspaceHandler) CreateWorkspace(c echo.Context) error {
 //	@Security	BearerAuth
 //	@Router		/workspaces [get]
 func (h *workspaceHandler) GetWorkspace(c echo.Context) error {
-	t := c.Get("user").(*jwt.Token)
-	claims := t.Claims.(types.Claims)
+	if c.Get("user") == nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
+	}
+
+	claims := c.Get("user").(*types.Claims)
+
 	data, err := h.srv.ListWorkspaces(claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
