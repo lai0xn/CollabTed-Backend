@@ -12,11 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateJWT(id string, email string, name string) (string, error) {
+func GenerateJWT(id string, email string, name string, profilePicture string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &types.Claims{
-		ID:    id,
-		Name:  name,
-		Email: email,
+		ID:             id,
+		Name:           name,
+		Email:          email,
+		ProfilePicture: profilePicture,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
@@ -30,8 +31,8 @@ func GenerateJWT(id string, email string, name string) (string, error) {
 	return tokenString, nil
 }
 
-func SetJWTAsCookie(w http.ResponseWriter, id string, email string, name string) error {
-	jwtToken, err := GenerateJWT(id, email, name)
+func SetJWTAsCookie(w http.ResponseWriter, id string, email string, name string, profilePicture string) error {
+	jwtToken, err := GenerateJWT(id, email, name, profilePicture)
 	if err != nil {
 		logger.LogError().Msgf("Error generating JWT: %v", err)
 		return err

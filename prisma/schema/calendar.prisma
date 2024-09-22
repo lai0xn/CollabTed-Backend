@@ -1,0 +1,16 @@
+model Event {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    description String?
+    startTime   DateTime
+    endTime     DateTime
+    type        EventType @default(EVENT)
+    workspaceId String    @db.ObjectId
+    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+enum EventType {
+    EVENT
+    MEET
+    WORKING_HOURS
+}

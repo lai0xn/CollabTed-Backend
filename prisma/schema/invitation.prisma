@@ -2,11 +2,14 @@ model Invitation {
     id          String           @id @default(auto()) @map("_id") @db.ObjectId
     email       String
     token       String
-    status      InvitationStatus @default(PENDING)
     workSpaceId String           @db.ObjectId
-    workspace   Workspace        @relation(fields: [workSpaceId], references: [id])
+    status      InvitationStatus @default(PENDING)
     createdAt   DateTime         @default(now())
     updatedAt   DateTime         @updatedAt
+
+    @@index([email])
+    @@index([id])
+    
 }
 
 enum InvitationStatus {

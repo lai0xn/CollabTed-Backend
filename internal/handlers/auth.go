@@ -50,7 +50,7 @@ func (h *authHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := utils.SetJWTAsCookie(c.Response().Writer, user.ID, user.Email, user.Name); err != nil {
+	if err := utils.SetJWTAsCookie(c.Response().Writer, user.ID, user.Email, user.Name, user.ProfilePicture); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to set JWT cookie")
 	}
 
