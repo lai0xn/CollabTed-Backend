@@ -5,16 +5,19 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/labstack/echo/v4"
 )
 
 type calendarHandler struct {
-	srv services.EventService
+	srv          services.EventService
+	workspaceSrv services.WorkspaceService
 }
 
 func NewCalendarHandler() *calendarHandler {
 	return &calendarHandler{
-		srv: *services.NewEventService(),
+		srv:          *services.NewEventService(),
+		workspaceSrv: *services.NewWorkspaceService(),
 	}
 }
 
@@ -34,7 +37,22 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Call service to create event
+	claims := c.Get("user").(*types.Claims)
+
+	canCreateAdmin, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Error checking user permissions: "+err.Error())
+	}
+
+	canCreateManager, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Error checking user permissions: "+err.Error())
+	}
+
+	if !canCreateAdmin && !canCreateManager {
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create an event in this workspace")
+	}
+
 	data, err := h.srv.CreateEvent(payload)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -59,7 +77,6 @@ func (h *calendarHandler) ListEvents(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "workspaceId is required")
 	}
 
-	// Call service to list events by workspace
 	data, err := h.srv.ListEventsByWorkspace(workspaceID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

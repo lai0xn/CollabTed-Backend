@@ -67,3 +67,20 @@ func (s *WorkspaceService) GetWorkspaceById(workspaceId string) (*db.WorkspaceMo
 	}
 	return result, nil
 }
+
+func (s *WorkspaceService) CanUserPerformAction(userId, workspaceId string, requiredRole db.UserRole) (bool, error) {
+	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userId),
+		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
+	).Exec(context.Background())
+
+	if err != nil {
+		return false, err
+	}
+
+	if userWorkspace == nil {
+		return false, nil
+	}
+
+	return userWorkspace.Role == requiredRole, nil
+}
