@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  types.InvitationD:
+    properties:
+      email:
+        type: string
+      status:
+        type: string
+      token:
+        type: string
+      workspaceId:
+        type: string
+    type: object
   types.LoginPayload:
     properties:
       email:
@@ -18,6 +29,8 @@ definitions:
         type: string
       password:
         type: string
+      profile_picture:
+        type: string
     required:
     - email
     - name
@@ -25,6 +38,8 @@ definitions:
     type: object
   types.WorkspaceD:
     properties:
+      owner_id:
+        type: string
       workspace_name:
         type: string
     type: object
@@ -90,6 +105,34 @@ paths:
       summary: Verification endpoint
       tags:
       - auth
+  /invitations:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Invitation details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/types.InvitationD'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.InvitationD'
+      security:
+      - BearerAuth: []
+      summary: Create an invitation
+      tags:
+      - workspace
   /oauth/facebook/callback:
     get:
       consumes:

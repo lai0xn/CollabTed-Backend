@@ -90,7 +90,7 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	}
 
 	// Generate JWT token
-	if err := utils.SetJWTAsCookie(c.Response().Writer, userID, user.Email, user.Name); err != nil {
+	if err := utils.SetJWTAsCookie(c.Response().Writer, userID, user.Email, user.Name, user.ProfilePicture); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to set JWT cookie")
 	}
 

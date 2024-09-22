@@ -20,6 +20,6 @@ type AcceptInviteRequest struct {
 type InvitationD struct {
 	Email       string `json:"email"`
 	Token       string `json:"token"`
-	Status      string `json:"status"`
 	WorkspaceID string `json:"workspaceId"`
+	Status      string `json:"status"`
 }

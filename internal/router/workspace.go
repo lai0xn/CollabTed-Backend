@@ -9,9 +9,10 @@ import (
 func WorkspaceRoutes(e *echo.Group) {
 	h := handlers.NewWorkspaceHandler()
 	workspaces := e.Group("/workspaces", middlewares.AuthMiddleware)
-	workspaces.GET("/workspace", h.GetWorkspace)
+	workspaces.GET("/", h.GetWorkspaces)
 	workspaces.POST("/create", h.CreateWorkspace)
-	workspaces.POST("/invite", h.CreateInvitation)
+	workspaces.GET("/:id", h.GetWorkspaceById)
+	workspaces.POST("/invite", h.InviteUser)
 	workspaces.GET("/accept", h.AcceptInvitation)
-	workspaces.GET("/decline", h.DeclineInvitation)
+	// // workspaces.GET("/decline", h.DeclineInvitation)
 }

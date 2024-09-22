@@ -98,6 +98,51 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/invitations": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspace"
+                ],
+                "summary": "Create an invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Invitation details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.InvitationD"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.InvitationD"
+                        }
+                    }
+                }
+            }
+        },
         "/oauth/facebook/callback": {
             "get": {
                 "consumes": [
@@ -249,6 +294,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "types.InvitationD": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "workspaceId": {
+                    "type": "string"
+                }
+            }
+        },
         "types.LoginPayload": {
             "type": "object",
             "required": [
@@ -280,12 +342,18 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "profile_picture": {
+                    "type": "string"
                 }
             }
         },
         "types.WorkspaceD": {
             "type": "object",
             "properties": {
+                "owner_id": {
+                    "type": "string"
+                },
                 "workspace_name": {
                     "type": "string"
                 }

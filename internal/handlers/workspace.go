@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/prisma"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -33,11 +37,30 @@ func (h *workspaceHandler) CreateWorkspace(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	data, err := h.srv.CreateWorkspace(payload)
+
+	workspace, err := h.srv.CreateWorkspace(payload)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusCreated, data)
+
+	claims := c.Get("user").(*types.Claims)
+
+	_, err = prisma.Client.UserWorkspace.CreateOne(
+		db.UserWorkspace.User.Link(
+			db.User.ID.Equals(claims.ID),
+		),
+		db.UserWorkspace.Workspace.Link(
+			db.Workspace.ID.Equals(workspace.ID),
+		),
+		db.UserWorkspace.Role.Set(db.UserRoleAdmin),
+		db.UserWorkspace.JoinedAt.Set(time.Now()),
+	).Exec(context.Background())
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to associate user with workspace: "+err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, workspace)
 }
 
 // GetWorkspaces example
@@ -50,7 +73,7 @@ func (h *workspaceHandler) CreateWorkspace(c echo.Context) error {
 //	@Success	200		{array}		types.WorkspaceD
 //	@Security	BearerAuth
 //	@Router		/workspaces [get]
-func (h *workspaceHandler) GetWorkspace(c echo.Context) error {
+func (h *workspaceHandler) GetWorkspaces(c echo.Context) error {
 	if c.Get("user") == nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
 	}
@@ -64,50 +87,69 @@ func (h *workspaceHandler) GetWorkspace(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-// CreateInvitation example
+// Get workspace by id
 //
-//	@Summary	Create an invitation
+//	@Summary	Get workspace by id
+//	@Tags		workspace
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Workspace id"
+//	@Success	200	{object}	types.WorkspaceD
+//	@Router		/workspaces/{id} [get]
+func (h *workspaceHandler) GetWorkspaceById(c echo.Context) error {
+	workspaceId := c.Param("id")
+	data, err := h.srv.GetWorkspaceById(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
+// InviteUser example
+//
+//	@Summary	Invite a user to a workspace
 //	@Tags		workspace
 //	@Accept		json
 //	@Produce	json
 //	@Param		Authorization	header	string	true	"Bearer token"
-//	@Param		body		body		types.Invitation	true	"Invitation details"
-//	@Success	200		{object}	types.Invitation
-//	@Security	BearerAuth
-//	@Router		/invitations [post]
-func (h *workspaceHandler) CreateInvitation(c echo.Context) error {
-	var payload types.InviteUserRequest
-
+//	@Param		body		body		types.InviteUserD	true	"Invitation details"
+//	@Success	200		{string}	string	"Invitation sent successfully"
+//	@Router		/workspaces/invite [post]
+func (h *workspaceHandler) InviteUser(c echo.Context) error {
+	var payload types.InviteUserD
 	if err := c.Bind(&payload); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	invitation, err := services.CreateInvitation(payload.Email, payload.WorkspaceID)
+	claims := c.Get("user").(*types.Claims)
+	// Check if the user has permission to invite (admin or manager)
+	canInvite, err := h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
+	if err != nil || !canInvite {
+		canInvite, err = h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
+	}
+	if err != nil || !canInvite {
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to invite users to this workspace")
+	}
+
+	err = h.srv.SendInvitation(payload.Email, payload.WorkspaceID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to send invitation: "+err.Error())
 	}
 
-	return c.JSON(http.StatusOK, invitation)
+	return c.JSON(http.StatusOK, "Invitation sent successfully")
 }
 
 func (h *workspaceHandler) AcceptInvitation(c echo.Context) error {
 	token := c.QueryParam("token")
-
-	invitation, err := services.AcceptInvitation(token)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+	if token == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Token is required")
 	}
 
-	return c.JSON(http.StatusOK, invitation)
-}
-
-func (h *workspaceHandler) DeclineInvitation(c echo.Context) error {
-	token := c.QueryParam("token")
-
-	invitation, err := services.DeclineInvitation(token)
+	claims := c.Get("user").(*types.Claims)
+	err := h.srv.AcceptInvitation(claims.ID, token)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, invitation)
+	return c.JSON(http.StatusOK, "Successfully joined the workspace")
 }

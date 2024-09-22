@@ -1,12 +1,11 @@
 model Invitation {
-    id          String           @id @default(auto()) @map("_id") @db.ObjectId
-    email       String
-    token       String
-    status      InvitationStatus @default(PENDING)
-    workSpaceId String           @db.ObjectId
-    workspace   Workspace        @relation(fields: [workSpaceId], references: [id])
-    createdAt   DateTime         @default(now())
-    updatedAt   DateTime         @updatedAt
+    id         String           @id @default(auto()) @map("_id") @db.ObjectId
+    email      String           @unique
+    token      String           @unique
+    workspaceId String           @db.ObjectId
+    status     InvitationStatus @default(PENDING)
+    createdAt  DateTime         @default(now())
+    Workspace  Workspace        @relation(fields: [workspaceId], references: [id])
 }
 
 enum InvitationStatus {
@@ -14,4 +13,3 @@ enum InvitationStatus {
     ACCEPTED
     DECLINED
 }
-

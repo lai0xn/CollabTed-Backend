@@ -20,6 +20,7 @@ var (
 	EMAIL           string
 	EMAIL_PASSWORD  string
 	SECURE_COOKIE   bool
+	HOST_URL        string
 	ALLOWED_ORIGINS string
 )
 
@@ -69,6 +70,9 @@ func Load() {
 		log.Printf("Error parsing SECURE_COOKIE environment variable: %v", err)
 		SECURE_COOKIE = false
 	}
+
+	// HOST URL
+	HOST_URL = os.Getenv("HOST_URL")
 
 	// Allowed Origins
 	ALLOWED_ORIGINS = os.Getenv("ALLOWED_ORIGINS")

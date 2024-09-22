@@ -75,5 +75,25 @@ func (v *EmailVerifier) Verify(userID string, otp string) error {
 func IsValidEmail(email string) bool {
 	const emailPattern = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` // this should be updated later
 	re := regexp.MustCompile(emailPattern)
+
 	return re.MatchString(email)
+}
+
+func (v *EmailVerifier) SendInvitationMail(to []string, link string) error {
+	smtpHost := config.EMAIL_HOST
+	smtpPort := config.EMAIL_PORT
+
+	subject := "You're Invited!"
+	body := fmt.Sprintf("You've been invited to join a workspace.\nClick the link to accept: %s", link)
+
+	message := []byte(fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, body))
+
+	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
+
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, to, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

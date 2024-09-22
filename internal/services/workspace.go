@@ -2,20 +2,25 @@ package services
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
+	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 )
 
-type WorkspaceService struct{}
+type WorkspaceService struct {
+	sender *mail.EmailVerifier
+}
 
 func NewWorkspaceService() *WorkspaceService {
-	return &WorkspaceService{}
+	return &WorkspaceService{
+		sender: mail.NewVerifier(),
+	}
 }
 
 func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.WorkspaceModel, error) {
@@ -61,7 +66,7 @@ func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkspaceModel, e
 	return result, nil
 }
 
-func (s *WorkspaceService) GetWorkspace(workspaceId string) (*db.WorkspaceModel, error) {
+func (s *WorkspaceService) GetWorkspaceById(workspaceId string) (*db.WorkspaceModel, error) {
 	result, err := prisma.Client.Workspace.FindUnique(
 		db.Workspace.ID.Equals(workspaceId),
 	).Exec(context.Background())
@@ -71,71 +76,86 @@ func (s *WorkspaceService) GetWorkspace(workspaceId string) (*db.WorkspaceModel,
 	return result, nil
 }
 
-func CreateInvitation(email, workspaceID string) (*types.InvitationD, error) {
+func (s *WorkspaceService) CanUserPerformAction(userId, workspaceId string, requiredRole db.UserRole) (bool, error) {
+	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userId),
+		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
+	).Exec(context.Background())
+
+	if err != nil {
+		return false, err
+	}
+
+	if userWorkspace == nil {
+		return false, nil
+	}
+
+	return userWorkspace.Role == requiredRole, nil
+}
+
+func (s *WorkspaceService) SendInvitation(email, workspaceID string) error {
 	token, err := utils.GenerateInvitationToken()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	invitation := types.InvitationD{
-		Email:       email,
-		Token:       token,
-		WorkspaceID: workspaceID,
-		Status:      string(types.PENDING),
-	}
-
-	err = redis.GetClient().Set(context.Background(), token, invitation, 132*time.Hour).Err()
+	_, err = prisma.Client.Invitation.CreateOne(
+		db.Invitation.Email.Set(email),
+		db.Invitation.Token.Set(token),
+		db.Invitation.Workspace.Link(
+			db.Workspace.ID.Equals(workspaceID),
+		),
+		db.Invitation.Status.Set(db.InvitationStatusPending),
+	).Exec(context.Background())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &invitation, nil
+	invitationLink := fmt.Sprintf("%s/workspaces/join?token=%s", config.HOST_URL, token)
+
+	if err := s.sender.SendInvitationMail([]string{email}, invitationLink); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func AcceptInvitation(token string) (*types.InvitationD, error) {
-	invitationData, err := redis.GetClient().Get(context.Background(), token).Result()
+func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
+	invitation, err := prisma.Client.Invitation.FindUnique(
+		db.Invitation.Token.Equals(token),
+	).Exec(context.Background())
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("invitation not found")
 	}
 
-	var invitation types.InvitationD
-	err = json.Unmarshal([]byte(invitationData), &invitation)
-	if err != nil {
-		return nil, err
+	if invitation.Status != db.InvitationStatusPending {
+		return fmt.Errorf("invitation has already been accepted or declined")
 	}
 
-	invitation.Status = string(types.ACCEPTED)
+	_, err = prisma.Client.UserWorkspace.CreateOne(
+		db.UserWorkspace.User.Link(
+			db.User.ID.Equals(userID),
+		),
+		db.UserWorkspace.Workspace.Link(
+			db.Workspace.ID.Equals(invitation.WorkspaceID),
+		),
+		db.UserWorkspace.Role.Set(db.UserRoleMember),
+		db.UserWorkspace.JoinedAt.Set(time.Now()),
+	).Exec(context.Background())
 
-	err = redis.GetClient().Set(context.Background(), token, invitation, 24*time.Hour).Err()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("failed to join workspace: %v", err)
 	}
 
-	redis.GetClient().Del(context.Background(), token)
+	_, err = prisma.Client.Invitation.FindUnique(
+		db.Invitation.Token.Equals(token),
+	).Update(
+		db.Invitation.Status.Set(db.InvitationStatusAccepted),
+	).Exec(context.Background())
 
-	return &invitation, nil
-}
-
-func DeclineInvitation(token string) (*types.InvitationD, error) {
-	invitationData, err := redis.GetClient().Get(context.Background(), token).Result()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("failed to update invitation status: %v", err)
 	}
 
-	var invitation types.InvitationD
-	err = json.Unmarshal([]byte(invitationData), &invitation)
-	if err != nil {
-		return nil, err
-	}
-
-	invitation.Status = string(types.DECLINED)
-
-	err = redis.GetClient().Set(context.Background(), token, invitation, 24*time.Hour).Err()
-	if err != nil {
-		return nil, err
-	}
-
-	redis.GetClient().Del(context.Background(), token)
-
-	return &invitation, nil
+	return nil
 }
