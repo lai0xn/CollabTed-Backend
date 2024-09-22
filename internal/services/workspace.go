@@ -2,17 +2,25 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 )
 
-type WorkspaceService struct{}
+type WorkspaceService struct {
+	sender *mail.EmailVerifier
+}
 
 func NewWorkspaceService() *WorkspaceService {
-	return &WorkspaceService{}
+	return &WorkspaceService{
+		sender: mail.NewVerifier(),
+	}
 }
 
 func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.WorkspaceModel, error) {
@@ -83,4 +91,71 @@ func (s *WorkspaceService) CanUserPerformAction(userId, workspaceId string, requ
 	}
 
 	return userWorkspace.Role == requiredRole, nil
+}
+
+func (s *WorkspaceService) SendInvitation(email, workspaceID string) error {
+	token, err := utils.GenerateInvitationToken()
+	if err != nil {
+		return err
+	}
+
+	_, err = prisma.Client.Invitation.CreateOne(
+		db.Invitation.Email.Set(email),
+		db.Invitation.Token.Set(token),
+		db.Invitation.Workspace.Link(
+			db.Workspace.ID.Equals(workspaceID),
+		),
+		db.Invitation.Status.Set(db.InvitationStatusPending),
+	).Exec(context.Background())
+	if err != nil {
+		return err
+	}
+
+	invitationLink := fmt.Sprintf("%s/workspaces/join?token=%s", config.HOST_URL, token)
+
+	if err := s.sender.SendInvitationMail([]string{email}, invitationLink); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
+	invitation, err := prisma.Client.Invitation.FindUnique(
+		db.Invitation.Token.Equals(token),
+	).Exec(context.Background())
+	if err != nil {
+		return fmt.Errorf("invitation not found")
+	}
+
+	if invitation.Status != db.InvitationStatusPending {
+		return fmt.Errorf("invitation has already been accepted or declined")
+	}
+
+	_, err = prisma.Client.UserWorkspace.CreateOne(
+		db.UserWorkspace.User.Link(
+			db.User.ID.Equals(userID),
+		),
+		db.UserWorkspace.Workspace.Link(
+			db.Workspace.ID.Equals(invitation.WorkspaceID),
+		),
+		db.UserWorkspace.Role.Set(db.UserRoleMember),
+		db.UserWorkspace.JoinedAt.Set(time.Now()),
+	).Exec(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("failed to join workspace: %v", err)
+	}
+
+	_, err = prisma.Client.Invitation.FindUnique(
+		db.Invitation.Token.Equals(token),
+	).Update(
+		db.Invitation.Status.Set(db.InvitationStatusAccepted),
+	).Exec(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("failed to update invitation status: %v", err)
+	}
+
+	return nil
 }

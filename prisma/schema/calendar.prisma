@@ -6,7 +6,8 @@ model Event {
     endTime     DateTime
     type        EventType @default(EVENT)
     workspaceId String    @db.ObjectId
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+    Workspace Workspace @relation(fields: [workspaceId], references: [id])
 }
 
 enum EventType {

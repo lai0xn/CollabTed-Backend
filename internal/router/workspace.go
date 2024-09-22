@@ -12,7 +12,7 @@ func WorkspaceRoutes(e *echo.Group) {
 	workspaces.GET("/", h.GetWorkspaces)
 	workspaces.POST("/create", h.CreateWorkspace)
 	workspaces.GET("/:id", h.GetWorkspaceById)
-	// // workspaces.POST("/invite", h.CreateInvitation)
-	// // workspaces.GET("/accept", h.AcceptInvitation)
+	workspaces.POST("/invite", h.InviteUser)
+	workspaces.GET("/accept", h.AcceptInvitation)
 	// // workspaces.GET("/decline", h.DeclineInvitation)
 }
