@@ -97,7 +97,7 @@ func (h *workspaceHandler) GetWorkspaces(c echo.Context) error {
 //	@Success	200	{object}	types.WorkspaceD
 //	@Router		/workspaces/{id} [get]
 func (h *workspaceHandler) GetWorkspaceById(c echo.Context) error {
-	workspaceId := c.Param("id")
+	workspaceId := c.Param("workspaceId")
 	data, err := h.srv.GetWorkspaceById(workspaceId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -122,7 +122,6 @@ func (h *workspaceHandler) InviteUser(c echo.Context) error {
 	}
 
 	claims := c.Get("user").(*types.Claims)
-	// Check if the user has permission to invite (admin or manager)
 	canInvite, err := h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
 	if err != nil || !canInvite {
 		canInvite, err = h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
@@ -152,4 +151,31 @@ func (h *workspaceHandler) AcceptInvitation(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Successfully joined the workspace")
+}
+
+func (h *workspaceHandler) GetAllUsersInWorkspace(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+	data, err := h.srv.GetAllUsersInWorkspace(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
+func (h *workspaceHandler) GetAllInvites(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+	invitations, err := h.srv.GetInvitations(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, invitations)
+}
+
+func (h *workspaceHandler) DeleteInvitation(c echo.Context) error {
+	invitationId := c.Param("invitationId")
+	err := h.srv.DeleteInvitation(invitationId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, "Invitation deleted successfully")
 }

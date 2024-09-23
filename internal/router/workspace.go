@@ -11,8 +11,10 @@ func WorkspaceRoutes(e *echo.Group) {
 	workspaces := e.Group("/workspaces", middlewares.AuthMiddleware)
 	workspaces.GET("/", h.GetWorkspaces)
 	workspaces.POST("/create", h.CreateWorkspace)
-	workspaces.GET("/:id", h.GetWorkspaceById)
+	workspaces.GET("/:workspaceId", h.GetWorkspaceById)
 	workspaces.POST("/invite", h.InviteUser)
 	workspaces.GET("/accept", h.AcceptInvitation)
-	// // workspaces.GET("/decline", h.DeclineInvitation)
+	workspaces.GET("/:workspaceId/users", h.GetAllUsersInWorkspace)
+	workspaces.GET("/:workspaceId/invitations", h.GetAllInvites)
+	workspaces.DELETE("/:invitationId/delete", h.DeleteInvitation)
 }
