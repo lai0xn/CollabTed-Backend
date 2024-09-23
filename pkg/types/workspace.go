@@ -9,3 +9,10 @@ type InviteUserD struct {
 	Email       string `json:"email"`
 	WorkspaceID string `json:"workspaceId"`
 }
+
+type UserWorkspace struct {
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	ProfilePicture string `json:"profilePicture"`
+	Role           string `json:"role"`
+}

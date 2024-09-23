@@ -163,7 +163,7 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 	return nil
 }
 
-func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]db.UserModel, error) {
+func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.UserWorkspace, error) {
 	userWorkspaces, err := prisma.Client.UserWorkspace.FindMany(
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
 	).Exec(context.Background())
@@ -173,12 +173,15 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]db.User
 	}
 
 	var userIds []string
+	userWorkspaceMap := make(map[string]string)
+
 	for _, userWorkspace := range userWorkspaces {
 		userIds = append(userIds, userWorkspace.UserID)
+		userWorkspaceMap[userWorkspace.UserID] = string(userWorkspace.Role)
 	}
 
 	if len(userIds) == 0 {
-		return []db.UserModel{}, nil
+		return []types.UserWorkspace{}, nil
 	}
 
 	users, err := prisma.Client.User.FindMany(
@@ -189,7 +192,20 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]db.User
 		return nil, fmt.Errorf("failed to get users: %v", err)
 	}
 
-	return users, nil
+	var result []types.UserWorkspace
+	for _, user := range users {
+		role, exists := userWorkspaceMap[user.ID]
+		if exists {
+			result = append(result, types.UserWorkspace{
+				Email:          user.Email,
+				Name:           user.Name,
+				ProfilePicture: user.ProfilePicture,
+				Role:           role,
+			})
+		}
+	}
+
+	return result, nil
 }
 
 func (s *WorkspaceService) GetInvitations(workspaceId string) ([]db.InvitationModel, error) {

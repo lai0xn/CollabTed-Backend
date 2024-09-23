@@ -8,9 +8,3 @@ model User {
   userWorkspace  UserWorkspace[]
   workspace      Workspace[]
 }
-
-enum UserRole {
-  ADMIN   // Full control over the workspace (can invite, manage, and remove users)
-  MANAGER // Can manage resources, but cannot invite or remove users
-  MEMBER  // Can view and interact with resources, but cannot manage them
-}
