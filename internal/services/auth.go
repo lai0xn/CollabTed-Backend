@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -23,6 +24,8 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 	if err != nil {
 		return nil, err
 	}
+
+	// Create User
 	result, err := prisma.Client.User.CreateOne(
 		db.User.Email.Set(email),
 		db.User.Name.Set(name),
@@ -30,6 +33,17 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 		db.User.ProfilePicture.Set(profilePicture),
 		db.User.Active.Set(false),
 	).Exec(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Create Personal Workspace
+	_, err = NewWorkspaceService().CreateWorkspace(types.WorkspaceD{
+		Name:    "Personal",
+		OwnerID: result.ID,
+	})
+
 	if err != nil {
 		return nil, err
 	}
