@@ -117,6 +117,10 @@ func (h *authHandler) VerifyUser(c echo.Context) error {
 	if err := h.srv.ActivateUser(id); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+	err := h.srv.ActivateUser(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, types.Response{
 		"message": "user activated",
 	})
