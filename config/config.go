@@ -14,14 +14,16 @@ import (
 )
 
 var (
-	JWT_SECRET      string
-	EMAIL_HOST      string
-	EMAIL_PORT      string
-	EMAIL           string
-	EMAIL_PASSWORD  string
-	SECURE_COOKIE   bool
-	HOST_URL        string
-	ALLOWED_ORIGINS string
+	JWT_SECRET         string
+	EMAIL_HOST         string
+	EMAIL_PORT         string
+	EMAIL              string
+	EMAIL_PASSWORD     string
+	SECURE_COOKIE      bool
+	HOST_URL           string
+	ALLOWED_ORIGINS    string
+	LIVEKIT_API_KEY    string
+	LIVEKIT_API_SECRET string
 )
 
 func Load() {
@@ -76,4 +78,8 @@ func Load() {
 
 	// Allowed Origins
 	ALLOWED_ORIGINS = os.Getenv("ALLOWED_ORIGINS")
+
+	// Live Kit Credentials
+	LIVEKIT_API_KEY = os.Getenv("LIVEKIT_API_KEY")
+	LIVEKIT_API_SECRET = os.Getenv("LIVEKIT_API_SECRET")
 }

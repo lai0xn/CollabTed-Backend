@@ -33,4 +33,5 @@ func SetRoutes(e *echo.Echo) {
 	OAuthRoutes(v1)
 	WorkspaceRoutes(v1)
 	CalendarRoutes(v1)
+	CallsRoutes(v1)
 }
