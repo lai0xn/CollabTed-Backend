@@ -12,6 +12,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
+	"github.com/google/uuid"
 )
 
 type WorkspaceService struct {
@@ -26,7 +27,7 @@ func NewWorkspaceService() *WorkspaceService {
 
 func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.WorkspaceModel, error) {
 	result, err := prisma.Client.Workspace.CreateOne(
-		db.Workspace.WorkspaceName.Set(data.Name),
+		db.Workspace.WorkspaceName.Set(data.Name+"-"+uuid.NewString()),
 		db.Workspace.Owner.Link(
 			db.User.ID.Equals(data.OwnerID),
 		),
@@ -133,6 +134,31 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 
 	if invitation.Status != db.InvitationStatusPending {
 		return fmt.Errorf("invitation has already been accepted or declined")
+	}
+
+	user, err := prisma.Client.User.FindUnique(
+		db.User.ID.Equals(userID),
+	).Exec(context.Background())
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	existingUsers, err := s.GetAllUsersInWorkspace(invitation.WorkspaceID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve users in workspace: %v", err)
+	}
+
+	uniqueName := utils.GenerateUniqueName(user.Name, existingUsers)
+
+	if uniqueName != user.Name {
+		_, err := prisma.Client.User.FindUnique(
+			db.User.ID.Equals(userID),
+		).Update(
+			db.User.Name.Set(uniqueName),
+		).Exec(context.Background())
+		if err != nil {
+			return fmt.Errorf("failed to update user's name: %v", err)
+		}
 	}
 
 	_, err = prisma.Client.UserWorkspace.CreateOne(
