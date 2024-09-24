@@ -12,7 +12,6 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
-	"github.com/google/uuid"
 )
 
 type WorkspaceService struct {
@@ -27,7 +26,7 @@ func NewWorkspaceService() *WorkspaceService {
 
 func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.WorkspaceModel, error) {
 	result, err := prisma.Client.Workspace.CreateOne(
-		db.Workspace.WorkspaceName.Set(data.Name+"-"+uuid.NewString()),
+		db.Workspace.WorkspaceName.Set(data.Name),
 		db.Workspace.Owner.Link(
 			db.User.ID.Equals(data.OwnerID),
 		),

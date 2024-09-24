@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
@@ -61,14 +60,19 @@ func (s *AuthService) CheckUser(email string, password string) (*db.UserModel, e
 		db.User.Email.Equals(email),
 	).Exec(ctx)
 	if err != nil {
-		return nil, errors.New("wrong credentials")
+		return nil, errors.New("email not found")
 	}
-	fmt.Println(user.Email)
+
+	if !user.Active {
+		return nil, errors.New("user not activated")
+	}
+
 	enc_pass := user.Password
 	err = utils.CheckPassword(enc_pass, password)
 	if err != nil {
-		return nil, errors.New("wrong credentials")
+		return nil, errors.New("wrong password")
 	}
+
 	return user, nil
 }
 
