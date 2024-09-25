@@ -9,5 +9,6 @@ model Workspace {
 
   Invitation Invitation[]
 
-  Event Event[]
+  Event   Event[]
+  Channel Channel[]
 }
