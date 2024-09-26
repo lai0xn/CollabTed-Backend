@@ -17,6 +17,6 @@ func main() {
 	redis.Connect()
 	s := server.NewServer(":8080")
 	prisma.Connect()
-	go ws.Janitor()
+	go ws.Hub()
 	s.Run()
 }

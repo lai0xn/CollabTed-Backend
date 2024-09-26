@@ -31,7 +31,7 @@ var (
 	mu         sync.RWMutex
 )
 
-func Janitor() {
+func Hub() {
 	for {
 		select {
 		case con := <-connection:
