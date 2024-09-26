@@ -68,25 +68,19 @@ func (s *ChannelService) ListChannelsByWorkspace(workspaceID string) ([]db.Chann
 	return channels, nil
 }
 
-// AddParticipant links an existing user to a channel.
-func (s *ChannelService) AddParticipant(channelID, workspaceID, userID string) error {
-	// Find the user's association in the workspace
-	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
+func (s *ChannelService) AddParticipant(workspaceID, channelID, userID string) (*db.UserWorkspaceModel, error) {
+	ctx := context.Background()
+	user, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
-	).Exec(context.Background())
+	).Exec(ctx)
 	if err != nil {
-		return fmt.Errorf("user not found in the workspace: %v", err)
+		return nil, err
 	}
-
-	// Link the user to the channel
-	_, err = prisma.Client.UserWorkspace.FindUnique(
-		db.UserWorkspace.ID.Equals(userWorkspace.ID),
+	_, err = prisma.Client.Channel.FindUnique(
+		db.Channel.ID.Equals(channelID),
 	).Update(
-		db.UserWorkspace.Channel.Link(
-			db.Channel.ID.Equals(channelID), // Link the user to the channel
-		),
-	).Exec(context.Background())
-
-	return err
+		db.Channel.Participants.Link(db.UserWorkspace.ID.Equals(user.ID)),
+	).Exec(ctx)
+	return user, nil
 }

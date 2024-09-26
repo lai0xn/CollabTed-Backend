@@ -27,6 +27,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-jose/go-jose/v3 v3.0.3 // indirect
 	github.com/google/cel-go v0.20.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
