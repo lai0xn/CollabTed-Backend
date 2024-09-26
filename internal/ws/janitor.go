@@ -2,6 +2,7 @@ package ws
 
 import (
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -46,7 +47,7 @@ func Janitor() {
 				}
 				err := con.conn.WriteJSON(msg)
 				if err != nil {
-					con.conn.WriteMessage(websocket.BinaryMessage, []byte("Error sending message"))
+					log.Println(err.Error())
 				}
 			}
 		case id := <-closing:
