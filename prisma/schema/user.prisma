@@ -7,4 +7,5 @@ model User {
   active         Boolean
   userWorkspace  UserWorkspace[]
   workspace      Workspace[]
+  Message        Message[]
 }

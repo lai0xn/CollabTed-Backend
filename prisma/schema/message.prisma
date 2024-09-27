@@ -1,0 +1,10 @@
+model Message {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  content         String
+  channelID       String         @db.ObjectId
+  senderID        String         @db.ObjectId
+  channel         Channel        @relation(fields: [channelID], references: [id])
+  sender          User           @relation(fields: [senderID], references: [id])
+  UserWorkspace   UserWorkspace? @relation(fields: [userWorkspaceId], references: [id])
+  userWorkspaceId String?        @db.ObjectId
+}
