@@ -30,7 +30,7 @@ func SetRoutes(e *echo.Echo) {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Server Working check the docs at /swagger/index.html or the graphql playground at /graphql")
 	})
-	e.GET("/ws", headerJWTAuth(ws.WsChatHandler{}.Chat))
+	e.GET("/ws", ws.WsChatHandler{}.Chat)
 	e.GET("/notifications", sse.NotificationHandler)
 	v1 := e.Group("/api/v1")
 	AuthRoutes(v1)
