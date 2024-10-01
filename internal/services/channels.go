@@ -61,7 +61,7 @@ func (s *ChannelService) GetChannelById(channelID string) (*db.ChannelModel, err
 func (s *ChannelService) ListChannelsByWorkspace(workspaceID string) ([]db.ChannelModel, error) {
 	channels, err := prisma.Client.Channel.FindMany(
 		db.Channel.WorkspaceID.Equals(workspaceID),
-	).Exec(context.Background())
+	).With(db.Channel.Participants.Fetch()).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
