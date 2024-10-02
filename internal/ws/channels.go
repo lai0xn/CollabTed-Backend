@@ -54,8 +54,5 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 		}
 		data.Recievers = channel.Participants()
 		messages <- data
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-		}
 	}
 }
