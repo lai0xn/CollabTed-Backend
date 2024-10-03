@@ -7,6 +7,8 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -24,10 +26,13 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  readBufferSize,
 		WriteBufferSize: writeBufferSize,
-		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
-	claims := c.Get("user").(*types.Claims)
+	token_string := c.QueryParam("token")
 
+	token := jwt.ParseWithClaims(token_string, types.Claims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.JWT_SECRET), nil
+	})
+	claims := token.Claims.(*types.Claims)
 	conn, err := upgrader.Upgrade(c.Response().Writer, c.Request(), nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -55,5 +60,8 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 		}
 		data.Recievers = channel.Participants()
 		messages <- data
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 	}
 }
