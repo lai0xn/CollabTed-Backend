@@ -6,7 +6,6 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -24,9 +23,9 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  readBufferSize,
 		WriteBufferSize: writeBufferSize,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
-	token := c.Get("user").(*jwt.Token)
-	claims := token.Claims.(*types.Claims)
+	claims := c.Get("user").(*types.Claims)
 	conn, err := upgrader.Upgrade(c.Response().Writer, c.Request(), nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

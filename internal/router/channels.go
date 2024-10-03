@@ -12,6 +12,6 @@ func ChannelsRoutes(e *echo.Group) {
 	channels := e.Group("/channels", middlewares.AuthMiddleware)
 	channels.GET("/:id", h.GetChannel)
 	channels.POST("/", h.CreateChannel)
-	channels.GET("/worksapce/:id", h.GetWorkspaceChannels)
+	channels.GET("/worksapce/:workspaceID", h.GetWorkspaceChannels)
 	channels.POST("/:id/participants/add", h.AddParticipant)
 }
