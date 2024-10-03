@@ -29,17 +29,18 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 	}
 
 	// Link participants to the channel and workspace
-	for _, participantID := range data.Participants {
+	for _, participant := range data.Participants {
 		// Ensure that the user exists in the workspace and link them to the channel
-		_, err := prisma.Client.UserWorkspace.FindUnique(
-			db.UserWorkspace.ID.Equals(participantID),
+		_, err := prisma.Client.UserWorkspace.FindMany(
+			db.UserWorkspace.WorkspaceID.Equals(participant.WorkspaceID),
+			db.UserWorkspace.UserID.Equals(participant.UserID),
 		).Update(
 			db.UserWorkspace.Channel.Link(
 				db.Channel.ID.Equals(result.ID), // Link the created channel
 			),
 		).Exec(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to add participant with ID %s to the channel: %v", participantID, err)
+			return nil, fmt.Errorf("failed to add participant with ID %s to the channel: %v", participant.UserID, err)
 		}
 	}
 
@@ -82,5 +83,8 @@ func (s *ChannelService) AddParticipant(workspaceID, channelID, userID string) (
 	).Update(
 		db.Channel.Participants.Link(db.UserWorkspace.ID.Equals(user.ID)),
 	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return user, nil
 }
