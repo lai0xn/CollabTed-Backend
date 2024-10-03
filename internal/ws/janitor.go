@@ -10,10 +10,10 @@ import (
 )
 
 type Connection struct {
-	conn        *websocket.Conn
-	name        string
-	workspaceID string
-	userID      string
+	conn     *websocket.Conn
+	name     string
+	userID   string
+	isOnline bool
 }
 
 type Message struct {
@@ -35,8 +35,9 @@ func Hub() {
 	for {
 		select {
 		case con := <-connection:
-			fmt.Println(fmt.Sprintf("user: %s connected", con.userID))
+			fmt.Printf("user: %s connected", con.userID)
 			mu.Lock()
+			con.isOnline = true
 			users[con.userID] = con
 			mu.Unlock()
 		case msg := <-messages:
@@ -51,8 +52,12 @@ func Hub() {
 				}
 			}
 		case id := <-closing:
-			fmt.Println(fmt.Sprintf("user: %s disconnected", id))
+			fmt.Printf("user: %s disconnected", id)
 			mu.Lock()
+			if user, ok := users[id]; ok {
+				user.isOnline = false
+				users[id] = user
+			}
 			delete(users, id)
 			mu.Unlock()
 
