@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/gorilla/websocket"

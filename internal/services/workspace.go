@@ -233,6 +233,43 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 	return result, nil
 }
 
+func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types.UserWorkspace, error) {
+	// Find the user-workspace relation based on userId and workspaceId
+	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userId),
+		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
+	).Exec(context.Background())
+
+	if err != nil {
+		return types.UserWorkspace{}, fmt.Errorf("failed to get user-workspace relation: %v", err)
+	}
+
+	if userWorkspace == nil {
+		return types.UserWorkspace{}, fmt.Errorf("user not found in the specified workspace")
+	}
+
+	// Find the user based on userId
+	user, err := prisma.Client.User.FindUnique(
+		db.User.ID.Equals(userId),
+	).Exec(context.Background())
+
+	if err != nil {
+		return types.UserWorkspace{}, fmt.Errorf("failed to get user: %v", err)
+	}
+
+	if user == nil {
+		return types.UserWorkspace{}, fmt.Errorf("user not found")
+	}
+
+	// Return the user workspace details
+	return types.UserWorkspace{
+		Email:          user.Email,
+		Name:           user.Name,
+		ProfilePicture: user.ProfilePicture,
+		Role:           string(userWorkspace.Role), // Assuming Role is stored in UserWorkspace
+	}, nil
+}
+
 func (s *WorkspaceService) GetInvitations(workspaceId string) ([]db.InvitationModel, error) {
 	invitations, err := prisma.Client.Invitation.FindMany(
 		db.Invitation.WorkspaceID.Equals(workspaceId),
