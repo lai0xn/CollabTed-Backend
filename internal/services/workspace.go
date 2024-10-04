@@ -222,6 +222,7 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 		role, exists := userWorkspaceMap[user.ID]
 		if exists {
 			result = append(result, types.UserWorkspace{
+				ID:             user.ID,
 				Email:          user.Email,
 				Name:           user.Name,
 				ProfilePicture: user.ProfilePicture,

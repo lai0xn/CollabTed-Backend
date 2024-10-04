@@ -11,5 +11,6 @@ func CallsRoutes(e *echo.Group) {
 
 	calls := e.Group("/calls", middlewares.AuthMiddleware)
 	calls.GET("/join/global/:workspaceId/:participantName", h.GetGlobalJoinToken)
+	calls.GET("/join/private/:workspaceId/:participantName/:receiverId", h.GetPrivatelJoinToken)
 
 }

@@ -11,6 +11,7 @@ type InviteUserD struct {
 }
 
 type UserWorkspace struct {
+	ID             string `json:"id"`
 	Email          string `json:"email"`
 	Name           string `json:"name"`
 	ProfilePicture string `json:"profilePicture"`
