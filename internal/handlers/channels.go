@@ -19,7 +19,7 @@ func NewChannelHandler() *channelHandler {
 }
 
 func (h *channelHandler) GetWorkspaceChannels(c echo.Context) error {
-	worksapceID := c.Param("id")
+	worksapceID := c.Param("workspaceId")
 	channels, err := h.srv.ListChannelsByWorkspace(worksapceID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -29,7 +29,7 @@ func (h *channelHandler) GetWorkspaceChannels(c echo.Context) error {
 }
 
 func (h *channelHandler) GetChannel(c echo.Context) error {
-	worksapceID := c.Param("id")
+	worksapceID := c.Param("workspaceId")
 	channel, err := h.srv.GetChannelById(worksapceID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

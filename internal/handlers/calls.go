@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,4 +29,22 @@ func (h *callHandler) GetGlobalJoinToken(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, globalRoomJoinToken)
+}
+
+func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
+	Caller := c.Param("participantName")
+	Receiver := c.Param("receiverId")
+	workspaceId := c.Param("workspaceId")
+
+	privateRoomJoinToken, err := h.srv.GetPrivateJoinToken(Caller, workspaceId)
+
+	logger.LogInfo().Msg(Receiver)
+	logger.LogInfo().Msg(privateRoomJoinToken)
+	// TODO: add the logic to send the private room join token to the requester
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, privateRoomJoinToken)
 }
