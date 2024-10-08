@@ -1,15 +1,19 @@
 model UserWorkspace {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String    @db.ObjectId
-  user        User      @relation(fields: [userId], references: [id])
-  workspaceId String    @db.ObjectId
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  role        UserRole
-  joinedAt    DateTime  @default(now())
-  Channel     Channel?  @relation(fields: [channelId], references: [id])
-  channelId   String?   @db.ObjectId
-  Message     Message[]
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String      @db.ObjectId
+  user          User        @relation(fields: [userId], references: [id])
+  workspaceId   String      @db.ObjectId
+  workspace     Workspace   @relation(fields: [workspaceId], references: [id])
+  role          UserRole
+  joinedAt      DateTime    @default(now())
+  channelId     String?     @db.ObjectId
+  Channel       Channel?     @relation(fields: [channelId], references: [id])
+  leadProjects  Project[]
+  projectsIds   String[] @db.ObjectId
+  projects      Project[] @relation(fields: [projectsIds],references: [id],"ProjectAssignees")
+  Messages      Message[]
 }
+
 
 enum UserRole {
   ADMIN // Full control over the workspace (can invite, manage, and remove users)
