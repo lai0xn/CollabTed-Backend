@@ -6,7 +6,7 @@ model Workspace {
   users         UserWorkspace[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-
+  Projects Project[]
   Invitation Invitation[]
 
   Event   Event[]
