@@ -1,9 +1,8 @@
 package types
 
 type ChannelD struct {
-	Name         string         `json:"name"`
-	WorkspaceID  string         `json:"workspaceID"`
-	Participants []ParticipantD `json:"participants"`
+	Name        string `json:"name"`
+	WorkspaceID string `json:"workspaceID"`
 }
 
 type ParticipantD struct {

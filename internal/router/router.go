@@ -32,6 +32,7 @@ func SetRoutes(e *echo.Echo) {
 	CalendarRoutes(v1)
 	CallsRoutes(v1)
 	ChannelsRoutes(v1)
+	MessageRoutes(v1)
 	ProjectsRoutes(v1)
 	StatusRoutes(v1)
 }

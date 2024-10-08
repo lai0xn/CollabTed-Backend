@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -24,6 +25,7 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
+		db.Message.CreatedAt.Set(time.Now()),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to send message: %v", err)

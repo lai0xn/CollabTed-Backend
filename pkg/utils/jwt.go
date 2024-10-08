@@ -51,7 +51,6 @@ func SetJWTAsCookie(w http.ResponseWriter, id string, email string, name string,
 		HttpOnly: true,                           // Ensure cookie is HttpOnly
 		Secure:   config.SECURE_COOKIE,           // Set to true in production (requires HTTPS)
 		Path:     "/",                            // Cookie path
-		SameSite: http.SameSiteStrictMode,        // Control cross-site requests
 	}
 
 	http.SetCookie(w, cookie)

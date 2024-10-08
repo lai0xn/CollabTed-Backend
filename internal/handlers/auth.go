@@ -80,7 +80,7 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	if payload.ProfilePicture == "" {
-		payload.ProfilePicture = fmt.Sprintf("https://ui-avatars.com/api/?name=%s", url.QueryEscape(payload.Name))
+		payload.ProfilePicture = fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=%s&color=%s", url.QueryEscape(payload.Name), utils.RandomHexColor(), utils.RandomHexColor())
 	}
 
 	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)

@@ -1,20 +1,24 @@
 package cloudinary
 
 import (
+	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
-var cloud cloudinary.Cloudinary
+var cloud *cloudinary.Cloudinary
 
 func Connect() {
-	cloud, err := cloudinary.New()
+	var err error
+	cloud, err = cloudinary.NewFromURL(config.CLOUDINARY_URL)
 	if err != nil {
-		logger.Logger.Err(err)
+		logger.Logger.Err(err).Msg("Failed to connect to Cloudinary")
+		return
 	}
+
 	cloud.Config.URL.Secure = true
-	logger.Logger.Info().Msg("Connected to cloudinary")
+	logger.Logger.Info().Msg("Connected to Cloudinary")
 }
 
 func GetUploader() *uploader.API {
