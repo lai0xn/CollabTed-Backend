@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -26,22 +25,6 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
-	}
-
-	// Link participants to the channel and workspace
-	for _, participant := range data.Participants {
-		// Ensure that the user exists in the workspace and link them to the channel
-		_, err := prisma.Client.UserWorkspace.FindMany(
-			db.UserWorkspace.WorkspaceID.Equals(participant.WorkspaceID),
-			db.UserWorkspace.UserID.Equals(participant.UserID),
-		).Update(
-			db.UserWorkspace.Channel.Link(
-				db.Channel.ID.Equals(result.ID), // Link the created channel
-			),
-		).Exec(context.Background())
-		if err != nil {
-			return nil, fmt.Errorf("failed to add participant with ID %s to the channel: %v", participant.UserID, err)
-		}
 	}
 
 	return result, nil

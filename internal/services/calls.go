@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/CollabTED/CollabTed-Backend/config"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/livekit/protocol/auth"
 )
@@ -29,6 +30,8 @@ func (s *CallService) GetGlobalJoinToken(participantName string, workspaceId str
 	if err != nil {
 		return "", err
 	}
+
+	logger.LogDebug().Msg(globalRoomJoinToken)
 
 	return globalRoomJoinToken, nil
 }

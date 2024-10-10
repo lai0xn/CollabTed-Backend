@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 
@@ -24,16 +23,17 @@ var (
 	ALLOWED_ORIGINS    string
 	LIVEKIT_API_KEY    string
 	LIVEKIT_API_SECRET string
+	CLOUDINARY_URL     string
 )
 
 func Load() {
 	// Initialize the logger
 	logger.NewLogger()
 
-	// OAuth configuration
+	// Load environment variables
 	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		logger.Logger.Err(err).Msg("Error loading .env file")
 	}
 
 	types.OAuth2Configs = map[string]*types.OAuthProvider{
@@ -69,17 +69,22 @@ func Load() {
 	// Secure Cookie
 	SECURE_COOKIE, err = strconv.ParseBool(os.Getenv("SECURE_COOKIE"))
 	if err != nil {
-		log.Printf("Error parsing SECURE_COOKIE environment variable: %v", err)
-		SECURE_COOKIE = false
+		SECURE_COOKIE = true
 	}
+	logger.Logger.Info().Msg("Secure Cookie: " + strconv.FormatBool(SECURE_COOKIE))
 
 	// HOST URL
 	HOST_URL = os.Getenv("HOST_URL")
+	logger.Logger.Info().Msg(HOST_URL)
 
 	// Allowed Origins
 	ALLOWED_ORIGINS = os.Getenv("ALLOWED_ORIGINS")
+	logger.Logger.Info().Msg(ALLOWED_ORIGINS)
 
 	// Live Kit Credentials
 	LIVEKIT_API_KEY = os.Getenv("LIVEKIT_API_KEY")
 	LIVEKIT_API_SECRET = os.Getenv("LIVEKIT_API_SECRET")
+
+	// Cloudinary URL
+	CLOUDINARY_URL = os.Getenv("CLOUDINARY_URL")
 }

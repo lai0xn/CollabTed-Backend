@@ -7,4 +7,5 @@ model Message {
   sender          User           @relation(fields: [senderID], references: [id])
   UserWorkspace   UserWorkspace? @relation(fields: [userWorkspaceId], references: [id])
   userWorkspaceId String?        @db.ObjectId
+  createdAt       DateTime       @default(now())
 }
