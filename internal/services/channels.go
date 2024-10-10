@@ -34,7 +34,7 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 func (s *ChannelService) GetChannelById(channelID string) (*db.ChannelModel, error) {
 	channel, err := prisma.Client.Channel.FindUnique(
 		db.Channel.ID.Equals(channelID),
-	).Exec(context.Background())
+	).With(db.Channel.Participants.Fetch()).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}

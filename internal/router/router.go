@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/CollabTED/CollabTed-Backend/config"
-	middlewares "github.com/CollabTED/CollabTed-Backend/internal/middlewares/rest"
 	"github.com/CollabTED/CollabTed-Backend/internal/sse"
 	"github.com/CollabTED/CollabTed-Backend/internal/ws"
 	"github.com/labstack/echo/v4"
@@ -21,7 +20,7 @@ func SetRoutes(e *echo.Echo) {
 		return c.String(http.StatusOK, "Server Working check the docs at /swagger/index.html or the graphql playground at /graphql")
 	})
 
-	e.GET("/ws", ws.WsChatHandler{}.Chat, middlewares.AuthMiddleware)
+	e.GET("/ws", ws.WsChatHandler{}.Chat)
 
 	e.GET("/notifications", sse.NotificationHandler)
 
