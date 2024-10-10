@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -22,7 +23,7 @@ func GenerateJWT(id string, email string, name string, profilePicture string) (s
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	})
-
+	fmt.Println(config.JWT_SECRET)
 	tokenString, err := token.SignedString([]byte(config.JWT_SECRET))
 	if err != nil {
 		return "", err

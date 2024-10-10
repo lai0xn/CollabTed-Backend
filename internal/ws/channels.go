@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -25,8 +27,19 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 		WriteBufferSize: writeBufferSize,
 		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
-	claims := c.Get("user").(*types.Claims)
+	tokenString := c.QueryParam("token")
 
+	if tokenString == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "token is required")
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &types.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.JWT_SECRET), nil
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	claims := token.Claims.(*types.Claims)
 	conn, err := upgrader.Upgrade(c.Response().Writer, c.Request(), nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -45,6 +58,7 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 	for {
 		var data Message
 		err := conn.ReadJSON(&data)
+		fmt.Println("recieved message", data)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}

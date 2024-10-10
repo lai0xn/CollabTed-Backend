@@ -52,10 +52,11 @@ func Hub() {
 			mu.Unlock()
 
 		case msg := <-messages:
+			fmt.Println(msg.Content)
 			switch msg.Type {
 			case MessageTypeBroadcast:
 				// Handle broadcasting messages to the entire channel
-				err := broadcastMessageToChannel(msg.ChannelID, msg)
+				err := broadcastMessageToChannel(msg)
 				if err != nil {
 					log.Printf("Error broadcasting message: %v\n", err)
 				}
@@ -122,9 +123,14 @@ func sendPrivateMessage(userID string, msg Message) error {
 	return nil
 }
 
-func broadcastMessageToChannel(channelID string, msg Message) error {
+func broadcastMessageToChannel(msg Message) error {
 	mu.RLock()
 	defer mu.RUnlock()
+	//sending before the loop for testing cuz there is no channel with participants yet
+	err := users[msg.SenderID].conn.WriteJSON(msg)
+	if err != nil {
+		return err
+	}
 	for _, user := range msg.Recievers {
 		con, ok := users[user.UserID]
 		if !ok {
