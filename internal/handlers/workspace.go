@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -13,12 +14,14 @@ import (
 )
 
 type workspaceHandler struct {
-	srv services.WorkspaceService
+	srv      services.WorkspaceService
+	boardSrv services.BoardService
 }
 
 func NewWorkspaceHandler() *workspaceHandler {
 	return &workspaceHandler{
-		srv: *services.NewWorkspaceService(),
+		srv:      *services.NewWorkspaceService(),
+		boardSrv: *services.NewBoardService(),
 	}
 }
 
@@ -39,6 +42,14 @@ func (h *workspaceHandler) CreateWorkspace(c echo.Context) error {
 	}
 
 	workspace, err := h.srv.CreateWorkspace(payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	_, err = h.boardSrv.SaveBoard(types.BoardD{
+		WorkspaceID: workspace.ID,
+		Elements:    []json.RawMessage{},
+	})
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
