@@ -34,4 +34,5 @@ func SetRoutes(e *echo.Echo) {
 	MessageRoutes(v1)
 	ProjectsRoutes(v1)
 	StatusRoutes(v1)
+	BoardRoutes(v1)
 }

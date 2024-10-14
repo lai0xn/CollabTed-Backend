@@ -6,6 +6,7 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
@@ -58,6 +59,7 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 	for {
 		var data Message
 		err := conn.ReadJSON(&data)
+		logger.LogDebug().Msg(fmt.Sprintf("Received message: %+v", data))
 		fmt.Println("recieved message", data)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())

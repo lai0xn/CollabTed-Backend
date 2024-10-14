@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/gorilla/websocket"
 )
@@ -52,6 +53,7 @@ func Hub() {
 			mu.Unlock()
 
 		case msg := <-messages:
+			logger.LogDebug().Msg(fmt.Sprintf("Received message: %+v", msg))
 			fmt.Println(msg.Content)
 			switch msg.Type {
 			case MessageTypeBroadcast:
