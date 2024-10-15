@@ -28,13 +28,17 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 		WriteBufferSize: writeBufferSize,
 		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
-	tokenString := c.QueryParam("token")
+	cookie, err := c.Cookie("jwt")
+	fmt.Println("cookie", cookie)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	if tokenString == "" {
+	if cookie.Value == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "token is required")
 	}
 
-	token, err := jwt.ParseWithClaims(tokenString, &types.Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(cookie.Value, &types.Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.JWT_SECRET), nil
 	})
 	if err != nil {
