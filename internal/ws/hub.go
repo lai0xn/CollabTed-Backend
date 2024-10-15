@@ -5,10 +5,14 @@ import (
 	"log"
 	"sync"
 
+	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/gorilla/websocket"
 )
+
+var msgSrv = services.NewMessageService()
 
 type MessageType string
 
@@ -143,6 +147,15 @@ func broadcastMessageToChannel(msg Message) error {
 			log.Printf("Error sending message to user %s: %v\n", user.UserID, err)
 			return err
 		}
+	}
+	// Saving msgs to the db
+	_, err = msgSrv.SendMessage(types.MessageD{
+		Content:   msg.Content,
+		SenderID:  msg.SenderID,
+		ChannelID: msg.ChannelID,
+	})
+	if err != nil {
+		return err
 	}
 	return nil
 }
