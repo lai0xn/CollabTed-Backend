@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -52,22 +53,33 @@ func (s *ChannelService) ListChannelsByWorkspace(workspaceID string) ([]db.Chann
 	return channels, nil
 }
 
-func (s *ChannelService) AddParticipant(workspaceID, channelID, userID string) (*db.UserWorkspaceModel, error) {
+func (s *ChannelService) AddParticipants(workspaceID string, channelID string, userIDs []json.RawMessage) ([]*db.UserWorkspaceModel, error) {
 	ctx := context.Background()
-	user, err := prisma.Client.UserWorkspace.FindFirst(
-		db.UserWorkspace.UserID.Equals(userID),
-		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
-	).Exec(ctx)
-	if err != nil {
-		return nil, err
+	var addedUsers []*db.UserWorkspaceModel
+
+	for _, userID := range userIDs {
+		// Find the user in the workspace
+		user, err := prisma.Client.UserWorkspace.FindFirst(
+			db.UserWorkspace.UserID.Equals(string(userID)),
+			db.UserWorkspace.WorkspaceID.Equals(workspaceID),
+		).Exec(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		// Add the user to the channel's participants
+		_, err = prisma.Client.Channel.FindUnique(
+			db.Channel.ID.Equals(channelID),
+		).Update(
+			db.Channel.Participants.Link(db.UserWorkspace.ID.Equals(user.ID)),
+		).Exec(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		// Append the added user to the result list
+		addedUsers = append(addedUsers, user)
 	}
-	_, err = prisma.Client.Channel.FindUnique(
-		db.Channel.ID.Equals(channelID),
-	).Update(
-		db.Channel.Participants.Link(db.UserWorkspace.ID.Equals(user.ID)),
-	).Exec(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+
+	return addedUsers, nil
 }

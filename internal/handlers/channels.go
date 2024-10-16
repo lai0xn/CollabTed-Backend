@@ -56,7 +56,7 @@ func (h *channelHandler) AddParticipant(c echo.Context) error {
 	if err := c.Bind(&data); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	participant, err := h.srv.AddParticipant(data.WorkspaceID, data.ChannelID, data.UserID)
+	participant, err := h.srv.AddParticipants(data.WorkspaceID, data.ChannelID, data.UsersID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
