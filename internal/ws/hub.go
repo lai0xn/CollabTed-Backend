@@ -18,6 +18,7 @@ type MessageType string
 
 const (
 	MessageTypeBroadcast    MessageType = "broadcast"
+	MessageTypeBoard        MessageType = "board"
 	MessageTypePrivate      MessageType = "private"
 	MessageTypeSystem       MessageType = "system"
 	MessageTypeNotification MessageType = "notification"
@@ -32,11 +33,12 @@ type Connection struct {
 }
 
 type Message struct {
-	Type      MessageType `json:"type"`
-	SenderID  string      `json:"senderID"`
-	ChannelID string      `json:"channelID"`
-	Content   string      `json:"content"`
-	Recievers []db.UserWorkspaceModel
+	Type        MessageType `json:"type"`
+	SenderID    string      `json:"senderID"`
+	ChannelID   string      `json:"channelID"`
+	Content     string      `json:"content"`
+	WorkspaceID string      `json:"workspaceID"`
+	Recievers   []db.UserWorkspaceModel
 }
 
 var (
@@ -133,7 +135,11 @@ func broadcastMessageToChannel(msg Message) error {
 	mu.RLock()
 	defer mu.RUnlock()
 	//sending before the loop for testing cuz there is no channel with participants yet
-	err := users[msg.SenderID].conn.WriteJSON(msg)
+	user, ok := users[msg.SenderID]
+	if !ok {
+		return fmt.Errorf("user %s not found", msg.SenderID)
+	}
+	err := user.conn.WriteJSON(msg)
 	if err != nil {
 		return err
 	}
