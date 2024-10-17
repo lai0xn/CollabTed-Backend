@@ -8,6 +8,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -68,11 +69,14 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
-		channel, err := ws.srv.GetChannelById(data.ChannelID)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		var channel *db.ChannelModel
+		if data.ChannelID != "" {
+			channel, err = ws.srv.GetChannelById(data.ChannelID)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+			}
+			data.Recievers = channel.Participants()
 		}
-		data.Recievers = channel.Participants()
 		data.SenderID = claims.ID
 		messages <- data
 	}

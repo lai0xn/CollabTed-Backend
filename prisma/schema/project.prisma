@@ -7,5 +7,6 @@ model Project {
   lead UserWorkspace @relation(fields: [leadId],references: [id])
   assigneesIds String[] @db.ObjectId
   statuses Status[]
+  tasks Task[]
   assignees UserWorkspace[] @relation(fields: [assigneesIds],references: [id],"ProjectAssignees")
 }

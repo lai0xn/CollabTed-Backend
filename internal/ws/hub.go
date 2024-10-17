@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
@@ -13,6 +14,7 @@ import (
 )
 
 var msgSrv = services.NewMessageService()
+var wrkSrv = services.NewWorkspaceService()
 
 type MessageType string
 
@@ -33,11 +35,12 @@ type Connection struct {
 }
 
 type Message struct {
-	Type        MessageType `json:"type"`
-	SenderID    string      `json:"senderID"`
-	ChannelID   string      `json:"channelID"`
-	Content     string      `json:"content"`
-	WorkspaceID string      `json:"workspaceID"`
+	Type        MessageType       `json:"type"`
+	SenderID    string            `json:"senderID"`
+	ChannelID   string            `json:"channelID"`
+	Content     string            `json:"content"`
+	WorkspaceID string            `json:"workspaceID"`
+	Elements    []json.RawMessage `json:"elements"`
 	Recievers   []db.UserWorkspaceModel
 }
 
@@ -75,6 +78,21 @@ func Hub() {
 					err := sendPrivateMessage(user.UserID, msg)
 					if err != nil {
 						log.Printf("Error sending private message to user %s: %v\n", user.UserID, err)
+					}
+				}
+			case MessageTypeBoard:
+				workspace, err := wrkSrv.GetWorkspaceById(msg.WorkspaceID)
+				if err != nil {
+					log.Printf("Error getting workspace: %v\n", err)
+				}
+				for _, user := range workspace.Users() {
+					con, ok := users[user.UserID]
+					if !ok {
+						continue
+					}
+					err := con.conn.WriteJSON(msg)
+					if err != nil {
+						continue
 					}
 				}
 
