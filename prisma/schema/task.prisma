@@ -1,0 +1,19 @@
+model Task {
+    id  String @id @default(auto()) @map("_id") @db.ObjectId
+    projectId String @db.ObjectId
+    project Project @relation(fields: [projectId],references: [id])
+    title String
+    description String
+    dueDate DateTime
+    priority Priority
+    status Status @relation(fields: [statusId],references: [id])
+    statusId String @db.ObjectId
+    assineesIds String[] @db.ObjectId
+    assignees UserWorkspace[] @relation(fields: [assineesIds],references: [id])
+}
+
+enum Priority {
+    HIGH
+    MEDIUM
+    LOW
+}

@@ -3,6 +3,7 @@ model Status {
     projectId     String @db.ObjectId
     project       Project @relation(fields: [projectId],references: [id])
     title         String
+    tasks         Task[]
     category StatusCategory
 }
 enum StatusCategory {
