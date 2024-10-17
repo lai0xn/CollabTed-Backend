@@ -51,7 +51,7 @@ func (h *channelHandler) CreateChannel(c echo.Context) error {
 	return c.JSON(http.StatusOK, globalRoomJoinToken)
 }
 
-func (h *channelHandler) AddParticipant(c echo.Context) error {
+func (h *channelHandler) AddParticipants(c echo.Context) error {
 	var data types.ParticipantD
 	if err := c.Bind(&data); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

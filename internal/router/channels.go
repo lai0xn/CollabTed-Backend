@@ -13,5 +13,5 @@ func ChannelsRoutes(e *echo.Group) {
 	channels.GET("/:workspaceId", h.GetChannel)
 	channels.POST("/", h.CreateChannel)
 	channels.GET("/worksapce/:workspaceId", h.GetWorkspaceChannels)
-	channels.POST("/participants/add", h.AddParticipant)
+	channels.POST("/participants/add", h.AddParticipants)
 }

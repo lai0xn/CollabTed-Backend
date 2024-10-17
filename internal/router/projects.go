@@ -11,6 +11,6 @@ func ProjectsRoutes(e *echo.Group) {
 
 	projects := e.Group("/projects", middlewares.AuthMiddleware)
 	projects.POST("/", h.CreateProject)                   // Create a new project
-	projects.GET("/:workspaceId", h.GetProjects)          // List projects in a workspace
+	projects.GET("/:workspaceID", h.GetProjects)          // List projects in a workspace
 	projects.GET("/project/:projectId", h.GetProjectById) // Get project by ID
 }
