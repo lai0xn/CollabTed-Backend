@@ -11,6 +11,8 @@ model UserWorkspace {
   leadProjects  Project[]
   projectsIds   String[] @db.ObjectId
   projects      Project[] @relation(fields: [projectsIds],references: [id],"ProjectAssignees")
+  tasksIds      String[] @db.ObjectId
+  tasks         Task[] @relation(fields: [tasksIds],references: [id])
   Messages      Message[]
 }
 
