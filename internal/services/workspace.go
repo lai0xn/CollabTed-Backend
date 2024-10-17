@@ -70,6 +70,8 @@ func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkspaceModel, e
 func (s *WorkspaceService) GetWorkspaceById(workspaceId string) (*db.WorkspaceModel, error) {
 	result, err := prisma.Client.Workspace.FindUnique(
 		db.Workspace.ID.Equals(workspaceId),
+	).With(
+		db.Workspace.Users.Fetch(),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
