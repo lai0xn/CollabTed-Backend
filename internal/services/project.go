@@ -81,9 +81,11 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 	projects, err := prisma.Client.Project.FindMany(
 		db.Project.WorkspaceID.Equals(workspaceID),
 	).With(db.Project.Assignees.Fetch()).Exec(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
+	
 	return projects, nil
 }
 
