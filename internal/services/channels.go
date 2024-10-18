@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -77,8 +78,12 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		if err != nil {
 			return nil, err
 		}
+
 		fmt.Println("added", user.ID)
 		fmt.Println("channel", channelID)
+
+		logger.LogDebug().Msg("Added user to channel")
+
 		// Append the added user to the result list
 		addedUsers = append(addedUsers, user)
 	}
