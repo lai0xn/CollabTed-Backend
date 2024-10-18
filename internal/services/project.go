@@ -100,7 +100,6 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 	if err != nil {
 		return nil, err
 	}
-
 	return projects, nil
 }
 
