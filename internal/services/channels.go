@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -76,7 +77,8 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		if err != nil {
 			return nil, err
 		}
-
+		fmt.Println("added", user.ID)
+		fmt.Println("channel", channelID)
 		// Append the added user to the result list
 		addedUsers = append(addedUsers, user)
 	}
