@@ -19,34 +19,48 @@ func NewProjectService() *ProjectService {
 // CreateProject creates a new project in a workspace and assigns the lead and assignees.
 func (s *ProjectService) CreateProject(data types.ProjectD) (*db.ProjectModel, error) {
 	// Create a new project
+	r, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(data.LeadID),
+		db.UserWorkspace.WorkspaceID.Equals(data.WorksapceID),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(r.ID)
 	result, err := prisma.Client.Project.CreateOne(
 		db.Project.Title.Set(data.Title),
 		db.Project.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorksapceID),
 		),
 		db.Project.Lead.Link(
-			db.UserWorkspace.ID.Equals(data.LeadID),
+			db.UserWorkspace.ID.Equals(r.ID),
 		),
-	).Exec(context.Background())
+	).With(db.Project.Assignees.Fetch()).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(result.ID)
 	// Link assignees to the project
 	for _, assigneeID := range data.AssigneesIDs {
-		_, err := prisma.Client.UserWorkspace.FindMany(
+		usr, err := prisma.Client.UserWorkspace.FindFirst(
 			db.UserWorkspace.UserID.Equals(assigneeID),
 			db.UserWorkspace.WorkspaceID.Equals(data.WorksapceID),
+		).Exec(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		_, err = prisma.Client.UserWorkspace.FindUnique(
+			db.UserWorkspace.ID.Equals(usr.ID),
 		).Update(
 			db.UserWorkspace.Projects.Link(
-				db.Project.ID.Equals(result.ID), // Link the created project
+				db.Project.ID.Equals(result.ID),
 			),
 		).Exec(context.Background())
 		if err != nil {
-			return nil, fmt.Errorf("failed to add assignee with ID %s to the project: %v", assigneeID, err)
+			return nil, err
 		}
-	}
 
+	}
 	return result, nil
 }
 
@@ -68,8 +82,9 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 		db.UserWorkspace.UserID.Equals(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 	).Exec(context.Background())
-
 	if err != nil {
+		fmt.Println(userID, workspaceID)
+		fmt.Println(err.Error())
 		return nil, err
 	}
 
@@ -85,7 +100,7 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return projects, nil
 }
 
