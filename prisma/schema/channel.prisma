@@ -1,7 +1,8 @@
 model Channel {
   id           String          @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  participants UserWorkspace[]
+  participantsIDS String[] @db.ObjectId
+  participants UserWorkspace[] @relation(fields: [participantsIDS],references: [id])
   messages     Message[]
   workspaceId  String          @db.ObjectId
   workspace    Workspace       @relation(fields: [workspaceId], references: [id])
