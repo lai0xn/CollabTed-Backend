@@ -75,7 +75,8 @@ func (ws WsChatHandler) Chat(c echo.Context) error {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 			}
-			fmt.Println("nikzbi")
+			fmt.Println("channel", channel.Participants())
+
 			data.Recievers = channel.Participants()
 			fmt.Println("the recievers are", data.Recievers)
 		}
