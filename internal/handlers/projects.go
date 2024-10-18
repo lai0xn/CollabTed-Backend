@@ -38,7 +38,7 @@ func (h *projectHandler) CreateProject(c echo.Context) error {
 	claims := c.Get("user").(*types.Claims)
 
 	// Check if the user can create projects
-	canCreate, err := h.srv.CanUserPerformAction(claims.ID, payload.WorksapceID, db.UserRoleManager) // change this to manager
+	canCreate, err := h.srv.CanUserPerformAction(claims.ID, payload.WorksapceID, db.UserRoleAdmin) // change this to manager
 	if err != nil || !canCreate {
 		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create projects")
 	}
