@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
@@ -55,14 +54,14 @@ func (s *ChannelService) ListChannelsByWorkspace(workspaceID string) ([]db.Chann
 	return channels, nil
 }
 
-func (s *ChannelService) AddParticipants(workspaceID string, channelID string, userIDs []json.RawMessage) ([]*db.UserWorkspaceModel, error) {
+func (s *ChannelService) AddParticipants(workspaceID string, channelID string, userIDs []string) ([]*db.UserWorkspaceModel, error) {
 	ctx := context.Background()
 	var addedUsers []*db.UserWorkspaceModel
 
 	for _, userID := range userIDs {
-		// Find the user in the workspace
+		// Ensure userID is already a valid ObjectID as string
 		user, err := prisma.Client.UserWorkspace.FindFirst(
-			db.UserWorkspace.UserID.Equals(string(userID)),
+			db.UserWorkspace.UserID.Equals(userID), // Expect userID to be a valid string
 			db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 		).Exec(ctx)
 		if err != nil {
@@ -85,6 +84,7 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		logger.LogDebug().Msg("Added user to channel")
 
 		// Append the added user to the result list
+
 		addedUsers = append(addedUsers, user)
 	}
 
