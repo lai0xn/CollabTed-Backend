@@ -1,16 +1,14 @@
 package types
 
-import "encoding/json"
-
 type ChannelD struct {
 	Name        string `json:"name"`
 	WorkspaceID string `json:"workspaceID"`
 }
 
 type ParticipantD struct {
-	WorkspaceID string            `json:"workspaceID"`
-	UsersID     []json.RawMessage `json:"usersID"`
-	ChannelID   string            `json:"channelID"`
+	WorkspaceID string   `json:"workspaceID"`
+	UsersID     []string `json:"usersID"`
+	ChannelID   string   `json:"channelID"`
 }
 
 type MessageD struct {
