@@ -152,7 +152,6 @@ func sendPrivateMessage(userID string, msg Message) error {
 func broadcastMessageToChannel(msg Message) error {
 	mu.RLock()
 	defer mu.RUnlock()
-	//sending before the loop for testing cuz there is no channel with participants yet
 
 	for _, user := range msg.Recievers {
 		con, ok := users[user.UserID]
