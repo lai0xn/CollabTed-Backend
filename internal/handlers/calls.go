@@ -4,17 +4,20 @@ import (
 	"net/http"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/internal/sse"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/labstack/echo/v4"
 )
 
 type callHandler struct {
-	srv services.CallService
+	srv      services.CallService
+	notifier *sse.Notifier
 }
 
 func NewCallHandler() *callHandler {
 	return &callHandler{
-		srv: *services.NewCallService(),
+		srv:      *services.NewCallService(),
+		notifier: sse.NewNotifier(),
 	}
 }
 
@@ -38,22 +41,26 @@ func (h *callHandler) GetGlobalJoinToken(c echo.Context) error {
 
 func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
 	Caller := c.Param("participantName")
-	Receiver := c.Param("receiverId")
+	CallerId := c.QueryParam("callerId")
+	ReceiverId := c.Param("receiverId")
 	workspaceId := c.Param("workspaceId")
 
 	privateRoomJoinToken, roomId, err := h.srv.GetPrivateJoinToken(Caller, workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
 	response := map[string]interface{}{
 		"roomId": roomId,
 		"token":  privateRoomJoinToken,
 	}
 
-	logger.LogInfo().Msg(Receiver)
+	logger.LogInfo().Msg(ReceiverId)
 	logger.LogInfo().Msg(privateRoomJoinToken)
-	// TODO: add the logic to send the private room join token to the requester
 
+	err = h.notifier.NotifyUser(ReceiverId, roomId, CallerId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(500, map[string]string{"error": "Failed to notify user"})
 	}
 
 	return c.JSON(http.StatusOK, response)
