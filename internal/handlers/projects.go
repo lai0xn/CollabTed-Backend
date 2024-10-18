@@ -63,7 +63,8 @@ func (h *projectHandler) CreateProject(c echo.Context) error {
 func (h *projectHandler) GetProjects(c echo.Context) error {
 	claims := c.Get("user").(*types.Claims)
 
-	data, err := h.srv.ListProjectsByWorkspace(c.Param("workspaceID"), claims.ID)
+	data, err := h.srv.ListProjectsByWorkspace(claims.ID, c.Param("workspaceID"))
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

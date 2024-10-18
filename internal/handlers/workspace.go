@@ -176,7 +176,7 @@ func (h *workspaceHandler) GetAllUsersInWorkspace(c echo.Context) error {
 func (h *workspaceHandler) GetUserInWorkspace(c echo.Context) error {
 	workspaceId := c.Param("workspaceId")
 	userId := c.Param("userId")
-	data, err := h.srv.GetUserInWorkspace(workspaceId, userId)
+	data, err := h.srv.GetUserInWorkspace(userId, workspaceId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
