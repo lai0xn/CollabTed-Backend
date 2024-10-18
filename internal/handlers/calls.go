@@ -22,13 +22,18 @@ func (h *callHandler) GetGlobalJoinToken(c echo.Context) error {
 	participantName := c.Param("participantName")
 	workspaceId := c.Param("workspaceId")
 
-	globalRoomJoinToken, err := h.srv.GetGlobalJoinToken(participantName, workspaceId)
+	globalRoomJoinToken, roomId, err := h.srv.GetGlobalJoinToken(participantName, workspaceId)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, globalRoomJoinToken)
+	response := map[string]interface{}{
+		"roomId": roomId,
+		"token":  globalRoomJoinToken,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
@@ -36,7 +41,12 @@ func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
 	Receiver := c.Param("receiverId")
 	workspaceId := c.Param("workspaceId")
 
-	privateRoomJoinToken, err := h.srv.GetPrivateJoinToken(Caller, workspaceId)
+	privateRoomJoinToken, roomId, err := h.srv.GetPrivateJoinToken(Caller, workspaceId)
+
+	response := map[string]interface{}{
+		"roomId": roomId,
+		"token":  privateRoomJoinToken,
+	}
 
 	logger.LogInfo().Msg(Receiver)
 	logger.LogInfo().Msg(privateRoomJoinToken)
@@ -46,5 +56,18 @@ func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, privateRoomJoinToken)
+	return c.JSON(http.StatusOK, response)
+}
+
+func (h *callHandler) JoinRoomToken(c echo.Context) error {
+	roomId := c.Param("roomId")
+	participantName := c.Param("participantName")
+
+	joinRoomToken, err := h.srv.JoinRoomToken(roomId, participantName)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, joinRoomToken)
 }
