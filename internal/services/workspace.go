@@ -189,6 +189,7 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 }
 
 func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.UserWorkspace, error) {
+	// Fetch the user-workspace relationships for the given workspace ID
 	userWorkspaces, err := prisma.Client.UserWorkspace.FindMany(
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
 	).Exec(context.Background())
@@ -198,11 +199,11 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 	}
 
 	var userIds []string
-	userWorkspaceMap := make(map[string]string)
+	userWorkspaceMap := make(map[string]db.UserWorkspaceModel)
 
 	for _, userWorkspace := range userWorkspaces {
 		userIds = append(userIds, userWorkspace.UserID)
-		userWorkspaceMap[userWorkspace.UserID] = string(userWorkspace.Role)
+		userWorkspaceMap[userWorkspace.UserID] = userWorkspace
 	}
 
 	if len(userIds) == 0 {
@@ -219,14 +220,15 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 
 	var result []types.UserWorkspace
 	for _, user := range users {
-		role, exists := userWorkspaceMap[user.ID]
+		userWorkspace, exists := userWorkspaceMap[user.ID]
 		if exists {
 			result = append(result, types.UserWorkspace{
-				ID:             user.ID,
-				Email:          user.Email,
-				Name:           user.Name,
-				ProfilePicture: user.ProfilePicture,
-				Role:           role,
+				UserWorkspaceID: userWorkspace.ID,
+				ID:              user.ID,
+				Email:           user.Email,
+				Name:            user.Name,
+				ProfilePicture:  user.ProfilePicture,
+				Role:            string(userWorkspace.Role), // Role from UserWorkspace
 			})
 		}
 	}
