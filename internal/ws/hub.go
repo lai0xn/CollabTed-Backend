@@ -152,15 +152,7 @@ func sendPrivateMessage(userID string, msg Message) error {
 func broadcastMessageToChannel(msg Message) error {
 	mu.RLock()
 	defer mu.RUnlock()
-	//sending before the loop for testing cuz there is no channel with participants yet
-	user, ok := users[msg.SenderID]
-	if !ok {
-		return fmt.Errorf("user %s not found", msg.SenderID)
-	}
-	err := user.conn.WriteJSON(msg)
-	if err != nil {
-		return err
-	}
+
 	for _, user := range msg.Recievers {
 		con, ok := users[user.UserID]
 		if !ok {
@@ -173,7 +165,7 @@ func broadcastMessageToChannel(msg Message) error {
 		}
 	}
 	// Saving msgs to the db
-	_, err = msgSrv.SendMessage(types.MessageD{
+	_, err := msgSrv.SendMessage(types.MessageD{
 		Content:   msg.Content,
 		SenderID:  msg.SenderID,
 		ChannelID: msg.ChannelID,

@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -68,14 +68,21 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		}
 
 		// Add the user to the channel's participants
-		_, err = prisma.Client.Channel.FindUnique(
+		c, err := prisma.Client.Channel.FindUnique(
 			db.Channel.ID.Equals(channelID),
-		).Update(
+		).With(db.Channel.Participants.Fetch()).Update(
 			db.Channel.Participants.Link(db.UserWorkspace.ID.Equals(user.ID)),
 		).Exec(ctx)
 		if err != nil {
 			return nil, err
 		}
+
+
+		fmt.Println("added", user.ID)
+		fmt.Println("channel", channelID)
+
+		fmt.Println(c.Participants()[0].JoinedAt)
+		fmt.Println(c.ID)
 
 		logger.LogDebug().Msg("Added user to channel")
 		addedUsers = append(addedUsers, user)
