@@ -235,12 +235,11 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 }
 
 func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types.UserWorkspace, error) {
-	// Find the user-workspace relation based on userId and workspaceId7
+	// Find the user-workspace relation based on userId and workspaceId
 	logger.LogInfo().Msg("####################")
 	logger.LogInfo().Msg(workspaceId)
 	logger.LogInfo().Msg(userId)
 	logger.LogInfo().Msg("####################")
-	fmt.Println("nikzbi")
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
@@ -269,10 +268,12 @@ func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types
 
 	// Return the user workspace details
 	return types.UserWorkspace{
-		Email:          user.Email,
-		Name:           user.Name,
-		ProfilePicture: user.ProfilePicture,
-		Role:           string(userWorkspace.Role), // Assuming Role is stored in UserWorkspace
+		UserWorkspaceID: userWorkspace.ID,
+		ID:              user.ID,
+		Email:           user.Email,
+		Name:            user.Name,
+		ProfilePicture:  user.ProfilePicture,
+		Role:            string(userWorkspace.Role), // Assuming Role is stored in UserWorkspace
 	}, nil
 }
 
