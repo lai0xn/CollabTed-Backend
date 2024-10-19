@@ -240,7 +240,7 @@ func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types
 	logger.LogInfo().Msg(workspaceId)
 	logger.LogInfo().Msg(userId)
 	logger.LogInfo().Msg("####################")
-
+	fmt.Println("nikzbi")
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
