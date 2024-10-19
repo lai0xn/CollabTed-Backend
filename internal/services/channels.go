@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -78,6 +77,7 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 			return nil, err
 		}
 
+
 		fmt.Println("added", user.ID)
 		fmt.Println("channel", channelID)
 
@@ -85,9 +85,6 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		fmt.Println(c.ID)
 
 		logger.LogDebug().Msg("Added user to channel")
-
-		// Append the added user to the result list
-
 		addedUsers = append(addedUsers, user)
 	}
 

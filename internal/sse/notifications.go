@@ -2,10 +2,12 @@ package sse
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
+	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/labstack/echo/v4"
 	r "github.com/redis/go-redis/v9"
 )
@@ -54,4 +56,23 @@ func (n *Notifier) NotificationHandler(c echo.Context) error {
 			return nil
 		}
 	}
+}
+
+func (n *Notifier) NotifyUser(userID, roomID, callerID string) error {
+	call := types.Call{
+		CallerID: callerID,
+		RoomID:   roomID,
+	}
+
+	b, err := json.Marshal(call)
+	if err != nil {
+		log.Printf("Failed to marshal call: %v", err)
+		return err
+	}
+	err = n.client.Publish(context.Background(), "notifs:"+userID, b).Err()
+	if err != nil {
+		log.Printf("Failed to publish notification: %v", err)
+		return err
+	}
+	return nil
 }
