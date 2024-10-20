@@ -26,8 +26,27 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 		db.Channel.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorkspaceID),
 		),
-		db.Channel.ParticipantsIDS.Push(data.ParticipantsIDS),
 	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	usr, err := prisma.Client.UserWorkspace.FindUnique(
+		db.UserWorkspace.ID.Equals(data.CreatorID),
+	).Exec(context.Background())
+	if err != nil {
+		fmt.Println("user workspace not found")
+		return nil, err
+	}
+	_, err = prisma.Client.Channel.FindUnique(
+		db.Channel.ID.Equals(result.ID),
+	).Update(
+		db.Channel.Participants.Link(
+			db.UserWorkspace.ID.Equals(usr.ID),
+		),
+	).Exec(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
