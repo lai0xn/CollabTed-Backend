@@ -26,6 +26,7 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 		db.Channel.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorkspaceID),
 		),
+		db.Channel.ParticipantsIDS.Push(data.ParticipantsIDS),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err

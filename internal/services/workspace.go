@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -15,12 +16,14 @@ import (
 )
 
 type WorkspaceService struct {
-	sender *mail.EmailVerifier
+	sender   *mail.EmailVerifier
+	boardSrv *BoardService
 }
 
 func NewWorkspaceService() *WorkspaceService {
 	return &WorkspaceService{
-		sender: mail.NewVerifier(),
+		sender:   mail.NewVerifier(),
+		boardSrv: NewBoardService(),
 	}
 }
 
@@ -46,6 +49,14 @@ func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.Workspace
 		db.UserWorkspace.Role.Set(db.UserRoleAdmin),
 		db.UserWorkspace.JoinedAt.Set(time.Now()),
 	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	_, err = s.boardSrv.SaveBoard(types.BoardD{
+		WorkspaceID: result.ID,
+		Elements:    []json.RawMessage{},
+	})
 
 	if err != nil {
 		return nil, err
