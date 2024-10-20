@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -42,14 +41,6 @@ func (h *workspaceHandler) CreateWorkspace(c echo.Context) error {
 	}
 
 	workspace, err := h.srv.CreateWorkspace(payload)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	_, err = h.boardSrv.SaveBoard(types.BoardD{
-		WorkspaceID: workspace.ID,
-		Elements:    []json.RawMessage{},
-	})
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

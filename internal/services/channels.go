@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"fmt"
+
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -21,9 +22,11 @@ func (s *ChannelService) CreateChannel(data types.ChannelD) (*db.ChannelModel, e
 	// Create a new channel
 	result, err := prisma.Client.Channel.CreateOne(
 		db.Channel.Name.Set(data.Name),
+		db.Channel.CreatorID.Set(data.CreatorID),
 		db.Channel.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorkspaceID),
 		),
+		db.Channel.ParticipantsIDS.Push(data.ParticipantsIDS),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
@@ -77,7 +80,6 @@ func (s *ChannelService) AddParticipants(workspaceID string, channelID string, u
 		if err != nil {
 			return nil, err
 		}
-
 
 		fmt.Println("added", user.ID)
 		fmt.Println("channel", channelID)
