@@ -38,14 +38,15 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 
 	// Link assignees to the task
 	for _, assigneeID := range data.AssigneesIDs {
-		_, err := prisma.Client.UserWorkspace.FindMany(
+		usr, err := prisma.Client.UserWorkspace.FindFirst(
 			db.UserWorkspace.UserID.Equals(assigneeID),
 			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
-		).Update(
-			db.UserWorkspace.Tasks.Link(
-				db.Task.ID.Equals(result.ID), // Link the created task
-			),
 		).Exec(context.Background())
+		prisma.Client.Task.FindUnique(
+			db.Task.ID.Equals(result.ID),
+		).Update(db.Task.Assignees.Link(
+			db.UserWorkspace.ID.Equals(usr.ID),
+		)).Exec(context.Background())
 		if err != nil {
 			return nil, fmt.Errorf("failed to add assignee with ID %s to the task: %v", assigneeID, err)
 		}

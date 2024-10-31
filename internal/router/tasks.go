@@ -9,8 +9,8 @@ import (
 func TasksRoutes(e *echo.Group) {
 	tasks := e.Group("/tasks", middlewares.AuthMiddleware)
 	taskHandler := handlers.NewTaskHandler()
-	tasks.POST("/tasks", taskHandler.CreateTaskHandler)
-	tasks.GET("/tasks/:id", taskHandler.GetTaskByIdHandler)
-	tasks.GET("/projects/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
-	tasks.POST("/tasks/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
+	tasks.POST("/", taskHandler.CreateTaskHandler)
+	tasks.GET("/:id", taskHandler.GetTaskByIdHandler)
+	tasks.GET("/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
+	tasks.POST("/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
 }

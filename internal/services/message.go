@@ -44,7 +44,16 @@ func (s *MessageService) GetMessagesByChannel(channelID string) ([]db.MessageMod
 
 	return messages, nil
 }
+func (s *MessageService) GetAttachmentsByChannel(channelID string) ([]db.AttachmentModel, error) {
+	attachments, err := prisma.Client.Attachment.FindMany(
+		db.Attachment.ChannelID.Equals(channelID),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
 
+	return attachments, nil
+}
 func (s *MessageService) GetMessageById(messageID string) (*db.MessageModel, error) {
 	message, err := prisma.Client.Message.FindUnique(
 		db.Message.ID.Equals(messageID),
@@ -59,6 +68,31 @@ func (s *MessageService) GetMessageById(messageID string) (*db.MessageModel, err
 func (s *MessageService) DeleteMessage(messageID string) error {
 	_, err := prisma.Client.Message.FindUnique(
 		db.Message.ID.Equals(messageID),
+	).Delete().Exec(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.AttachmentModel, error) {
+	user, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(attachment.SenderID),
+		db.UserWorkspace.ID.Equals(attachment.WorkspaceID),
+	).Exec(context.Background())
+	result, err := prisma.Client.Attachment.CreateOne(db.Attachment.Channel.Link(
+		db.Channel.ID.Equals(attachment.ChannelID)),
+		db.Attachment.User.Link(
+			db.UserWorkspace.ID.Equals(user.ID),
+		),
+		db.Attachment.File.Set(attachment.File), db.Attachment.Title.Set(attachment.Title),
+	).Exec(context.Background())
+	return result, err
+}
+func (s *MessageService) DeleteAttachment(attachmentID string) error {
+	_, err := prisma.Client.Attachment.FindUnique(
+		db.Attachment.ID.Equals(attachmentID),
 	).Delete().Exec(context.Background())
 	if err != nil {
 		return err

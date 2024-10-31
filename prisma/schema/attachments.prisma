@@ -1,0 +1,9 @@
+model Attachment {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  channelID       String          @db.ObjectId
+  channel         Channel         @relation(fields: [channelID],references: [id])
+  userID          String          @db.ObjectId
+  user            UserWorkspace   @relation(fields: [userID],references: [id])
+  file            String
+  title           String
+}

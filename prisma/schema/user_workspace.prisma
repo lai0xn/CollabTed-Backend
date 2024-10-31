@@ -9,6 +9,7 @@ model UserWorkspace {
   channelIds     String[]     @db.ObjectId
   Channel       Channel[]     @relation(fields: [channelIds], references: [id])
   leadProjects  Project[]
+  attachments   Attachment[]
   projectsIds   String[] @db.ObjectId
   projects      Project[] @relation(fields: [projectsIds],references: [id],"ProjectAssignees")
   tasksIds      String[] @db.ObjectId

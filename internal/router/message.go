@@ -9,8 +9,10 @@ import (
 func MessageRoutes(e *echo.Group) {
 	h := handlers.NewMessageHandler()
 	messages := e.Group("/messages", middlewares.AuthMiddleware)
-
-	messages.POST("/send", h.SendMessage)
-	messages.GET("/:channelId/get", h.GetMessages)
-	messages.POST("/:messageId/delete", h.DeleteMessage)
+	messages.POST("/", h.SendMessage)
+	messages.GET("/:channelId", h.GetMessages)
+	messages.GET("/attachments/:channelId", h.GetAttachments)
+	messages.DELETE("/:messageId", h.DeleteMessage)
+	messages.POST("/attachment", h.UploadAttachment)
+	messages.DELETE("/attachment/:id", h.DeleteAttachment)
 }
