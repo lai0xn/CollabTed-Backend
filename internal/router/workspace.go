@@ -18,4 +18,9 @@ func WorkspaceRoutes(e *echo.Group) {
 	workspaces.GET("/:workspaceId/:userId", h.GetUserInWorkspace)
 	workspaces.GET("/:workspaceId/invitations", h.GetAllInvites)
 	workspaces.DELETE("/:invitationId/delete", h.DeleteInvitation)
+	workspaces.PATCH("/:workspaceId/name", h.ChangeName)
+	workspaces.PATCH("/:workspaceId/owner", h.ChangeOwner)
+	workspaces.PATCH("/:workspaceId/:userId/role", h.ChangeUserRole)
+	workspaces.POST("/:workspaceId/:userId/kick", h.KickUser)
+
 }

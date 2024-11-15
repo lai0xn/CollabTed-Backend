@@ -300,6 +300,68 @@ func (s *WorkspaceService) GetInvitations(workspaceId string) ([]db.InvitationMo
 	return invitations, nil
 }
 
+func (s *WorkspaceService) ChangeUserRole(workspaceId string, userId string, role db.UserRole) error {
+	userwrk, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
+		db.UserWorkspace.UserID.Equals(userId),
+	).Exec(context.Background())
+	if err != nil {
+		return err
+	}
+	_, err = prisma.Client.UserWorkspace.FindUnique(
+		db.UserWorkspace.ID.Equals(userwrk.ID),
+	).Update(
+		db.UserWorkspace.Role.Set(role),
+	).Exec(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	return nil
+
+}
+
+func (s *WorkspaceService) KickUser(workspaceId string, userId string) (*db.WorkspaceModel, error) {
+	userwrk, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userId),
+		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	wrkspace, err := prisma.Client.Workspace.FindUnique(
+		db.Workspace.ID.Equals(workspaceId),
+	).Update(
+		db.Workspace.Users.Unlink(
+			db.UserWorkspace.ID.Equals(userwrk.ID),
+		),
+	).Exec(context.Background())
+	return wrkspace, nil
+}
+
+func (s *WorkspaceService) ChangeOwner(workspaceId, userId string) (*db.WorkspaceModel, error) {
+	workspace, err := prisma.Client.Workspace.FindUnique(
+		db.Workspace.ID.Equals(workspaceId),
+	).Update(
+		db.Workspace.Owner.Link(
+			db.User.ID.Equals(userId),
+		),
+	).Exec(context.Background())
+
+	return workspace, err
+}
+
+func (s *WorkspaceService) ChangeName(workspaceId, name string) (*db.WorkspaceModel, error) {
+	workspace, err := prisma.Client.Workspace.FindUnique(
+		db.Workspace.ID.Equals(workspaceId),
+	).Update(
+		db.Workspace.WorkspaceName.Set(name),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return workspace, err
+}
+
 func (s *WorkspaceService) DeleteInvitation(invitationId string) error {
 	_, err := prisma.Client.Invitation.FindUnique(
 		db.Invitation.ID.Equals(invitationId),

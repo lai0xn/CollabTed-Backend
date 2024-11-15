@@ -191,3 +191,100 @@ func (h *workspaceHandler) DeleteInvitation(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, "Invitation deleted successfully")
 }
+
+func (h *workspaceHandler) ChangeName(c echo.Context) error {
+	type payload struct {
+		Name string `json:"name"`
+	}
+	claims := c.Get("user").(*types.Claims)
+
+	worksapceId := c.Param("workspaceId")
+	var data payload
+	canPerform, err := h.srv.CanUserPerformAction(claims.ID, worksapceId, db.UserRoleAdmin)
+
+	if err != nil || !canPerform {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := c.Bind(&data); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	workspace, err := h.srv.ChangeName(worksapceId, data.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, workspace)
+}
+
+func (h *workspaceHandler) ChangeOwner(c echo.Context) error {
+	type payload struct {
+		UserID string `json:"userId"`
+	}
+	claims := c.Get("user").(*types.Claims)
+
+	worksapceId := c.Param("workspaceId")
+	var data payload
+	canPerform, err := h.srv.CanUserPerformAction(claims.ID, worksapceId, db.UserRoleAdmin)
+
+	if err != nil || !canPerform {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := c.Bind(&data); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	workspace, err := h.srv.ChangeOwner(worksapceId, claims.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, workspace)
+
+}
+
+func (h *workspaceHandler) KickUser(c echo.Context) error {
+	userId := c.Param("userId")
+	workspaceID := c.Param("workspaceId")
+
+	claims := c.Get("user").(*types.Claims)
+	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)
+
+	if err != nil || !canPerform {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	workspace, err := h.srv.KickUser(workspaceID, userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, workspace)
+}
+
+func (h *workspaceHandler) ChangeUserRole(c echo.Context) error {
+	userId := c.Param("userId")
+	workspaceID := c.Param("workspaceId")
+	type payload struct {
+		Role string `json:"role"`
+	}
+	var role payload
+	if err := c.Bind(&role); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	claims := c.Get("user").(*types.Claims)
+	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)
+
+	if err != nil || !canPerform {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := h.srv.ChangeUserRole(workspaceID, userId, db.UserRole(role.Role)); err != nil {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "you don't have permission to perform this action",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"msg": "role changed",
+	})
+}
