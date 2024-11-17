@@ -42,7 +42,7 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 			db.UserWorkspace.UserID.Equals(assigneeID),
 			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
 		).Exec(context.Background())
-		prisma.Client.Task.FindUnique(
+		_, err = prisma.Client.Task.FindUnique(
 			db.Task.ID.Equals(result.ID),
 		).Update(db.Task.Assignees.Link(
 			db.UserWorkspace.ID.Equals(usr.ID),
