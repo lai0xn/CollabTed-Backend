@@ -62,3 +62,16 @@ func GenerateInvitationToken() (string, error) {
 	toekn := uuid.NewString()
 	return toekn, nil
 }
+
+func DeleteJWTCookie(w http.ResponseWriter) error {
+	cookie := &http.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   config.SECURE_COOKIE,
+	}
+	http.SetCookie(w, cookie)
+	return nil
+}

@@ -1,12 +1,12 @@
-model Project { 
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  title String
-  workspaceId String @db.ObjectId
-  workspace Workspace @relation(fields: [workspaceId],references: [id])
-  leadId String @db.ObjectId
-  lead UserWorkspace @relation(fields: [leadId],references: [id])
-  assigneesIds String[] @db.ObjectId
-  statuses Status[]
-  tasks Task[]
-  assignees UserWorkspace[] @relation(fields: [assigneesIds],references: [id],"ProjectAssignees")
+model Project {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  workspaceId  String          @db.ObjectId
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id])
+  leadId       String          @db.ObjectId
+  lead         UserWorkspace   @relation(fields: [leadId], references: [id])
+  assigneesIds String[]        @db.ObjectId
+  statuses     Status[]
+  tasks        Task[]
+  assignees    UserWorkspace[] @relation(fields: [assigneesIds], references: [id], "ProjectAssignees")
 }

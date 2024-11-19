@@ -1,22 +1,24 @@
 model UserWorkspace {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String      @db.ObjectId
-  user          User        @relation(fields: [userId], references: [id])
-  workspaceId   String      @db.ObjectId
-  workspace     Workspace   @relation(fields: [workspaceId], references: [id])
-  role          UserRole
-  joinedAt      DateTime    @default(now())
-  channelIds     String[]     @db.ObjectId
-  Channel       Channel[]     @relation(fields: [channelIds], references: [id])
-  leadProjects  Project[]
-  attachments   Attachment[]
-  projectsIds   String[] @db.ObjectId
-  projects      Project[] @relation(fields: [projectsIds],references: [id],"ProjectAssignees")
-  tasksIds      String[] @db.ObjectId
-  tasks         Task[] @relation(fields: [tasksIds],references: [id])
-  Messages      Message[]
-}
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String       @db.ObjectId
+  user         User         @relation(fields: [userId], references: [id])
+  workspaceId  String       @db.ObjectId
+  workspace    Workspace    @relation(fields: [workspaceId], references: [id])
+  role         UserRole
+  joinedAt     DateTime     @default(now())
+  channelIds   String[]     @db.ObjectId
+  Channel      Channel[]    @relation(fields: [channelIds], references: [id])
+  leadProjects Project[]
+  attachments  Attachment[]
+  projectsIds  String[]     @db.ObjectId
+  projects     Project[]    @relation(fields: [projectsIds], references: [id], "ProjectAssignees")
+  tasksIds     String[]     @db.ObjectId
+  tasks        Task[]       @relation(fields: [tasksIds], references: [id])
+  Messages     Message[]
 
+  eventIds String[] @db.ObjectId
+  Event    Event[]  @relation(fields: [eventIds], references: [id])
+}
 
 enum UserRole {
   ADMIN // Full control over the workspace (can invite, manage, and remove users)
