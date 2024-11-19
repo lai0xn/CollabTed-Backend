@@ -335,6 +335,9 @@ func (s *WorkspaceService) KickUser(workspaceId string, userId string) (*db.Work
 			db.UserWorkspace.ID.Equals(userwrk.ID),
 		),
 	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	return wrkspace, nil
 }
 

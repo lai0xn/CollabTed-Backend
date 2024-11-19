@@ -14,4 +14,5 @@ func AuthRoutes(e *echo.Group) {
 	auth.POST("/login", h.Login)
 	auth.GET("/check", h.CheckUser, middlewares.AuthMiddleware)
 	auth.GET("/me", h.Me, middlewares.AuthMiddleware)
+	auth.GET("/logout", h.Logout, middlewares.AuthMiddleware)
 }

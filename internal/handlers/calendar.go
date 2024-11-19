@@ -33,29 +33,33 @@ func NewCalendarHandler() *calendarHandler {
 //	@Router		/events [post]
 func (h *calendarHandler) CreateEvent(c echo.Context) error {
 	var payload types.EventD
+
+	// Bind and validate payload
 	if err := c.Bind(&payload); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload: "+err.Error())
 	}
 
 	claims := c.Get("user").(*types.Claims)
 
+	// Check if user has Admin or Manager role in the workspace
 	canCreateAdmin, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Error checking user permissions: "+err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error checking admin permissions: "+err.Error())
 	}
 
 	canCreateManager, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Error checking user permissions: "+err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error checking manager permissions: "+err.Error())
 	}
 
 	if !canCreateAdmin && !canCreateManager {
 		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create an event in this workspace")
 	}
 
+	// Call the service to create the event
 	data, err := h.srv.CreateEvent(payload)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error creating event: "+err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, data)

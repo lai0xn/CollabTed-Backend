@@ -42,6 +42,9 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 			db.UserWorkspace.UserID.Equals(assigneeID),
 			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
 		).Exec(context.Background())
+		if err != nil {
+			return nil, fmt.Errorf("failed to find user with ID %s: %v", assigneeID, err)
+		}
 		_, err = prisma.Client.Task.FindUnique(
 			db.Task.ID.Equals(result.ID),
 		).Update(db.Task.Assignees.Link(

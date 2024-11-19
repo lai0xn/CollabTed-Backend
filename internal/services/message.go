@@ -81,6 +81,9 @@ func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.Att
 		db.UserWorkspace.UserID.Equals(attachment.SenderID),
 		db.UserWorkspace.ID.Equals(attachment.WorkspaceID),
 	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	result, err := prisma.Client.Attachment.CreateOne(db.Attachment.Channel.Link(
 		db.Channel.ID.Equals(attachment.ChannelID)),
 		db.Attachment.User.Link(

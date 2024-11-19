@@ -1,11 +1,15 @@
 model Event {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
   startTime   DateTime
   endTime     DateTime
-  type        EventType @default(EVENT)
-  workspaceId String    @db.ObjectId
+  type        EventType       @default(EVENT)
+  creatorId   String          @db.ObjectId
+  workspaceId String          @db.ObjectId
+  assineesIds String[]        @db.ObjectId
+  assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])
+  meetLink    String
 
   Workspace Workspace @relation(fields: [workspaceId], references: [id])
 }

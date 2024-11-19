@@ -140,3 +140,12 @@ func (h *authHandler) Me(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, c.Get("user"))
 }
+
+func (h *authHandler) Logout(c echo.Context) error {
+	if err := utils.DeleteJWTCookie(c.Response().Writer); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Unable to delete JWT cookie")
+	}
+	return c.JSON(http.StatusOK, types.Response{
+		"message": "token deleted",
+	})
+}

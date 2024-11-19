@@ -276,9 +276,7 @@ func (h *workspaceHandler) ChangeUserRole(c echo.Context) error {
 	if err != nil || !canPerform {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
+
 	if err := h.srv.ChangeUserRole(workspaceID, userId, db.UserRole(role.Role)); err != nil {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "you don't have permission to perform this action",
