@@ -23,21 +23,37 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 		db.Event.StartTime.Set(startTime),
 		db.Event.EndTime.Set(endTime),
 		db.Event.CreatorID.Set(data.CreatorID),
-		db.Event.Description.Set(data.Description),
-		db.Event.Type.Set(db.EventType(data.Type)),
-		db.Event.MeetLink.Set(data.MeetLink),
 
+		db.Event.MeetLink.Set(data.MeetLink),
 		db.Event.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorkspaceID),
 		),
+		db.Event.Description.Set(data.Description),
 
-		db.Event.Assignees.Link(
-			db.User.ID.In(data.Assignees),
-		),
+		db.Event.Type.Set(db.EventType(data.Type)),
 
 		db.Event.AssineesIds.Set(data.Assignees),
 	).Exec(context.Background())
+	for _, assigneeID := range data.Assignees {
+		usr, err := prisma.Client.UserWorkspace.FindFirst(
+			db.UserWorkspace.UserID.Equals(assigneeID),
+			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
+		).Exec(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		_, err = prisma.Client.UserWorkspace.FindUnique(
+			db.UserWorkspace.ID.Equals(usr.ID),
+		).Update(
+			db.UserWorkspace.Event.Link(
+				db.Event.ID.Equals(result.ID),
+			),
+		).Exec(context.Background())
+		if err != nil {
+			return nil, err
+		}
 
+	}
 	if err != nil {
 		return nil, err
 	}

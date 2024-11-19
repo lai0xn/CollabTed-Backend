@@ -18,8 +18,8 @@ func (s *CallService) GetGlobalJoinToken(participantName string, workspaceId str
 	API_SECRET := config.LIVEKIT_API_SECRET
 
 	at := auth.NewAccessToken(API_KEY, API_SECRET)
-
-	var roomId string = uuid.NewString() + workspaceId
+  
+  var roomId string = "global:"+workspaceId
 	grant := &auth.VideoGrant{
 		RoomJoin: true,
 		Room:     roomId,
