@@ -11,6 +11,6 @@ func TasksRoutes(e *echo.Group) {
 	taskHandler := handlers.NewTaskHandler()
 	tasks.POST("/", taskHandler.CreateTaskHandler)
 	tasks.GET("/:id", taskHandler.GetTaskByIdHandler)
-	tasks.GET("/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
+	tasks.GET("/:workspaceId/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
 	tasks.POST("/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
 }
