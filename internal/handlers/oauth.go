@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"golang.org/x/oauth2"
@@ -80,6 +81,12 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 	var userID string
 
 	if existingUser == nil {
+		imageBase64, err := utils.FetchAndEncodeImageToBase64(user.ProfilePicture)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate profile picture")
+		}
+		user.ProfilePicture = imageBase64
+		logger.Logger.Info().Msgf("generated profile picture: %s", user.ProfilePicture)
 		newUser, err := h.srv.CreateUser(user.Name, user.Email, "", user.ProfilePicture)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user: "+err.Error())
