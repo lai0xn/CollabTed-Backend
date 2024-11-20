@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
@@ -91,6 +92,7 @@ func (h *authHandler) Register(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate profile picture")
 		}
 		payload.ProfilePicture = imageBase64
+		logger.Logger.Info().Msgf("generated profile picture: %s", payload.ProfilePicture)
 	}
 
 	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)
