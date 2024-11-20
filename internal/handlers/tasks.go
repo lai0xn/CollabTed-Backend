@@ -31,11 +31,11 @@ func (h *TaskHandler) CreateTaskHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	userId := c.Get("userId").(string) // Assume userId is extracted from JWT middleware
+	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
 	workspaceId := taskData.WorkspaceID
 
 	// Check if user has permissions to create the task (manager or project lead)
-	canPerform, err := h.TaskService.CanUserPerformAction(userId, workspaceId, taskData.ProjectID)
+	canPerform, err := h.TaskService.CanUserPerformAction(claims.ID, workspaceId, taskData.ProjectID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
@@ -56,11 +56,11 @@ func (h *TaskHandler) CreateTaskHandler(c echo.Context) error {
 // GetTaskByIdHandler retrieves a task by ID, ensuring the user is a member of the project.
 func (h *TaskHandler) GetTaskByIdHandler(c echo.Context) error {
 	taskID := c.Param("id")
-	userId := c.Get("userId").(string) // Assume userId is extracted from JWT middleware
+	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
 	workspaceId := c.QueryParam("workspaceId")
 
 	// Ensure the user is a member of the project
-	isMember, err := h.ProjectService.IsUserMemberOfProject(userId, workspaceId, taskID)
+	isMember, err := h.ProjectService.IsUserMemberOfProject(claims.ID, workspaceId, taskID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
@@ -81,11 +81,11 @@ func (h *TaskHandler) GetTaskByIdHandler(c echo.Context) error {
 // ListTasksByProjectHandler lists tasks in a project, ensuring the user is a member of the project.
 func (h *TaskHandler) ListTasksByProjectHandler(c echo.Context) error {
 	projectID := c.Param("projectId")
-	userId := c.Get("userId").(string) // Assume userId is extracted from JWT middleware
+	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
 	workspaceId := c.QueryParam("workspaceId")
 
 	// Ensure the user is a member of the project
-	isMember, err := h.ProjectService.IsUserMemberOfProject(userId, workspaceId, projectID)
+	isMember, err := h.ProjectService.IsUserMemberOfProject(claims.ID, workspaceId, projectID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
@@ -114,11 +114,11 @@ func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 	}
 
 	taskID := c.Param("id")
-	userId := c.Get("userId").(string) // Assume userId is extracted from JWT middleware
+	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
 	workspaceId := c.QueryParam("workspaceId")
 
 	// Check if user has permissions to add assignees (manager or project lead)
-	canPerform, err := h.TaskService.CanUserPerformAction(userId, workspaceId, taskID)
+	canPerform, err := h.TaskService.CanUserPerformAction(claims.ID, workspaceId, taskID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
