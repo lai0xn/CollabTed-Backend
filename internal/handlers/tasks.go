@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
@@ -81,8 +82,9 @@ func (h *TaskHandler) GetTaskByIdHandler(c echo.Context) error {
 // ListTasksByProjectHandler lists tasks in a project, ensuring the user is a member of the project.
 func (h *TaskHandler) ListTasksByProjectHandler(c echo.Context) error {
 	projectID := c.Param("projectId")
+	fmt.Println(projectID)
 	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
-	workspaceId := c.QueryParam("workspaceId")
+	workspaceId := c.Param("workspaceId")
 
 	// Ensure the user is a member of the project
 	isMember, err := h.ProjectService.IsUserMemberOfProject(claims.ID, workspaceId, projectID)
