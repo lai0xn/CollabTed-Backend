@@ -80,7 +80,17 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	if payload.ProfilePicture == "" {
-		payload.ProfilePicture = fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=%s&color=%s", url.QueryEscape(payload.Name), utils.RandomHexColor(), utils.RandomHexColor())
+		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=%s&color=%s",
+			url.QueryEscape(payload.Name),
+			utils.RandomHexColor(),
+			utils.RandomHexColor(),
+		)
+
+		imageBase64, err := utils.FetchAndEncodeImageToBase64(avatarURL)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate profile picture")
+		}
+		payload.ProfilePicture = imageBase64
 	}
 
 	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)
