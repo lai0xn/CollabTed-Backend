@@ -22,8 +22,8 @@ func (h *StatusHandler) CreateStatus(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
-	status, err := h.statusService.CreateStatus(statusD, c.Get("userID").(string))
+	claims := c.Get("user").(*types.Claims)
+	status, err := h.statusService.CreateStatus(statusD, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
@@ -33,8 +33,8 @@ func (h *StatusHandler) CreateStatus(c echo.Context) error {
 
 func (h *StatusHandler) GetStatusesByProject(c echo.Context) error {
 	projectID := c.Param("projectID")
-
-	statuses, err := h.statusService.GetStatusesByProject(projectID, c.Get("userID").(string))
+	claims := c.Get("user").(*types.Claims)
+	statuses, err := h.statusService.GetStatusesByProject(projectID, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
@@ -44,8 +44,8 @@ func (h *StatusHandler) GetStatusesByProject(c echo.Context) error {
 
 func (h *StatusHandler) GetStatusByID(c echo.Context) error {
 	statusID := c.Param("statusID")
-
-	status, err := h.statusService.GetStatusByID(statusID, c.Get("userID").(string))
+	claims := c.Get("user").(*types.Claims)
+	status, err := h.statusService.GetStatusByID(statusID, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
@@ -55,8 +55,8 @@ func (h *StatusHandler) GetStatusByID(c echo.Context) error {
 
 func (h *StatusHandler) DeleteStatus(c echo.Context) error {
 	statusID := c.Param("statusID")
-
-	err := h.statusService.DeleteStatus(statusID, c.Get("userID").(string))
+	claims := c.Get("user").(*types.Claims)
+	err := h.statusService.DeleteStatus(statusID, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}

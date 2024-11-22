@@ -75,6 +75,7 @@ func (s *TaskService) ListTasksByProject(projectID string) ([]db.TaskModel, erro
 		db.Task.ProjectID.Equals(projectID),
 	).With(db.Task.Assignees.Fetch(), db.Task.Status.Fetch()).Exec(context.Background())
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	return tasks, nil
@@ -158,12 +159,15 @@ func (s *TaskService) AssignUserToTask(taskID, userWorkspaceID string) (*db.Task
 
 func (s *ProjectService) IsUserMemberOfProject(userId, workspaceId, projectId string) (bool, error) {
 	// Check if the user is part of the workspace and project
+	fmt.Println(userId, workspaceId, projectId)
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
 	).With(db.UserWorkspace.Projects.Fetch()).Exec(context.Background())
 
 	if err != nil {
+
+		fmt.Println(err)
 		return false, err
 	}
 
