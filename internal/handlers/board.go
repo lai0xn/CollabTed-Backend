@@ -18,6 +18,7 @@ func NewBoardHandler() *BoardHandler {
 	}
 }
 
+
 func (h *BoardHandler) UpdateBoard(c echo.Context) error {
 	var boardId = c.Param("boardId")
 
