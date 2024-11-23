@@ -6,6 +6,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -54,6 +55,12 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 
 	if !canCreateAdmin && !canCreateManager {
 		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create an event in this workspace")
+	}
+
+	payload.MeetLink = uuid.NewString()
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error joining room: "+err.Error())
 	}
 
 	// Call the service to create the event
