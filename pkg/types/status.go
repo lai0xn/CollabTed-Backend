@@ -2,6 +2,6 @@ package types
 
 type StatusD struct {
 	Name           string `json:"name"`
-	ProjectID      string `json:"projectID"`
+	ProjectID      string `json:"projectId"`
 	StatusCategory string `json:"category"`
 }
