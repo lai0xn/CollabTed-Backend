@@ -23,17 +23,16 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 		db.Event.StartTime.Set(startTime),
 		db.Event.EndTime.Set(endTime),
 		db.Event.CreatorID.Set(data.CreatorID),
-
 		db.Event.MeetLink.Set(data.MeetLink),
-		db.Event.Workspace.Link(
-			db.Workspace.ID.Equals(data.WorkspaceID),
-		),
 		db.Event.Description.Set(data.Description),
-
 		db.Event.Type.Set(db.EventType(data.Type)),
-
+		db.Event.WorkspaceID.Set(data.WorkspaceID),
 		db.Event.AssineesIds.Set(data.Assignees),
 	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
 	for _, assigneeID := range data.Assignees {
 		usr, err := prisma.Client.UserWorkspace.FindFirst(
 			db.UserWorkspace.UserID.Equals(assigneeID),
