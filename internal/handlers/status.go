@@ -32,7 +32,7 @@ func (h *StatusHandler) CreateStatus(c echo.Context) error {
 }
 
 func (h *StatusHandler) GetStatusesByProject(c echo.Context) error {
-	projectID := c.Param("projectID")
+	projectID := c.Param("projectId")
 	claims := c.Get("user").(*types.Claims)
 	statuses, err := h.statusService.GetStatusesByProject(projectID, claims.ID)
 	if err != nil {
