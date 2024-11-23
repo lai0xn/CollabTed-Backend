@@ -34,6 +34,7 @@ func (h *StatusHandler) CreateStatus(c echo.Context) error {
 func (h *StatusHandler) GetStatusesByProject(c echo.Context) error {
 	projectID := c.Param("projectId")
 	claims := c.Get("user").(*types.Claims)
+
 	statuses, err := h.statusService.GetStatusesByProject(projectID, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
@@ -43,7 +44,7 @@ func (h *StatusHandler) GetStatusesByProject(c echo.Context) error {
 }
 
 func (h *StatusHandler) GetStatusByID(c echo.Context) error {
-	statusID := c.Param("statusID")
+	statusID := c.Param("statusId")
 	claims := c.Get("user").(*types.Claims)
 	status, err := h.statusService.GetStatusByID(statusID, claims.ID)
 	if err != nil {
