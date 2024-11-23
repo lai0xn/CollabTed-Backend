@@ -31,7 +31,6 @@ func (s *StatusService) CreateStatus(data types.StatusD, userID string) (*db.Sta
 			db.Project.ID.Equals(data.ProjectID),
 		),
 		db.Status.Title.Set(data.Name),
-		db.Status.Category.Set(db.StatusCategory(data.StatusCategory)),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
@@ -41,14 +40,14 @@ func (s *StatusService) CreateStatus(data types.StatusD, userID string) (*db.Sta
 }
 
 func (s *StatusService) GetStatusesByProject(projectID string, userID string) ([]db.StatusModel, error) {
-	// Check if the user is an assignee of the project
-	assignee, err := s.isAssigneeOfProject(projectID, userID)
-	if err != nil {
-		return nil, err
-	}
-	if !assignee {
-		return nil, errors.New("only assignees of the project can view statuses")
-	}
+	// // Check if the user is an assignee of the project
+	// assignee, err := s.isAssigneeOfProject(projectID, userID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if !assignee {
+	// 	return nil, errors.New("only assignees of the project can view statuses")
+	// }
 
 	// Get all statuses for the project
 	statuses, err := prisma.Client.Status.FindMany(
@@ -130,20 +129,22 @@ func (s *StatusService) isLeadOfProject(projectID string, userID string) (bool, 
 
 func (s *StatusService) isAssigneeOfProject(projectID string, userID string) (bool, error) {
 	// Get the project by ID
-	project, err := prisma.Client.Project.FindFirst(
+	project, err := prisma.Client.Project.FindUnique(
 		db.Project.ID.Equals(projectID),
+	).With(
+		db.Project.Assignees.Fetch(),
 	).Exec(context.Background())
 	if err != nil {
 		return false, err
 	}
 
-	// Check if the user is an assignee of the project
-	for _, assignee := range project.Assignees() {
-		if assignee.UserID == userID {
+	// Check if the user is in the list of assignees
+	assignees := project.Assignees()
+	for _, assignee := range assignees {
+		if assignee.ID == userID {
 			return true, nil
 		}
 	}
-
 	return false, nil
 }
 

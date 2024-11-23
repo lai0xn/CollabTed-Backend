@@ -5,7 +5,6 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
-	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -40,28 +39,7 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload: "+err.Error())
 	}
 
-	claims := c.Get("user").(*types.Claims)
-
-	// Check if user has Admin or Manager role in the workspace
-	canCreateAdmin, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error checking admin permissions: "+err.Error())
-	}
-
-	canCreateManager, err := h.workspaceSrv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error checking manager permissions: "+err.Error())
-	}
-
-	if !canCreateAdmin && !canCreateManager {
-		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create an event in this workspace")
-	}
-
 	payload.MeetLink = uuid.NewString()
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Error joining room: "+err.Error())
-	}
 
 	// Call the service to create the event
 	data, err := h.srv.CreateEvent(payload)

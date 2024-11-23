@@ -4,10 +4,4 @@ model Status {
     project       Project @relation(fields: [projectId],references: [id])
     title         String
     tasks         Task[]
-    category StatusCategory
-}
-enum StatusCategory {
-    TODO
-    PROGRESS
-    DONE
 }
