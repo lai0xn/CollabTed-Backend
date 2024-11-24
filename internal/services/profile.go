@@ -82,7 +82,6 @@ func (s *ProfileService) UpdateUser(id string, payload types.ProfileUpdate) (*db
 	}
 	return users, nil
 }
-
 func (s *ProfileService) DeleteUser(id string) (string, error) {
 	logger.LogInfo().Fields(map[string]interface{}{
 		"query":  "delete profile",
