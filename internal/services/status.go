@@ -16,15 +16,6 @@ func NewStatusService() *StatusService {
 }
 
 func (s *StatusService) CreateStatus(data types.StatusD, userID string) (*db.StatusModel, error) {
-	// Check if the user is the lead of the project
-	lead, err := s.isLeadOfProject(data.ProjectID, userID)
-	if err != nil {
-		return nil, err
-	}
-	if !lead {
-		return nil, errors.New("only the lead of the project can create a status")
-	}
-
 	// Create a new status
 	result, err := prisma.Client.Status.CreateOne(
 		db.Status.Project.Link(

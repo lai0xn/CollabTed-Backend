@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -19,6 +20,7 @@ func NewTaskService() *TaskService {
 
 // CreateTask creates a new task in a project and assigns assignees.
 func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
+	logger.LogDebug().Msg("Creating task..." + data.ProjectID)
 	// Create a new task
 	result, err := prisma.Client.Task.CreateOne(
 		db.Task.Project.Link(
@@ -33,7 +35,7 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 		),
 	).Exec(context.Background())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create task: %v", err)
 	}
 
 	// Link assignees to the task
