@@ -19,6 +19,9 @@ func (s *LiveBoardService) CreateBoard(data types.LiveBoardD) (*db.LiveBoardMode
 	result, err := prisma.Client.LiveBoard.CreateOne(
 		db.LiveBoard.Name.Set(data.Name),
 		db.LiveBoard.Description.Set(data.Description),
+		db.LiveBoard.Workspace.Link(
+			db.Workspace.ID.Equals(data.WorkspaceId),
+		),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err

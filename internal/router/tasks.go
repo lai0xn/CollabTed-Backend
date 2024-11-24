@@ -15,4 +15,4 @@ func TasksRoutes(e *echo.Group) {
 	tasks.POST("/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
 	tasks.PATCH("/:taskId/description", taskHandler.UpdateDescription)
 	tasks.PATCH("/:taskId/:statusId/status",taskHandler.ChangeTaskStatus)
-}
+} 
