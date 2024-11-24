@@ -45,7 +45,7 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error creating event: "+err.Error())
 	}
-	
+
 	return c.JSON(http.StatusCreated, data)
 }
 

@@ -24,9 +24,9 @@ func NewTaskService() *TaskService {
 func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 	logger.LogDebug().Msg("Creating task..." + data.ProjectID)
 	//Marshal description
-	jsonDes,err := json.Marshal(data.Description)
+	jsonDes, err := json.Marshal(data.Description)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	// Create a new task
 	result, err := prisma.Client.Task.CreateOne(
@@ -66,7 +66,6 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 
 	return result, nil
 }
-
 
 func (s *TaskService) UpdateTask(data types.TaskD, taskId string) (*db.TaskModel, error) {
 	jsonElements, err := json.Marshal(data.Description)
