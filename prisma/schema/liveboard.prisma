@@ -2,5 +2,7 @@ model LiveBoard {
   id          String          @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
+  Workspace   Workspace       @relation(fields: [workspaceId], references: [id])
   users       UserWorkspace[]
+  workspaceId String          @db.ObjectId
 }

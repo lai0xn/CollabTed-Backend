@@ -9,6 +9,7 @@ model Workspace {
   Projects      Project[]
   Invitation    Invitation[]
 
-  Event   Event[]
-  Channel Channel[]
+  Event     Event[]
+  Channel   Channel[]
+  LiveBoard LiveBoard[]
 }
