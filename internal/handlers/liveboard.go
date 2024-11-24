@@ -27,6 +27,17 @@ func (h *liveBoardHandler) GetBoard(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
+func (h *liveBoardHandler) GetWorkspaceBoards(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+	data, err := h.srv.GetWorkspaceBoards(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
+
+
 func (h *liveBoardHandler) CreateBoard(c echo.Context) error {
 	var data types.LiveBoardD
 	if err := c.Bind(&data); err != nil {
