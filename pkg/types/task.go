@@ -1,11 +1,14 @@
 package types
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // TaskD is the data structure used for creating or updating a task.
 type TaskD struct {
 	Title        string    `json:"title"`        // Task title
-	Description  string    `json:"description"`  // Task description
+	Description  []json.RawMessage    `json:"description"`  // Task description
 	DueDate      time.Time `json:"dueDate"`      // Task due date
 	Priority     string    `json:"priority"`     // Priority (e.g., HIGH, MEDIUM, LOW)
 	StatusID     string    `json:"statusId"`     // Status ID for task status

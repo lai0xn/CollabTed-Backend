@@ -89,7 +89,22 @@ func (h *TaskHandler) ListTasksByProjectHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, tasks)
 }
+// Update Task Description
+func (h *TaskHandler) UpdateDescription(c echo.Context) error {
+	var taskId = c.Param("taskId")
 
+	var request types.TaskD
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	result,err := h.TaskService.UpdateTask(request,taskId)	 
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
 // AddAssigneeToTaskHandler adds an assignee to a task
 func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 	var requestData struct {

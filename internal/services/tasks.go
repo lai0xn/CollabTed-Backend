@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
@@ -21,13 +23,18 @@ func NewTaskService() *TaskService {
 // CreateTask creates a new task in a project and assigns assignees.
 func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 	logger.LogDebug().Msg("Creating task..." + data.ProjectID)
+	//Marshal description
+	jsonDes,err := json.Marshal(data.Description)
+	if err != nil {
+		return nil,err
+	}
 	// Create a new task
 	result, err := prisma.Client.Task.CreateOne(
 		db.Task.Project.Link(
 			db.Project.ID.Equals(data.ProjectID),
 		),
 		db.Task.Title.Set(data.Title),
-		db.Task.Description.Set(data.Description),
+		db.Task.Description.Set(jsonDes),
 		db.Task.DueDate.Set(data.DueDate),
 		db.Task.Priority.Set(db.Priority(data.Priority)),
 		db.Task.Status.Link(
@@ -58,6 +65,25 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 	}
 
 	return result, nil
+}
+
+
+func (s *TaskService) UpdateTask(data types.TaskD, taskId string) (*db.TaskModel, error) {
+	jsonElements, err := json.Marshal(data.Description)
+	if err != nil {
+		log.Fatalf("Error marshaling elements: %v", err)
+	}
+
+	updatedTask, err := prisma.Client.Task.FindUnique(
+		db.Task.ID.Equals(taskId),
+	).Update(
+		db.Task.Description.Set(jsonElements),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	return updatedTask, nil
 }
 
 // GetTaskById retrieves a task by its ID.

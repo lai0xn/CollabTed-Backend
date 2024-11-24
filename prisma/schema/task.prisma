@@ -3,7 +3,7 @@ model Task {
     projectId   String          @db.ObjectId
     project     Project         @relation(fields: [projectId], references: [id])
     title       String
-    description String
+    description Json
     dueDate     DateTime
     priority    Priority
     status      Status          @relation(fields: [statusId], references: [id])

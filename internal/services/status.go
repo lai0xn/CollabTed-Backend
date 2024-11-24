@@ -22,6 +22,7 @@ func (s *StatusService) CreateStatus(data types.StatusD, userID string) (*db.Sta
 			db.Project.ID.Equals(data.ProjectID),
 		),
 		db.Status.Title.Set(data.Name),
+		db.Status.Color.Set(data.Color),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
