@@ -65,3 +65,13 @@ func (s *LiveBoardService) GetBoard(boardId string) (*db.LiveBoardModel, error) 
 	}
 	return board,nil
 }
+
+func (s *LiveBoardService) GetWorkspaceBoards(workspaceId string) ([]db.LiveBoardModel, error) {
+	board,err := prisma.Client.LiveBoard.FindMany(
+		db.LiveBoard.WorkspaceID.Equals(workspaceId),
+	).Exec(context.Background())
+	if err != nil {
+		return nil,err
+	}
+	return board,nil
+}

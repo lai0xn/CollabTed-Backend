@@ -12,6 +12,7 @@ func LiveBoardRoutes(e *echo.Group) {
 
 	board := e.Group("/liveboard", middlewares.AuthMiddleware)
 	board.GET("/:boardId", h.GetBoard)
+	board.GET("/workspace:/workspaceId",h.GetWorkspaceBoards)
 	board.POST("/", h.CreateBoard)
 	board.DELETE("/:boardId", h.DeleteBoard)
 }
