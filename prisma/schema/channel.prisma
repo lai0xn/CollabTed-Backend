@@ -7,5 +7,5 @@ model Channel {
   messages        Message[]
   workspaceId     String          @db.ObjectId
   workspace       Workspace       @relation(fields: [workspaceId], references: [id])
-  attachments Attachment[]
+  attachments     Attachment[]
 }

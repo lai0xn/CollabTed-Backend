@@ -15,9 +15,10 @@ model UserWorkspace {
   tasksIds     String[]     @db.ObjectId
   tasks        Task[]       @relation(fields: [tasksIds], references: [id])
   Messages     Message[]
-
-  eventIds String[] @db.ObjectId
-  Event    Event[]  @relation(fields: [eventIds], references: [id])
+  eventIds     String[]     @db.ObjectId
+  Event        Event[]      @relation(fields: [eventIds], references: [id])
+  LiveBoard    LiveBoard?   @relation(fields: [liveBoardId], references: [id])
+  liveBoardId  String?      @db.ObjectId
 }
 
 enum UserRole {

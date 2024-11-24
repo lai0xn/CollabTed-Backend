@@ -1,8 +1,8 @@
 model Status {
-    id        String  @id @default(auto()) @map("_id") @db.ObjectId
-    projectId String  @db.ObjectId
-    project   Project @relation(fields: [projectId], references: [id])
-    title     String
-    Color     String
-    tasks     Task[]
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String  @db.ObjectId
+  project   Project @relation(fields: [projectId], references: [id])
+  title     String
+  Color     String
+  tasks     Task[]
 }

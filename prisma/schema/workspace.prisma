@@ -1,4 +1,3 @@
-
 model Workspace {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
   workspaceName String
@@ -7,8 +6,8 @@ model Workspace {
   users         UserWorkspace[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  Projects Project[]
-  Invitation Invitation[]
+  Projects      Project[]
+  Invitation    Invitation[]
 
   Event   Event[]
   Channel Channel[]
