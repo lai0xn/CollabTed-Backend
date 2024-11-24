@@ -28,7 +28,6 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 			db.Workspace.ID.Equals(data.WorkspaceID)),
 		db.Event.Description.Set(data.Description),
 		db.Event.Type.Set(db.EventType(data.Type)),
-		db.Event.AssineesIds.Set(data.Assignees),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
