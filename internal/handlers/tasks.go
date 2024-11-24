@@ -40,6 +40,16 @@ func (h *TaskHandler) CreateTaskHandler(c echo.Context) error {
 	return c.JSON(http.StatusCreated, task)
 }
 
+func (h *TaskHandler) ChangeTaskStatus(c echo.Context) error {
+	taskId := c.Param("taskId")
+	statusId := c.Param("statusId")
+	task,err := h.TaskService.ChangeTaskStatus(taskId,statusId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+	return c.JSON(http.StatusOK,task)
+}
+
 // GetTaskByIdHandler retrieves a task by ID, ensuring the user is a member of the project.
 func (h *TaskHandler) GetTaskByIdHandler(c echo.Context) error {
 	taskID := c.Param("id")

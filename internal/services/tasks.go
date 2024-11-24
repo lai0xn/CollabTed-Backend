@@ -167,6 +167,27 @@ func (s *TaskService) CanUserPerformAction(userId, workspaceId, taskId string) (
 	return false, nil
 }
 
+func(s *TaskService) ChangeTaskStatus(taskId,statusId string)(*db.TaskModel,error){
+	status,err := prisma.Client.Status.FindUnique(
+		db.Status.ID.Equals(statusId),
+	).Exec(context.Background())
+	if err != nil {
+		return nil,err
+	}
+	task,err := prisma.Client.Task.FindUnique(
+		db.Task.ID.Equals(taskId),
+	).Update(
+		db.Task.Status.Link(
+			db.Status.ID.Equals(status.ID),
+		),
+	).Exec(context.Background())
+	if err != nil {
+		return nil,err
+	}
+	return task,nil
+	
+}
+
 // AssignUserToTask assigns a single user to a task using the userWorkspaceID.
 func (s *TaskService) AssignUserToTask(taskID, userWorkspaceID string) (*db.TaskModel, error) {
 	ctx := context.Background()
