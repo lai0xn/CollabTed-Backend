@@ -33,7 +33,6 @@ func NewCalendarHandler() *calendarHandler {
 //	@Router		/events [post]
 func (h *calendarHandler) CreateEvent(c echo.Context) error {
 	var payload types.EventD
-
 	// Bind and validate payload
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload: "+err.Error())
@@ -46,7 +45,7 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Error creating event: "+err.Error())
 	}
-
+	
 	return c.JSON(http.StatusCreated, data)
 }
 

@@ -39,7 +39,6 @@ func (h *authHandler) Login(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
 	err := validate.Struct(payload)
 	if err != nil {
 		e := err.(validator.ValidationErrors)
