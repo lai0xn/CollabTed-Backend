@@ -4,10 +4,7 @@ import (
 	"net/http"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
-	"github.com/CollabTED/CollabTed-Backend/pkg/cloudinary"
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
-	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/labstack/echo/v4"
 )
 
