@@ -13,4 +13,5 @@ func TasksRoutes(e *echo.Group) {
 	tasks.GET("/:id", taskHandler.GetTaskByIdHandler)
 	tasks.GET("/:workspaceId/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
 	tasks.POST("/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
+	tasks.PATCH("/:taskId/description",taskHandler.UpdateDescription)
 }
