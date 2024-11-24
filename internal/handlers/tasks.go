@@ -31,19 +31,6 @@ func (h *TaskHandler) CreateTaskHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
-	workspaceId := taskData.WorkspaceID
-
-	// Check if user has permissions to create the task (manager or project lead)
-	canPerform, err := h.TaskService.CanUserPerformAction(claims.ID, workspaceId, taskData.ProjectID)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-	}
-
-	if !canPerform {
-		return c.JSON(http.StatusForbidden, map[string]string{"error": "You do not have permission to create tasks in this workspace"})
-	}
-
 	// Create the task
 	task, err := h.TaskService.CreateTask(taskData)
 	if err != nil {
