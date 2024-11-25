@@ -53,9 +53,6 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 		}
 
 	}
-	if err != nil {
-		return nil, err
-	}
 
 	return result, nil
 }
