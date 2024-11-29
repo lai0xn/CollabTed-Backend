@@ -37,7 +37,7 @@ func (n *Notifier) NotificationHandler(c echo.Context) error {
 	// Create a new Redis Pub/Sub subscriber
 	pubsub := redis.GetClient().Subscribe(context.Background(), "notifs:"+id)
 	defer pubsub.Close()
-
+	
 	_, err := pubsub.Receive(context.Background())
 	if err != nil {
 		log.Printf("Failed to subscribe: %v", err)
@@ -58,7 +58,7 @@ func (n *Notifier) NotificationHandler(c echo.Context) error {
 	}
 }
 
-func (n *Notifier) NotifyUser(userID, roomID, callerID string) error {
+func (n *Notifier) NotifyCallUser(userID, roomID, callerID string) error {
 	call := types.Call{
 		CallerID: callerID,
 		RoomID:   roomID,
@@ -72,6 +72,20 @@ func (n *Notifier) NotifyUser(userID, roomID, callerID string) error {
 	err = n.client.Publish(context.Background(), "notifs:"+userID, b).Err()
 	if err != nil {
 		log.Printf("Failed to publish notification: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (n *Notifier) NotifyPing(userID string,notif types.PingNotification) error {
+	b,err := json.Marshal(notif)
+	if err != nil {
+		log.Printf("Failed to marshal call :%v",err)
+		return err
+	}
+	err = n.client.Publish(context.Background(),"notifs:" + userID,b).Err()
+	if err != nil {
+		log.Printf("Failed to publish notification: %v",err)
 		return err
 	}
 	return nil
