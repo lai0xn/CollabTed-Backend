@@ -125,18 +125,15 @@ func (s *AuthService) SendRessetLink(user types.Claims) error {
 	r := redis.GetClient()
 	r.Set(context.Background(),"resset:"+user.ID,encoded,time.Hour * 1)
 	
-	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s",token)
-	msg := fmt.Sprintf("Your password resset link is %s",link)
+	link := fmt.Sprint("https://collabted.com/auth/password-reset?token=%s",token)
+	msg := fmt.Sprintf("Your password resset link is",link)
 
 	smtpHost := config.EMAIL_HOST
 	smtpPort := config.EMAIL_PORT
 	
 	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL,[]string{user.Email}, []byte(msg))
-	if err != nil {
-		return err
-	}
-	return nil
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, user.Email, []byte(msg))
+
 }
 
 

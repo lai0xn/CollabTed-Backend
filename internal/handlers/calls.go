@@ -58,7 +58,7 @@ func (h *callHandler) GetPrivatelJoinToken(c echo.Context) error {
 	logger.LogInfo().Msg(ReceiverId)
 	logger.LogInfo().Msg(privateRoomJoinToken)
 
-	err = h.notifier.NotifyUser(ReceiverId, roomId, CallerId)
+	err = h.notifier.NotifyCallUser(ReceiverId, roomId, CallerId)
 	if err != nil {
 		return c.JSON(500, map[string]string{"error": "Failed to notify user"})
 	}

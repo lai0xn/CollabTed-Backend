@@ -37,4 +37,5 @@ func SetRoutes(e *echo.Echo) {
 	BoardRoutes(v1)
 	TasksRoutes(v1)
 	LiveBoardRoutes(v1)
+	ProfileRoutes(v1)
 }

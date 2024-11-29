@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/internal/sse"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -15,7 +16,6 @@ import (
 
 var msgSrv = services.NewMessageService()
 var wrkSrv = services.NewWorkspaceService()
-
 type MessageType string
 
 const (
@@ -150,6 +150,8 @@ func sendPrivateMessage(userID string, msg Message) error {
 }
 
 func broadcastMessageToChannel(msg Message) error {
+	//this notifier needs to be initialized somewhere else asap
+	notifier := sse.NewNotifier()
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -161,8 +163,16 @@ func broadcastMessageToChannel(msg Message) error {
 		err := con.conn.WriteJSON(msg)
 		if err != nil {
 			log.Printf("Error sending message to user %s: %v\n", user.UserID, err)
-			return err
 		}
+		err = notifier.NotifyPing(user.UserID,types.PingNotification{
+			SenderID: user.UserID,
+			Content: msg.Content,
+			ChannelID: msg.ChannelID,
+		})
+		if err != nil {
+			log.Println(err) 
+		}
+		
 	}
 	// Saving msgs to the db
 	_, err := msgSrv.SendMessage(types.MessageD{
