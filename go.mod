@@ -18,6 +18,8 @@ require (
 	golang.org/x/oauth2 v0.21.0
 )
 
+require github.com/satori/go.uuid v1.2.0 // indirect
+
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.33.0-20240401165935-b983156c5e99.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect

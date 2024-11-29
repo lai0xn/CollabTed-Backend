@@ -137,6 +137,10 @@ func (h *authHandler) VerifyUser(c echo.Context) error {
 	})
 }
 
+func (h *authHandler) RessetPasswod(c echo.Context) error {
+	return nil
+}
+
 func (h *authHandler) CheckUser(c echo.Context) error {
 	if c.Get("user") == nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")

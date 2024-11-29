@@ -16,7 +16,6 @@ import (
 
 var msgSrv = services.NewMessageService()
 var wrkSrv = services.NewWorkspaceService()
-var notifier = sse.NewNotifier()
 type MessageType string
 
 const (
@@ -151,6 +150,8 @@ func sendPrivateMessage(userID string, msg Message) error {
 }
 
 func broadcastMessageToChannel(msg Message) error {
+	//this notifier needs to be initialized somewhere else asap
+	notifier := sse.NewNotifier()
 	mu.RLock()
 	defer mu.RUnlock()
 

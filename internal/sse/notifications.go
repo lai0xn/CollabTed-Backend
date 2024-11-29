@@ -83,6 +83,7 @@ func (n *Notifier) NotifyPing(userID string,notif types.PingNotification) error 
 		log.Printf("Failed to marshal call :%v",err)
 		return err
 	}
+	fmt.Println(notif,"notification")
 	err = n.client.Publish(context.Background(),"notifs:" + userID,b).Err()
 	if err != nil {
 		log.Printf("Failed to publish notification: %v",err)
