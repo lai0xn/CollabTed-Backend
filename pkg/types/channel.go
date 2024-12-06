@@ -18,3 +18,6 @@ type MessageD struct {
 	ChannelID string `json:"channelID"`
 	Content   string `json:"content"`
 }
+
+
+
