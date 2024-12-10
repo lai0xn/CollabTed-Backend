@@ -2,19 +2,16 @@ package services
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/smtp"
-	"time"
-
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
-	"github.com/satori/go.uuid"
+	"net/smtp"
+	"time"
 )
 
 type AuthService struct{}
@@ -117,29 +114,39 @@ func (s *AuthService) ActivateUser(userID string) error {
 	return nil
 }
 
-
 func (s *AuthService) SendRessetLink(user types.Claims) error {
-	token := uuid.NewV4().Bytes()
-	encoded := base64.StdEncoding.EncodeToString(token)
-
-	r := redis.GetClient()
-	r.Set(context.Background(),"resset:"+user.ID,encoded,time.Hour * 1)
-	
-	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s",token)
-	msg := fmt.Sprintf("Your password resset link is %s",link)
-
-	smtpHost := config.EMAIL_HOST
-	smtpPort := config.EMAIL_PORT
-	
-	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL,[]string{user.Email}, []byte(msg))
+	// Generate a secure reset token
+	token, err := utils.GenerateResetToken(20)
 	if err != nil {
 		return err
 	}
+
+	// Save token to Redis with 1-hour expiration
+	r := redis.GetClient()
+	err = r.Set(context.Background(), "reset:"+user.ID, token, time.Hour*1).Err()
+	if err != nil {
+		return err
+	}
+
+	// Prepare the password reset link
+	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s", token)
+
+	// Prepare the email content
+	subject := "Password Reset Request"
+	body := fmt.Sprintf("Your password reset link is:\n\n%s\n\nThis link is valid for 1 hour.", link)
+	message := fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, body)
+
+	// Email server configuration
+	smtpHost := config.EMAIL_HOST
+	smtpPort := config.EMAIL_PORT
+	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
+
+	// Send the email
+	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, []string{user.Email}, []byte(message))
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Password reset email sent to:", user.Email)
 	return nil
 }
-
-
-
-
-

@@ -65,3 +65,11 @@ func FetchAndEncodeImageToBase64(imageURL string) (string, error) {
 
 	return base64String, nil
 }
+
+func GenerateResetToken(length int) (string, error) {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(bytes), nil
+}

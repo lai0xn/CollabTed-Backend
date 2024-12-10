@@ -137,10 +137,6 @@ func (h *authHandler) VerifyUser(c echo.Context) error {
 	})
 }
 
-func (h *authHandler) RessetPasswod(c echo.Context) error {
-	return nil
-}
-
 func (h *authHandler) CheckUser(c echo.Context) error {
 	if c.Get("user") == nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
@@ -162,5 +158,16 @@ func (h *authHandler) Logout(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, types.Response{
 		"message": "token deleted",
+	})
+}
+
+func (h *authHandler) RessetPassword(c echo.Context) error {
+
+	claims := c.Get("user").(*types.Claims)
+	if err := h.srv.SendRessetLink(*claims); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "resset link sent",
 	})
 }
