@@ -14,12 +14,14 @@ import (
 
 type workspaceHandler struct {
 	srv      services.WorkspaceService
+	csrv     services.ChannelService
 	boardSrv services.BoardService
 }
 
 func NewWorkspaceHandler() *workspaceHandler {
 	return &workspaceHandler{
 		srv:      *services.NewWorkspaceService(),
+		csrv:     *services.NewChannelService(),
 		boardSrv: *services.NewBoardService(),
 	}
 }
@@ -153,6 +155,15 @@ func (h *workspaceHandler) AcceptInvitation(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Successfully joined the workspace")
+}
+
+func (h *workspaceHandler) GetWorkspaceChannels(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+	data, err := h.csrv.ListChannelsByWorkspace(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
 }
 
 func (h *workspaceHandler) GetAllUsersInWorkspace(c echo.Context) error {

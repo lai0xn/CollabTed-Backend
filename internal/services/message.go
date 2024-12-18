@@ -34,14 +34,13 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 	return message, nil
 }
 
-func (s *MessageService) GetMessagesByChannel(channelID string) ([]db.MessageModel, error) {
+func (s *MessageService) GetMessagesByChannel(channelID string, page int) ([]db.MessageModel, error) {
 	messages, err := prisma.Client.Message.FindMany(
 		db.Message.ChannelID.Equals(channelID),
-	).Exec(context.Background())
+	).Skip((page - 1) * 10).Take(10).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
-
 	return messages, nil
 }
 func (s *MessageService) GetAttachmentsByChannel(channelID string) ([]db.AttachmentModel, error) {

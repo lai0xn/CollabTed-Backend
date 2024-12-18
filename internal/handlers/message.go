@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/cloudinary"
@@ -23,9 +24,19 @@ func NewMessageHandler() *messageHandler {
 
 func (h *messageHandler) GetMessages(c echo.Context) error {
 	channelId := c.Param("channelId")
-	data, err := h.srv.GetMessagesByChannel(channelId)
+	page := c.QueryParam("p")
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		pageInt = 1
+	}
+	data, err := h.srv.GetMessagesByChannel(channelId, pageInt)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if len(data) == 0 {
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"message": "no messages found",
+		})
 	}
 	return c.JSON(http.StatusOK, data)
 }
