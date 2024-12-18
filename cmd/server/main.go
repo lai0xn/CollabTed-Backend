@@ -4,7 +4,6 @@ import (
 	_ "github.com/CollabTED/CollabTed-Backend/docs"
 	"github.com/CollabTED/CollabTed-Backend/internal/server"
 	"github.com/CollabTED/CollabTed-Backend/internal/ws"
-	"github.com/CollabTED/CollabTed-Backend/pkg/cloudinary"
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 )
@@ -16,7 +15,6 @@ import (
 // @BasePath		/api/v1
 func main() {
 	redis.Connect()
-	cloudinary.Connect()
 	s := server.NewServer(":8080")
 	prisma.Connect()
 	go ws.Hub()
