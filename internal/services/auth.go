@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/smtp"
@@ -14,7 +13,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
-	"github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct{}
@@ -117,29 +116,76 @@ func (s *AuthService) ActivateUser(userID string) error {
 	return nil
 }
 
+func (s *AuthService) SendRessetLink(email string) error {
+	//Check if user exists
+	user, err := prisma.Client.User.FindFirst(
+		db.User.Email.Equals(email),
+	).Exec(context.Background())
 
-func (s *AuthService) SendRessetLink(user types.Claims) error {
-	token := uuid.NewV4().Bytes()
-	encoded := base64.StdEncoding.EncodeToString(token)
+	if err != nil {
+		return errors.New("No user found with this email")
+	}
 
-	r := redis.GetClient()
-	r.Set(context.Background(),"resset:"+user.ID,encoded,time.Hour * 1)
-	
-	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s",token)
-	msg := fmt.Sprintf("Your password resset link is %s",link)
-
-	smtpHost := config.EMAIL_HOST
-	smtpPort := config.EMAIL_PORT
-	
-	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL,[]string{user.Email}, []byte(msg))
+	// Generate a secure reset token
+	token, err := utils.GenerateResetToken(20)
 	if err != nil {
 		return err
 	}
+
+	// Save token to Redis with 1-hour expiration
+	r := redis.GetClient()
+	err = r.Set(context.Background(), "reset:"+email, token, time.Hour*1).Err()
+	if err != nil {
+		return err
+	}
+
+	// Prepare the password reset link
+	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s", token)
+
+	// Prepare the email content
+	subject := "Password Reset Request"
+	body := fmt.Sprintf("Your password reset link is:\n\n%s\n\nThis link is valid for 1 hour.", link)
+	message := fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, body)
+
+	// Email server configuration
+	smtpHost := config.EMAIL_HOST
+	smtpPort := config.EMAIL_PORT
+	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
+
+	// Send the email
+	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, []string{email}, []byte(message))
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Password reset email sent to:", user.Email)
 	return nil
 }
 
+func (s *AuthService) RessetPassword(email, token, new_password string) error {
+	r := redis.GetClient()
+	userToken, err := r.Get(context.Background(), "resset:"+email).Result()
+	if err != nil {
+		return errors.New("Invalid token")
+	}
+	if userToken != token {
+		return errors.New("Invalid token")
+	}
 
+	encNew, err := bcrypt.GenerateFromPassword([]byte(new_password), 12)
+	if err != nil {
+		return err
+	}
 
+	_, err = prisma.Client.User.FindUnique(
+		db.User.Email.Equals(email),
+	).Update(
+		db.User.Password.Set(string(encNew)),
+	).Exec(context.Background())
+	if err != nil {
+		return err
+	}
 
+	return nil
 
+}

@@ -34,14 +34,33 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 	return message, nil
 }
 
-func (s *MessageService) GetMessagesByChannel(channelID string) ([]db.MessageModel, error) {
+func (s *MessageService) SendReply(data types.MessageD) (*db.MessageModel, error) {
+	message, err := prisma.Client.Message.CreateOne(
+		db.Message.Content.Set(data.Content),
+		db.Message.Channel.Link(
+			db.Channel.ID.Equals(data.ChannelID),
+		),
+		db.Message.Sender.Link(
+			db.User.ID.Equals(data.SenderID),
+		),
+		db.Message.CreatedAt.Set(time.Now()),
+		db.Message.ReplyTo.Link(
+			db.Message.ID.Equals(data.ReplyTo),
+		),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("failed to send message: %v", err)
+	}
+
+	return message, nil
+}
+func (s *MessageService) GetMessagesByChannel(channelID string, page int) ([]db.MessageModel, error) {
 	messages, err := prisma.Client.Message.FindMany(
 		db.Message.ChannelID.Equals(channelID),
-	).Exec(context.Background())
+	).Skip((page - 1) * 10).Take(10).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
-
 	return messages, nil
 }
 func (s *MessageService) GetAttachmentsByChannel(channelID string) ([]db.AttachmentModel, error) {

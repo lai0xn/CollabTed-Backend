@@ -16,6 +16,7 @@ import (
 
 var msgSrv = services.NewMessageService()
 var wrkSrv = services.NewWorkspaceService()
+
 type MessageType string
 
 const (
@@ -40,6 +41,7 @@ type Message struct {
 	ChannelID   string            `json:"channelID"`
 	Content     string            `json:"content"`
 	WorkspaceID string            `json:"workspaceID"`
+	ReplyTo     string            `json:"reply_to"`
 	Elements    []json.RawMessage `json:"elements"`
 	Recievers   []db.UserWorkspaceModel
 }
@@ -164,17 +166,28 @@ func broadcastMessageToChannel(msg Message) error {
 		if err != nil {
 			log.Printf("Error sending message to user %s: %v\n", user.UserID, err)
 		}
-		err = notifier.NotifyPing(user.UserID,types.PingNotification{
-			SenderID: user.UserID,
-			Content: msg.Content,
+		err = notifier.NotifyPing(user.UserID, types.PingNotification{
+			SenderID:  user.UserID,
+			Content:   msg.Content,
 			ChannelID: msg.ChannelID,
 		})
 		if err != nil {
-			log.Println(err) 
+			log.Println(err)
 		}
-		
+
 	}
 	// Saving msgs to the db
+	if msg.ReplyTo != "" {
+		_, err := msgSrv.SendReply(types.MessageD{
+			Content:   msg.Content,
+			SenderID:  msg.SenderID,
+			ChannelID: msg.ChannelID,
+			ReplyTo:   msg.ReplyTo,
+		})
+		if err != nil {
+			return nil
+		}
+	}
 	_, err := msgSrv.SendMessage(types.MessageD{
 		Content:   msg.Content,
 		SenderID:  msg.SenderID,

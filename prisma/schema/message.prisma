@@ -8,4 +8,7 @@ model Message {
   UserWorkspace   UserWorkspace? @relation(fields: [userWorkspaceId], references: [id])
   userWorkspaceId String?        @db.ObjectId
   createdAt       DateTime       @default(now())
+  replyToId	  String?	 @db.ObjectId
+  replies 	  Message[]      @relation("MessageReply")
+  replyTo	  Message?	 @relation("MessageReply",fields:[replyToId],references: [id],onDelete:NoAction,onUpdate:NoAction)
 }

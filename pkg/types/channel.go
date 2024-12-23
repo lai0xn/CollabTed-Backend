@@ -17,4 +17,5 @@ type MessageD struct {
 	SenderID  string `json:"senderID"`
 	ChannelID string `json:"channelID"`
 	Content   string `json:"content"`
+	ReplyTo   string `json:"reply_to"`
 }
