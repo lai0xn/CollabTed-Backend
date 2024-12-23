@@ -161,9 +161,28 @@ func (h *authHandler) Logout(c echo.Context) error {
 	})
 }
 
-func (h *authHandler) RessetPassword(c echo.Context) error {
+func (h *authHandler) SendRessetLink(c echo.Context) error {
 	email := c.QueryParam("email")
 	if err := h.srv.SendRessetLink(email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "resset link sent",
+	})
+}
+
+func (h *authHandler) RessetPassword(c echo.Context) error {
+	var body struct {
+		Password string
+		Email    string
+		Token    string
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := h.srv.RessetPassword(body.Email, body.Token, body.Password); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, echo.Map{
