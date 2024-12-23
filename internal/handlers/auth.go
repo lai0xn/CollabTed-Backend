@@ -162,9 +162,8 @@ func (h *authHandler) Logout(c echo.Context) error {
 }
 
 func (h *authHandler) RessetPassword(c echo.Context) error {
-
-	claims := c.Get("user").(*types.Claims)
-	if err := h.srv.SendRessetLink(*claims); err != nil {
+	email := c.QueryParam("email")
+	if err := h.srv.SendRessetLink(email); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, echo.Map{

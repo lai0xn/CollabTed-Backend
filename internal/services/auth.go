@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/smtp"
+	"time"
+
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
-	"net/smtp"
-	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct{}
@@ -114,7 +116,16 @@ func (s *AuthService) ActivateUser(userID string) error {
 	return nil
 }
 
-func (s *AuthService) SendRessetLink(user types.Claims) error {
+func (s *AuthService) SendRessetLink(email string) error {
+	//Check if user exists
+	user, err := prisma.Client.User.FindFirst(
+		db.User.Email.Equals(email),
+	).Exec(context.Background())
+
+	if err != nil {
+		return errors.New("No user found with this email")
+	}
+
 	// Generate a secure reset token
 	token, err := utils.GenerateResetToken(20)
 	if err != nil {
@@ -123,7 +134,7 @@ func (s *AuthService) SendRessetLink(user types.Claims) error {
 
 	// Save token to Redis with 1-hour expiration
 	r := redis.GetClient()
-	err = r.Set(context.Background(), "reset:"+user.ID, token, time.Hour*1).Err()
+	err = r.Set(context.Background(), "reset:"+email, token, time.Hour*1).Err()
 	if err != nil {
 		return err
 	}
@@ -142,11 +153,39 @@ func (s *AuthService) SendRessetLink(user types.Claims) error {
 	auth := smtp.PlainAuth("", config.EMAIL, config.EMAIL_PASSWORD, smtpHost)
 
 	// Send the email
-	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, []string{user.Email}, []byte(message))
+	err = smtp.SendMail(smtpHost+":"+smtpPort, auth, config.EMAIL, []string{email}, []byte(message))
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Password reset email sent to:", user.Email)
 	return nil
+}
+
+func (s *AuthService) RessetPassword(email, token, new_password string) error {
+	r := redis.GetClient()
+	userToken, err := r.Get(context.Background(), "resset:"+email).Result()
+	if err != nil {
+		return errors.New("Invalid token")
+	}
+	if userToken != token {
+		return errors.New("Invalid token")
+	}
+
+	encNew, err := bcrypt.GenerateFromPassword([]byte(new_password), 12)
+	if err != nil {
+		return err
+	}
+
+	_, err = prisma.Client.User.FindUnique(
+		db.User.Email.Equals(email),
+	).Update(
+		db.User.Password.Set(string(encNew)),
+	).Exec(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }
