@@ -149,7 +149,12 @@ func (h *authHandler) Me(c echo.Context) error {
 	if c.Get("user") == nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
 	}
-	return c.JSON(http.StatusOK, c.Get("user"))
+
+	claims := c.Get("user").(*types.Claims)
+
+	utils.FetchAndEncodeImageToBase64(claims.ProfilePicture)
+
+	return c.JSON(http.StatusOK, claims)
 }
 
 func (h *authHandler) Logout(c echo.Context) error {
