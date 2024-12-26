@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
 )
 
@@ -24,6 +24,7 @@ var (
 	LIVEKIT_API_KEY    string
 	LIVEKIT_API_SECRET string
 	CLOUDINARY_URL     string
+	MONGO_URI          string
 )
 
 func Load() {
@@ -31,60 +32,87 @@ func Load() {
 	logger.NewLogger()
 
 	// Load environment variables
-	err := godotenv.Load()
-	if err != nil {
-		logger.Logger.Err(err).Msg("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		logger.Logger.Err(err).Msg("Error loading .env file, using system environment variables instead.")
 	}
 
+	// OAuth2 Configurations
+	initOAuthConfigs()
+
+	// Load environment-specific settings
+	JWT_SECRET = mustGetEnv("JWT_SECRET")
+
+	EMAIL_HOST = mustGetEnv("EMAIL_HOST")
+	EMAIL_PORT = mustGetEnv("EMAIL_PORT")
+	EMAIL = mustGetEnv("EMAIL")
+	EMAIL_PASSWORD = mustGetEnv("EMAIL_PASSWORD")
+
+	SECURE_COOKIE = mustParseBool("SECURE_COOKIE", true)
+	HOST_URL = mustGetEnv("HOST_URL")
+	ALLOWED_ORIGINS = mustGetEnv("ALLOWED_ORIGINS")
+
+	LIVEKIT_API_KEY = mustGetEnv("LIVEKIT_API_KEY")
+	LIVEKIT_API_SECRET = mustGetEnv("LIVEKIT_API_SECRET")
+	CLOUDINARY_URL = mustGetEnv("CLOUDINARY_URL")
+
+	MONGO_URI = getMongoURI()
+	logger.Logger.Info().Msgf("Starting %s environment", os.Getenv("APP_ENV"))
+}
+
+func initOAuthConfigs() {
 	types.OAuth2Configs = map[string]*types.OAuthProvider{
 		"google": {
 			Config: &oauth2.Config{
-				ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-				ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-				RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+				ClientID:     mustGetEnv("GOOGLE_CLIENT_ID"),
+				ClientSecret: mustGetEnv("GOOGLE_CLIENT_SECRET"),
+				RedirectURL:  mustGetEnv("GOOGLE_REDIRECT_URL"),
 				Scopes:       []string{"profile", "email"},
 				Endpoint:     google.Endpoint,
 			},
 		},
-		"facebook": {
-			Config: &oauth2.Config{
-				ClientID:     os.Getenv("FACEBOOK_CLIENT_ID"),
-				ClientSecret: os.Getenv("FACEBOOK_CLIENT_SECRET"),
-				RedirectURL:  os.Getenv("FACEBOOK_REDIRECT_URL"),
-				Scopes:       []string{"public_profile", "email"},
-				Endpoint:     facebook.Endpoint,
-			},
-		},
+	}
+}
+
+func getMongoURI() string {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		logger.Logger.Warn().Msg("APP_ENV not set, defaulting to 'dev'")
+		env = "dev"
 	}
 
-	// JWT Secret
-	JWT_SECRET = os.Getenv("JWT_SECRET")
+	var mongoURI string
+	if env == "prod" {
+		mongoURI = os.Getenv("MONGO_URI_PROD")
+	} else {
+		mongoURI = os.Getenv("MONGO_URI_DEV")
+	}
 
-	// Email configuration
-	EMAIL_HOST = os.Getenv("EMAIL_HOST")
-	EMAIL_PORT = os.Getenv("EMAIL_PORT")
-	EMAIL = os.Getenv("EMAIL")
-	EMAIL_PASSWORD = os.Getenv("EMAIL_PASSWORD")
+	if mongoURI == "" {
+		log.Fatalf("MongoDB URI for %s environment is not set", env)
+	}
 
-	// Secure Cookie
-	SECURE_COOKIE, err = strconv.ParseBool(os.Getenv("SECURE_COOKIE"))
+	os.Setenv("MONGO_URI", mongoURI)
+
+	return mongoURI
+}
+
+func mustGetEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("Environment variable %s is not set", key)
+	}
+	return value
+}
+
+func mustParseBool(key string, defaultValue bool) bool {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	parsed, err := strconv.ParseBool(value)
 	if err != nil {
-		SECURE_COOKIE = true
+		logger.Logger.Warn().Msgf("Invalid boolean value for %s: %s, defaulting to %t", key, value, defaultValue)
+		return defaultValue
 	}
-	logger.Logger.Info().Msg("Secure Cookie: " + strconv.FormatBool(SECURE_COOKIE))
-
-	// HOST URL
-	HOST_URL = os.Getenv("HOST_URL")
-	logger.Logger.Info().Msg(HOST_URL)
-
-	// Allowed Origins
-	ALLOWED_ORIGINS = os.Getenv("ALLOWED_ORIGINS")
-	logger.Logger.Info().Msg(ALLOWED_ORIGINS)
-
-	// Live Kit Credentials
-	LIVEKIT_API_KEY = os.Getenv("LIVEKIT_API_KEY")
-	LIVEKIT_API_SECRET = os.Getenv("LIVEKIT_API_SECRET")
-
-	// Cloudinary URL
-	CLOUDINARY_URL = os.Getenv("CLOUDINARY_URL")
+	return parsed
 }
