@@ -19,21 +19,13 @@ func NewProjectService() *ProjectService {
 // CreateProject creates a new project in a workspace and assigns the lead and assignees.
 func (s *ProjectService) CreateProject(data types.ProjectD) (*db.ProjectModel, error) {
 	// Create a new project
-	r, err := prisma.Client.UserWorkspace.FindFirst(
-		db.UserWorkspace.UserID.Equals(data.LeadID),
-		db.UserWorkspace.WorkspaceID.Equals(data.WorksapceID),
-	).Exec(context.Background())
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(r.ID)
 	result, err := prisma.Client.Project.CreateOne(
 		db.Project.Title.Set(data.Title),
 		db.Project.Workspace.Link(
 			db.Workspace.ID.Equals(data.WorksapceID),
 		),
 		db.Project.Lead.Link(
-			db.UserWorkspace.ID.Equals(r.ID),
+			db.UserWorkspace.ID.Equals(data.LeadID),
 		),
 	).With(db.Project.Assignees.Fetch()).Exec(context.Background())
 	if err != nil {
