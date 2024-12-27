@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
@@ -80,18 +80,11 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	if payload.ProfilePicture == "" {
-		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=%s&color=%s",
-			url.QueryEscape(payload.Name),
-			utils.RandomHexColor(),
-			utils.RandomHexColor(),
+		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s",
+			url.QueryEscape(strings.ReplaceAll(payload.Name, " ", "")),
 		)
 
-		imageBase64, err := utils.FetchAndEncodeImageToBase64(avatarURL)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate profile picture")
-		}
-		payload.ProfilePicture = imageBase64
-		logger.Logger.Info().Msgf("generated profile picture: %s", payload.ProfilePicture)
+		payload.ProfilePicture = avatarURL
 	}
 
 	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)

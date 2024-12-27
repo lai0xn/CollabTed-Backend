@@ -47,17 +47,10 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 
 	// Link assignees to the task
 	for _, assigneeID := range data.AssigneesIDs {
-		usr, err := prisma.Client.UserWorkspace.FindFirst(
-			db.UserWorkspace.UserID.Equals(assigneeID),
-			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
-		).Exec(context.Background())
-		if err != nil {
-			return nil, fmt.Errorf("failed to find user with ID %s: %v", assigneeID, err)
-		}
 		_, err = prisma.Client.Task.FindUnique(
 			db.Task.ID.Equals(result.ID),
 		).Update(db.Task.Assignees.Link(
-			db.UserWorkspace.ID.Equals(usr.ID),
+			db.UserWorkspace.ID.Equals(assigneeID),
 		)).Exec(context.Background())
 		if err != nil {
 			return nil, fmt.Errorf("failed to add assignee with ID %s to the task: %v", assigneeID, err)
@@ -167,14 +160,14 @@ func (s *TaskService) CanUserPerformAction(userId, workspaceId, taskId string) (
 	return false, nil
 }
 
-func(s *TaskService) ChangeTaskStatus(taskId,statusId string)(*db.TaskModel,error){
-	status,err := prisma.Client.Status.FindUnique(
+func (s *TaskService) ChangeTaskStatus(taskId, statusId string) (*db.TaskModel, error) {
+	status, err := prisma.Client.Status.FindUnique(
 		db.Status.ID.Equals(statusId),
 	).Exec(context.Background())
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	task,err := prisma.Client.Task.FindUnique(
+	task, err := prisma.Client.Task.FindUnique(
 		db.Task.ID.Equals(taskId),
 	).Update(
 		db.Task.Status.Link(
@@ -182,10 +175,10 @@ func(s *TaskService) ChangeTaskStatus(taskId,statusId string)(*db.TaskModel,erro
 		),
 	).Exec(context.Background())
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return task,nil
-	
+	return task, nil
+
 }
 
 // AssignUserToTask assigns a single user to a task using the userWorkspaceID.
