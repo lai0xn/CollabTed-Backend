@@ -10,6 +10,6 @@ type EventD struct {
 	CreatorID   string    `json:"creatorId" validate:"required"`
 	Type        string    `json:"type" validate:"required,oneof=EVENT MEET WORKING_HOURS"`
 	WorkspaceID string    `json:"workspaceId" validate:"required"`
-	Assignees   []string  `json:"attendees"`
+	Assignees   []string  `json:"assineesIds"`
 	MeetLink    string    `json:"meetLink,omitempty"`
 }
