@@ -27,9 +27,20 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 
 	encrypted_password, err := utils.Encrypt(password)
 	if err != nil {
-		return nil, err
-	}
 
+	}
+	// Check if user exists because prisma @unique does not work
+	_, err = prisma.Client.User.FindFirst(
+		db.User.Email.Equals(email),
+	).Exec(context.Background())
+	if err != nil {
+		if !(errors.Is(err, db.ErrNotFound)) {
+			return nil, err
+		}
+	}
+	if err == nil {
+		return nil, errors.New("user with this email already exists")
+	}
 	// Create User
 	result, err := prisma.Client.User.CreateOne(
 		db.User.Email.Set(email),

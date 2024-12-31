@@ -126,6 +126,7 @@ func (h *workspaceHandler) InviteUser(c echo.Context) error {
 	}
 
 	claims := c.Get("user").(*types.Claims)
+
 	canInvite, err := h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
 	if err != nil || !canInvite {
 		canInvite, err = h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
