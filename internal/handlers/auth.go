@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
@@ -84,12 +84,7 @@ func (h *authHandler) Register(c echo.Context) error {
 			url.QueryEscape(payload.Name),
 		)
 
-		imageBase64, err := utils.FetchAndEncodeImageToBase64(avatarURL)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate profile picture")
-		}
-		payload.ProfilePicture = imageBase64
-		logger.Logger.Info().Msgf("generated profile picture: %s", payload.ProfilePicture)
+		payload.ProfilePicture = avatarURL
 	}
 
 	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)
@@ -147,7 +142,12 @@ func (h *authHandler) Me(c echo.Context) error {
 	if c.Get("user") == nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Not authenticated")
 	}
-	return c.JSON(http.StatusOK, c.Get("user"))
+
+	claims := c.Get("user").(*types.Claims)
+
+	utils.FetchAndEncodeImageToBase64(claims.ProfilePicture)
+
+	return c.JSON(http.StatusOK, claims)
 }
 
 func (h *authHandler) Logout(c echo.Context) error {

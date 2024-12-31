@@ -34,15 +34,8 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 	}
 
 	for _, assigneeID := range data.Assignees {
-		usr, err := prisma.Client.UserWorkspace.FindFirst(
-			db.UserWorkspace.UserID.Equals(assigneeID),
-			db.UserWorkspace.WorkspaceID.Equals(data.WorkspaceID),
-		).Exec(context.Background())
-		if err != nil {
-			return nil, err
-		}
 		_, err = prisma.Client.UserWorkspace.FindUnique(
-			db.UserWorkspace.ID.Equals(usr.ID),
+			db.UserWorkspace.ID.Equals(assigneeID),
 		).Update(
 			db.UserWorkspace.Event.Link(
 				db.Event.ID.Equals(result.ID),
@@ -51,10 +44,6 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 		if err != nil {
 			return nil, err
 		}
-
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	return result, nil
