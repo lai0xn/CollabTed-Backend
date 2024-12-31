@@ -80,10 +80,8 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	if payload.ProfilePicture == "" {
-		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=%s&color=%s",
+		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s",
 			url.QueryEscape(payload.Name),
-			utils.RandomHexColor(),
-			utils.RandomHexColor(),
 		)
 
 		imageBase64, err := utils.FetchAndEncodeImageToBase64(avatarURL)
