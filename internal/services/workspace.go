@@ -112,7 +112,13 @@ func (s *WorkspaceService) SendInvitation(email, workspaceID string) error {
 	if err != nil {
 		return err
 	}
+	_, err = prisma.Client.User.FindFirst(
+		db.User.Email.Equals(email),
+	).Exec(context.Background())
 
+	if err != nil {
+		return err
+	}
 	_, err = prisma.Client.Invitation.CreateOne(
 		db.Invitation.Email.Set(email),
 		db.Invitation.Token.Set(token),
