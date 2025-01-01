@@ -185,6 +185,6 @@ func (h *authHandler) RessetPassword(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, echo.Map{
-		"message": "resset link sent",
+		"message": "password changed successfully",
 	})
 }
