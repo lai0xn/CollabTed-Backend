@@ -27,7 +27,7 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 
 	encrypted_password, err := utils.Encrypt(password)
 	if err != nil {
-
+		return nil, err
 	}
 	// Check if user exists because prisma @unique does not work
 	_, err = prisma.Client.User.FindFirst(
@@ -134,7 +134,7 @@ func (s *AuthService) SendRessetLink(email string) error {
 	).Exec(context.Background())
 
 	if err != nil {
-		return errors.New("No user found with this email")
+		return errors.New("no user found with this email")
 	}
 
 	// Generate a secure reset token
@@ -151,7 +151,7 @@ func (s *AuthService) SendRessetLink(email string) error {
 	}
 
 	// Prepare the password reset link
-	link := fmt.Sprintf("https://collabted.com/auth/password-reset?token=%s", token)
+	link := fmt.Sprintf("%s/auth/password-reset?token=%s", config.HOST_URL, token)
 
 	// Prepare the email content
 	subject := "Password Reset Request"
@@ -177,10 +177,10 @@ func (s *AuthService) RessetPassword(email, token, new_password string) error {
 	r := redis.GetClient()
 	userToken, err := r.Get(context.Background(), "reset:"+email).Result()
 	if err != nil {
-		return errors.New("Invalid token")
+		return errors.New("invalid token")
 	}
 	if userToken != token {
-		return errors.New("Invalid token")
+		return errors.New("invalid token")
 	}
 
 	encNew, err := bcrypt.GenerateFromPassword([]byte(new_password), 12)
