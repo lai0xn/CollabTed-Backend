@@ -81,7 +81,7 @@ func (h *authHandler) Register(c echo.Context) error {
 
 	if payload.ProfilePicture == "" {
 		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s",
-			url.QueryEscape(payload.Name),
+			url.QueryEscape(strings.ReplaceAll(payload.Name, " ", "")),
 		)
 
 		payload.ProfilePicture = avatarURL

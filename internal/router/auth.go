@@ -16,5 +16,5 @@ func AuthRoutes(e *echo.Group) {
 	auth.GET("/me", h.Me, middlewares.AuthMiddleware)
 	auth.GET("/logout", h.Logout, middlewares.AuthMiddleware)
 	auth.POST("/send-resset", h.SendRessetLink)
-	auth.POST("/resset-password", h.RessetPassword)
+	auth.POST("/reset-password", h.RessetPassword)
 }
