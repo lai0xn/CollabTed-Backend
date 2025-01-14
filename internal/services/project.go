@@ -134,3 +134,31 @@ func (s *ProjectService) CanUserPerformAction(userId, workspaceId string, requir
 	logger.LogInfo().Msg(string(requiredRole))
 	return userWorkspace.Role == requiredRole, nil
 }
+
+func (s *ProjectService) UpdateProject(data types.ProjectD, projectId string) (*db.ProjectModel, error) {
+	ctx := context.Background()
+	result, err := prisma.Client.Project.FindUnique(
+		db.Project.ID.Equals(projectId),
+	).Update(
+		db.Project.Title.Set(data.Title),
+	).Exec(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *ProjectService) DeleteProject(projectId string) error {
+	ctx := context.Background()
+	_, err := prisma.Client.Project.FindUnique(
+		db.Project.ID.Equals(projectId),
+	).Delete().Exec(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
@@ -77,6 +80,9 @@ func (h *authHandler) Register(c echo.Context) error {
 	}
 
 	if payload.ProfilePicture == "" {
+		avatarURL := fmt.Sprintf("https://ui-avatars.com/api/?name=%s",
+			url.QueryEscape(strings.ReplaceAll(payload.Name, " ", "")),
+		)
 
 		payload.ProfilePicture = avatarURL
 	}
