@@ -11,14 +11,14 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/steebchen/prisma-client-go v0.43.0
+	github.com/steebchen/prisma-client-go v0.45.1-0.20250113222512-7ec4d1eff9d2
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.29.0
 	golang.org/x/oauth2 v0.21.0
 )
 
-require github.com/satori/go.uuid v1.2.0 // indirect
+require go.mongodb.org/mongo-driver/v2 v2.0.0 // indirect
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.33.0-20240401165935-b983156c5e99.1 // indirect
@@ -66,8 +66,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

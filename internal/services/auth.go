@@ -175,7 +175,7 @@ func (s *AuthService) SendRessetLink(email string) error {
 
 func (s *AuthService) RessetPassword(email, token, new_password string) error {
 	r := redis.GetClient()
-	userToken, err := r.Get(context.Background(), "resset:"+email).Result()
+	userToken, err := r.Get(context.Background(), "reset:"+email).Result()
 	if err != nil {
 		return errors.New("invalid token")
 	}

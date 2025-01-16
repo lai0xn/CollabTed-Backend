@@ -21,7 +21,6 @@ func Connect() {
 		// #nosec G402
 		TLSConfig: &tls.Config{}, // could be changed to TLSConfig: &tls.Config{InsecureSkipVerify: true} when working on local redis instnace
 	})
-
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
 		logger.Logger.Err(err)
