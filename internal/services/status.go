@@ -15,7 +15,7 @@ func NewStatusService() *StatusService {
 	return &StatusService{}
 }
 
-func (s *StatusService) CreateStatus(data types.StatusD, userID string) (*db.StatusModel, error) {
+func (s *StatusService) CreateStatus(data types.StatusD) (*db.StatusModel, error) {
 	// Create a new status
 	result, err := prisma.Client.Status.CreateOne(
 		db.Status.Project.Link(
