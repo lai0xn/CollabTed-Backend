@@ -33,11 +33,6 @@ func (h *messageHandler) GetMessages(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	if len(data) == 0 {
-		return c.JSON(http.StatusNotFound, echo.Map{
-			"message": "no messages found",
-		})
-	}
 	return c.JSON(http.StatusOK, data)
 }
 

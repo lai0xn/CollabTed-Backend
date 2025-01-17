@@ -22,8 +22,7 @@ func (h *StatusHandler) CreateStatus(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	claims := c.Get("user").(*types.Claims)
-	status, err := h.statusService.CreateStatus(statusD, claims.ID)
+	status, err := h.statusService.CreateStatus(statusD)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
