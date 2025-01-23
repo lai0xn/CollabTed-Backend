@@ -6,7 +6,7 @@ model Task {
   description Json
   dueDate     DateTime
   priority    Priority
-  status      Status          @relation(fields: [statusId], references: [id])
+  status      Status          @relation(fields: [statusId], references: [id],onDelete: Cascade)
   statusId    String          @db.ObjectId
   assineesIds String[]        @db.ObjectId
   assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])
