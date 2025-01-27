@@ -13,4 +13,5 @@ func StatusRoutes(e *echo.Group) {
 	statuses.GET("/list/:projectId", h.GetStatusesByProject)
 	statuses.GET("/:statusId", h.GetStatusByID)
 	statuses.DELETE("/:statusId", h.DeleteStatus)
+	statuses.PUT("/:statusId", h.EditStatus)
 }
