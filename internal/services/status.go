@@ -31,6 +31,26 @@ func (s *StatusService) CreateStatus(data types.StatusD) (*db.StatusModel, error
 	return result, nil
 }
 
+func (s *StatusService) EditStatus(statusId, userId string, data types.StatusD) (*db.StatusModel, error) {
+	isLead, err := s.isLeadOfProject(data.ProjectID, userId)
+	if err != nil {
+		return nil, err
+	}
+	if !isLead {
+		return nil, errors.New("you need to be the project lead to perform this action")
+	}
+	result, err := prisma.Client.Status.FindUnique(
+		db.Status.ID.Equals(statusId),
+	).Update(
+		db.Status.Title.Set(data.Name),
+		db.Status.Color.Set(data.Color),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
+
 func (s *StatusService) GetStatusesByProject(projectID string, userID string) ([]db.StatusModel, error) {
 	// // Check if the user is an assignee of the project
 	// assignee, err := s.isAssigneeOfProject(projectID, userID)
@@ -114,9 +134,12 @@ func (s *StatusService) isLeadOfProject(projectID string, userID string) (bool, 
 	if err != nil {
 		return false, err
 	}
-
+	//get userworkspaceID
+	userwrk, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userID),
+	).Exec(context.Background())
 	// Check if the user is the lead of the project
-	return project.LeadID == userID, nil
+	return project.LeadID == userwrk.ID, nil
 }
 
 func (s *StatusService) isAssigneeOfProject(projectID string, userID string) (bool, error) {

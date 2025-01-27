@@ -54,7 +54,7 @@ func (h *StatusHandler) GetStatusByID(c echo.Context) error {
 }
 
 func (h *StatusHandler) DeleteStatus(c echo.Context) error {
-	statusID := c.Param("statusID")
+	statusID := c.Param("statusId")
 	claims := c.Get("user").(*types.Claims)
 	err := h.statusService.DeleteStatus(statusID, claims.ID)
 	if err != nil {
@@ -62,4 +62,21 @@ func (h *StatusHandler) DeleteStatus(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *StatusHandler) EditStatus(c echo.Context) error {
+	statusID := c.Param("statusId")
+	claims := c.Get("user").(*types.Claims)
+	var statusD types.StatusD
+	err := c.Bind(&statusD)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := h.statusService.EditStatus(statusID, claims.ID, statusD)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusForbidden, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
