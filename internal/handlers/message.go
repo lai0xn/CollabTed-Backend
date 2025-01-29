@@ -36,6 +36,20 @@ func (h *messageHandler) GetMessages(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
+func (h *messageHandler) GetPinnedMessages(c echo.Context) error {
+	channelId := c.Param("channelId")
+	page := c.QueryParam("p")
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		pageInt = 1
+	}
+	data, err := h.srv.GetPinnedMessages(channelId, pageInt)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
 func (h *messageHandler) GetAttachments(c echo.Context) error {
 	channelId := c.Param("channelId")
 	data, err := h.srv.GetAttachmentsByChannel(channelId)
@@ -120,4 +134,15 @@ func (s *messageHandler) UploadAttachment(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, attachment)
+}
+
+func (h *messageHandler) PinMessage(c echo.Context) error {
+	messageId := c.Param("messageId")
+	err := h.srv.PingMessage(messageId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "message pinned",
+	})
 }
