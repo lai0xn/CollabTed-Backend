@@ -95,6 +95,33 @@ func (s *MessageService) DeleteMessage(messageID string) error {
 	return nil
 }
 
+func (s *MessageService) PingMessage(messageID string) error {
+	_, err := prisma.Client.Message.FindUnique(
+		db.Message.ID.Equals(messageID),
+	).Update(
+		db.Message.IsPined.Set(true),
+	).Exec(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (s *MessageService) GetPinnedMessages(channelID string, page int) ([]db.MessageModel, error) {
+	result, err := prisma.Client.Message.FindMany(
+		db.Message.ChannelID.Equals(channelID),
+		db.Message.IsPined.Equals(true),
+	).Skip((page - 1) * 10).Take(10).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.AttachmentModel, error) {
 	user, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(attachment.SenderID),

@@ -10,6 +10,8 @@ func MessageRoutes(e *echo.Group) {
 	h := handlers.NewMessageHandler()
 	messages := e.Group("/messages", middlewares.AuthMiddleware)
 	messages.POST("/", h.SendMessage)
+	messages.POST("/pin/:messageId", h.PinMessage)
+	messages.GET("/:channelId/pinned", h.GetPinnedMessages)
 	messages.GET("/:channelId", h.GetMessages)
 	messages.GET("/attachments/:channelId", h.GetAttachments)
 	messages.DELETE("/:messageId", h.DeleteMessage)

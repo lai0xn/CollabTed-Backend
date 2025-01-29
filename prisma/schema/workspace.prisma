@@ -8,7 +8,6 @@ model Workspace {
   updatedAt     DateTime        @updatedAt
   Projects      Project[]
   Invitation    Invitation[]
-
   Event     Event[]
   Channel   Channel[]
   LiveBoard LiveBoard[]
