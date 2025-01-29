@@ -214,8 +214,12 @@ func (h *workspaceHandler) ChangeName(c echo.Context) error {
 	var data payload
 	canPerform, err := h.srv.CanUserPerformAction(claims.ID, worksapceId, db.UserRoleAdmin)
 
-	if err != nil || !canPerform {
+	if err != nil {
+
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if !canPerform {
+		return echo.NewHTTPError(http.StatusForbidden, "you are not authorized to perform this action")
 	}
 
 	if err := c.Bind(&data); err != nil {
@@ -238,8 +242,11 @@ func (h *workspaceHandler) ChangeOwner(c echo.Context) error {
 	var data payload
 	canPerform, err := h.srv.CanUserPerformAction(claims.ID, worksapceId, db.UserRoleAdmin)
 
-	if err != nil || !canPerform {
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if !canPerform {
+		return echo.NewHTTPError(http.StatusForbidden, "you are not authorized to perform this action")
 	}
 
 	if err := c.Bind(&data); err != nil {
@@ -260,9 +267,13 @@ func (h *workspaceHandler) KickUser(c echo.Context) error {
 	claims := c.Get("user").(*types.Claims)
 	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)
 
-	if err != nil || !canPerform {
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	if !canPerform {
+		return echo.NewHTTPError(http.StatusForbidden, "you are not authorized to perform this action")
+	}
+
 	workspace, err := h.srv.KickUser(workspaceID, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

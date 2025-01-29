@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -330,9 +331,12 @@ func (s *WorkspaceService) KickUser(workspaceId string, userId string) (*db.Work
 	userwrk, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
-	).Exec(context.Background())
+	).With(db.UserWorkspace.Workspace.Fetch()).Exec(context.Background())
 	if err != nil {
 		return nil, err
+	}
+	if userwrk.Workspace().OwnerID == userId {
+		return nil, errors.New("Can't kick the owner of the workspace")
 	}
 	wrkspace, err := prisma.Client.Workspace.FindUnique(
 		db.Workspace.ID.Equals(workspaceId),
