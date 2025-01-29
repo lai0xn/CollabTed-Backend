@@ -285,8 +285,12 @@ func (h *workspaceHandler) ChangeUserRole(c echo.Context) error {
 	claims := c.Get("user").(*types.Claims)
 	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)
 
-	if err != nil || !canPerform {
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if !canPerform {
+		return echo.NewHTTPError(http.StatusForbidden, "you are not authorized to perform this action")
 	}
 
 	if err := h.srv.ChangeUserRole(workspaceID, userId, db.UserRole(role.Role)); err != nil {
