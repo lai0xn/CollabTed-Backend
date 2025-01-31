@@ -7,6 +7,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 )
 
 type StatusService struct{}
@@ -32,6 +33,8 @@ func (s *StatusService) CreateStatus(data types.StatusD) (*db.StatusModel, error
 }
 
 func (s *StatusService) EditStatus(statusId, userId string, data types.StatusD) (*db.StatusModel, error) {
+
+	logger.LogInfo().Msgf("Checking if user %s is the lead of project %s", userId, data.ProjectID)
 	isLead, err := s.isLeadOfProject(data.ProjectID, userId)
 	if err != nil {
 		return nil, err
