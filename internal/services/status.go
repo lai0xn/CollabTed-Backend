@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 )
 
 type StatusService struct{}
@@ -138,11 +138,15 @@ func (s *StatusService) isLeadOfProject(projectID string, userID string) (bool, 
 		return false, err
 	}
 	//get userworkspaceID
-	userwrk, err := prisma.Client.UserWorkspace.FindFirst(
+	userwrk, err := prisma.Client.UserWorkspace.FindMany(
+		db.UserWorkspace.WorkspaceID.Equals(project.WorkspaceID),
 		db.UserWorkspace.UserID.Equals(userID),
 	).Exec(context.Background())
+	if err != nil {
+		return false, err
+	}
 	// Check if the user is the lead of the project
-	return project.LeadID == userwrk.ID, nil
+	return project.LeadID == userwrk[0].ID, nil
 }
 
 func (s *StatusService) isAssigneeOfProject(projectID string, userID string) (bool, error) {
