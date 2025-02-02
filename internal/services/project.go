@@ -141,7 +141,7 @@ func (s *ProjectService) UpdateProject(data types.ProjectD, projectId string) (*
 		db.Project.ID.Equals(projectId),
 	).Update(
 		db.Project.Title.Set(data.Title),
-		db.Project.Lead.Link(data.LeadID),
+		db.Project.Lead.Link(db.UserWorkspace.ID.Equals(data.LeadID)),
 	).Exec(ctx)
 
 	if err != nil {

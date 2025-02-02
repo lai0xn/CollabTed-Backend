@@ -40,20 +40,6 @@ func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.Workspace
 		return nil, err
 	}
 
-	_, err = prisma.Client.UserWorkspace.CreateOne(
-		db.UserWorkspace.User.Link(
-			db.User.ID.Equals(data.OwnerID),
-		),
-		db.UserWorkspace.Workspace.Link(
-			db.Workspace.ID.Equals(result.ID),
-		),
-		db.UserWorkspace.Role.Set(db.UserRoleAdmin),
-		db.UserWorkspace.JoinedAt.Set(time.Now()),
-	).Exec(context.Background())
-
-	if err != nil {
-		return nil, err
-	}
 	_, err = s.boardSrv.SaveBoard(types.BoardD{
 		WorkspaceID: result.ID,
 		Elements:    []json.RawMessage{},
@@ -338,17 +324,13 @@ func (s *WorkspaceService) KickUser(workspaceId string, userId string) (*db.Work
 	if userwrk.Workspace().OwnerID == userId {
 		return nil, errors.New("Can't kick the owner of the workspace")
 	}
-	wrkspace, err := prisma.Client.Workspace.FindUnique(
-		db.Workspace.ID.Equals(workspaceId),
-	).Update(
-		db.Workspace.Users.Unlink(
-			db.UserWorkspace.ID.Equals(userwrk.ID),
-		),
-	).Exec(context.Background())
+	_, err = prisma.Client.UserWorkspace.FindUnique(
+		db.UserWorkspace.ID.Equals(userwrk.ID),
+	).Delete().Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	return wrkspace, nil
+	return userwrk.Workspace(), nil
 }
 
 func (s *WorkspaceService) ChangeOwner(workspaceId, userId string) (*db.WorkspaceModel, error) {
