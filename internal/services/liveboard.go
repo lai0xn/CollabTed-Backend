@@ -57,21 +57,21 @@ func (s *LiveBoardService) DeleteBoard(boardId string) (*db.LiveBoardModel, erro
 }
 
 func (s *LiveBoardService) GetBoard(boardId string) (*db.LiveBoardModel, error) {
-	board,err := prisma.Client.LiveBoard.FindUnique(
+	board, err := prisma.Client.LiveBoard.FindUnique(
 		db.LiveBoard.ID.Equals(boardId),
 	).Exec(context.Background())
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return board,nil
+	return board, nil
 }
 
 func (s *LiveBoardService) GetWorkspaceBoards(workspaceId string) ([]db.LiveBoardModel, error) {
-	board,err := prisma.Client.LiveBoard.FindMany(
+	board, err := prisma.Client.LiveBoard.FindMany(
 		db.LiveBoard.WorkspaceID.Equals(workspaceId),
 	).Exec(context.Background())
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return board,nil
+	return board, nil
 }

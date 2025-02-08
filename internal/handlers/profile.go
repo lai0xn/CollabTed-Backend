@@ -12,24 +12,24 @@ type ProfileHandler struct {
 	srv *services.ProfileService
 }
 
-func NewProfileHandler()*ProfileHandler{
+func NewProfileHandler() *ProfileHandler {
 	return &ProfileHandler{
 		srv: services.NewProfileService(),
 	}
 }
 
-func (h *ProfileHandler)UpdateProfile(c echo.Context) error{
+func (h *ProfileHandler) UpdateProfile(c echo.Context) error {
 	var paylaod types.ProfileUpdate
 	usr := c.Get("user").(*types.Claims)
-	if err := c.Bind(&paylaod);err!= nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err.Error())
+	if err := c.Bind(&paylaod); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	user,err := h.srv.UpdateUser(usr.ID,paylaod)
+	user, err := h.srv.UpdateUser(usr.ID, paylaod)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest,err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK,user)
+	return c.JSON(http.StatusOK, user)
 }
 
-func (h *ProfileHandler) GetProfile(c echo.Context) error {return nil}
+func (h *ProfileHandler) GetProfile(c echo.Context) error { return nil }

@@ -5,6 +5,7 @@ model User {
   password       String
   profilePicture String
   active         Boolean
+  isOAuth        Boolean
   userWorkspace  UserWorkspace[]
   workspace      Workspace[]
   Message        Message[]

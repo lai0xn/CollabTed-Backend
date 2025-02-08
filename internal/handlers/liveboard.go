@@ -36,8 +36,6 @@ func (h *liveBoardHandler) GetWorkspaceBoards(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-
-
 func (h *liveBoardHandler) CreateBoard(c echo.Context) error {
 	var data types.LiveBoardD
 	if err := c.Bind(&data); err != nil {
@@ -52,7 +50,7 @@ func (h *liveBoardHandler) CreateBoard(c echo.Context) error {
 
 func (h *liveBoardHandler) DeleteBoard(c echo.Context) error {
 	boardId := c.Param("boardId")
-	result,err := h.srv.DeleteBoard(boardId)
+	result, err := h.srv.DeleteBoard(boardId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
