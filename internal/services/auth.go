@@ -16,13 +16,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthService struct{}
-
-func NewAuthService() *AuthService {
-	return &AuthService{}
+type AuthService struct {
+	BoardService *BoardService
 }
 
-func (s *AuthService) CreateUser(name string, email string, password string, profilePicture string) (*db.UserModel, error) {
+func NewAuthService() *AuthService {
+	return &AuthService{
+		BoardService: NewBoardService(),
+	}
+}
+
+func (s *AuthService) CreateUser(name string, email string, password string, profilePicture string, isOAuth bool) (*db.UserModel, error) {
 	ctx := context.Background()
 
 	encrypted_password, err := utils.Encrypt(password)
@@ -48,6 +52,7 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 		db.User.Password.Set(encrypted_password),
 		db.User.ProfilePicture.Set(profilePicture),
 		db.User.Active.Set(false),
+		db.User.IsOAuth.Set(isOAuth),
 	).Exec(ctx)
 
 	if err != nil {
@@ -59,10 +64,10 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 		Name:    "Personal",
 		OwnerID: result.ID,
 	})
-
 	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }
 
@@ -82,6 +87,10 @@ func (s *AuthService) CheckUser(email string, password string) (*db.UserModel, e
 
 	if !user.Active {
 		return nil, errors.New("user not activated")
+	}
+
+	if user.IsOAuth {
+		return nil, errors.New("user logged in with google, please log in with google")
 	}
 
 	enc_pass := user.Password

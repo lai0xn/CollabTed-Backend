@@ -54,14 +54,19 @@ func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.Workspace
 
 func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkspaceModel, error) {
 	result, err := prisma.Client.Workspace.FindMany(
-		db.Workspace.Users.Some(
-			db.UserWorkspace.UserID.Equals(userID),
+		db.Workspace.Or(
+			db.Workspace.OwnerID.Equals(userID),
+			db.Workspace.Users.Some(
+				db.UserWorkspace.UserID.Equals(userID),
+			),
 		),
 	).Exec(context.Background())
 
 	if err != nil {
 		return nil, err
 	}
+	logger.LogInfo().Msgf("Found %d workspaces for user %s", len(result), userID)
+
 	return result, nil
 }
 

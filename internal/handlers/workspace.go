@@ -137,7 +137,7 @@ func (h *workspaceHandler) InviteUser(c echo.Context) error {
 
 	err = h.srv.SendInvitation(payload.Email, payload.WorkspaceID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to send invitation: "+err.Error())
+		return c.JSON(http.StatusNotFound, "Failed to send invitation: "+err.Error())
 	}
 
 	return c.JSON(http.StatusOK, "Invitation sent successfully")

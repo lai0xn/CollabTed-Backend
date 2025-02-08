@@ -87,7 +87,7 @@ func (h *oauthHandler) handleCallback(c echo.Context, provider string) error {
 		}
 		user.ProfilePicture = imageBase64
 		logger.Logger.Info().Msgf("generated profile picture: %s", user.ProfilePicture)
-		newUser, err := h.srv.CreateUser(user.Name, user.Email, "", user.ProfilePicture)
+		newUser, err := h.srv.CreateUser(user.Name, user.Email, "", user.ProfilePicture, true)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user: "+err.Error())
 		}

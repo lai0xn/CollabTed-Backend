@@ -87,7 +87,7 @@ func (h *authHandler) Register(c echo.Context) error {
 		payload.ProfilePicture = avatarURL
 	}
 
-	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture)
+	user, err := h.srv.CreateUser(payload.Name, payload.Email, payload.Password, payload.ProfilePicture, false)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
