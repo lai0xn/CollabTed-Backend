@@ -146,7 +146,7 @@ func (s *AuthService) SendRessetLink(email string) error {
 	user, err := prisma.Client.User.FindFirst(
 		db.User.Email.Equals(email),
 	).Exec(context.Background())
-	
+
 	if user.IsOAuth {
 		return errors.New("user is registered with google oauth, please log in with google")
 	}
