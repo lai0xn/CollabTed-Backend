@@ -225,3 +225,16 @@ func (s *ProjectService) IsUserMemberOfProject(userId, workspaceId, projectId st
 
 	return false, nil
 }
+
+func (s *TaskService) DeleteTask(projectId string) error {
+	ctx := context.Background()
+	_, err := prisma.Client.Task.FindUnique(
+		db.Task.ID.Equals(projectId),
+	).Delete().Exec(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
