@@ -34,7 +34,7 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 		return nil, err
 	}
 	// Check if user exists because prisma @unique does not work
-	_, err = prisma.Client.User.FindFirst(
+	user, err := prisma.Client.User.FindFirst(
 		db.User.Email.Equals(email),
 	).Exec(context.Background())
 	if err != nil {
@@ -45,6 +45,11 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 	if err == nil {
 		return nil, errors.New("user with this email already exists")
 	}
+
+	if user.IsOAuth {
+		return nil, errors.New("user is registered with google oauth, please log in with google")
+	}
+
 	// Create User
 	result, err := prisma.Client.User.CreateOne(
 		db.User.Email.Set(email),
@@ -90,7 +95,7 @@ func (s *AuthService) CheckUser(email string, password string) (*db.UserModel, e
 	}
 
 	if user.IsOAuth {
-		return nil, errors.New("user logged in with google, please log in with google")
+		return nil, errors.New("user is registered with google oauth, please log in with google")
 	}
 
 	enc_pass := user.Password
@@ -141,7 +146,10 @@ func (s *AuthService) SendRessetLink(email string) error {
 	user, err := prisma.Client.User.FindFirst(
 		db.User.Email.Equals(email),
 	).Exec(context.Background())
-
+	
+	if user.IsOAuth {
+		return errors.New("user is registered with google oauth, please log in with google")
+	}
 	if err != nil {
 		return errors.New("no user found with this email")
 	}

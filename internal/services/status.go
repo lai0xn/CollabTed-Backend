@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -33,15 +32,6 @@ func (s *StatusService) CreateStatus(data types.StatusD) (*db.StatusModel, error
 }
 
 func (s *StatusService) EditStatus(statusId, userId string, data types.StatusD) (*db.StatusModel, error) {
-
-	logger.LogInfo().Msgf("Checking if user %s is the lead of project %s", userId, data.ProjectID)
-	isLead, err := s.isLeadOfProject(data.ProjectID, userId)
-	if err != nil {
-		return nil, err
-	}
-	if !isLead {
-		return nil, errors.New("you need to be the project lead to perform this action")
-	}
 	result, err := prisma.Client.Status.FindUnique(
 		db.Status.ID.Equals(statusId),
 	).Update(
@@ -104,18 +94,9 @@ func (s *StatusService) GetStatusByID(statusID string, userID string) (*db.Statu
 
 func (s *StatusService) DeleteStatus(statusID string, userID string) error {
 	// Get the project ID of the status
-	projectID, err := s.getProjectIDOfStatus(statusID)
+	_, err := s.getProjectIDOfStatus(statusID)
 	if err != nil {
 		return err
-	}
-
-	// Check if the user is the lead of the project
-	lead, err := s.isLeadOfProject(projectID, userID)
-	if err != nil {
-		return err
-	}
-	if !lead {
-		return errors.New("only the lead of the project can delete a status")
 	}
 
 	// Delete the status by ID
@@ -129,25 +110,25 @@ func (s *StatusService) DeleteStatus(statusID string, userID string) error {
 	return nil
 }
 
-func (s *StatusService) isLeadOfProject(projectID string, userID string) (bool, error) {
-	// Get the project by ID
-	project, err := prisma.Client.Project.FindFirst(
-		db.Project.ID.Equals(projectID),
-	).Exec(context.Background())
-	if err != nil {
-		return false, err
-	}
-	//get userworkspaceID
-	userwrk, err := prisma.Client.UserWorkspace.FindMany(
-		db.UserWorkspace.WorkspaceID.Equals(project.WorkspaceID),
-		db.UserWorkspace.UserID.Equals(userID),
-	).Exec(context.Background())
-	if err != nil {
-		return false, err
-	}
-	// Check if the user is the lead of the project
-	return project.LeadID == userwrk[0].ID, nil
-}
+// func (s *StatusService) isLeadOfProject(projectID string, userID string) (bool, error) {
+// 	// Get the project by ID
+// 	project, err := prisma.Client.Project.FindFirst(
+// 		db.Project.ID.Equals(projectID),
+// 	).Exec(context.Background())
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	//get userworkspaceID
+// 	userwrk, err := prisma.Client.UserWorkspace.FindMany(
+// 		db.UserWorkspace.WorkspaceID.Equals(project.WorkspaceID),
+// 		db.UserWorkspace.UserID.Equals(userID),
+// 	).Exec(context.Background())
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	// Check if the user is the lead of the project
+// 	return project.LeadID == userwrk[0].ID, nil
+// }
 
 func (s *StatusService) isAssigneeOfProject(projectID string, userID string) (bool, error) {
 	// Get the project by ID

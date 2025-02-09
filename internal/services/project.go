@@ -31,7 +31,6 @@ func (s *ProjectService) CreateProject(data types.ProjectD) (*db.ProjectModel, e
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(result.ID)
 	// Link assignees to the project
 	for _, assigneeID := range data.AssigneesIDs {
 		usr, err := prisma.Client.UserWorkspace.FindFirst(
@@ -74,6 +73,7 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 		db.UserWorkspace.UserID.Equals(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 	).Exec(context.Background())
+	
 	if err != nil {
 		fmt.Println(userID, workspaceID)
 		fmt.Println(err.Error())

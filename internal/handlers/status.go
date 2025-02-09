@@ -5,15 +5,20 @@ import (
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
+	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/labstack/echo/v4"
 )
 
 type StatusHandler struct {
-	statusService services.StatusService
+	statusService  services.StatusService
+	projectService services.ProjectService
 }
 
 func NewStatusHandler() *StatusHandler {
-	return &StatusHandler{*services.NewStatusService()}
+	return &StatusHandler{
+		statusService:  *services.NewStatusService(),
+		projectService: *services.NewProjectService(),
+	}
 }
 
 func (h *StatusHandler) CreateStatus(c echo.Context) error {
@@ -55,8 +60,15 @@ func (h *StatusHandler) GetStatusByID(c echo.Context) error {
 
 func (h *StatusHandler) DeleteStatus(c echo.Context) error {
 	statusID := c.Param("statusId")
+	WorksapceID := c.Param("workspaceId")
 	claims := c.Get("user").(*types.Claims)
-	err := h.statusService.DeleteStatus(statusID, claims.ID)
+
+	canCreate, err := h.projectService.CanUserPerformAction(claims.ID, WorksapceID, db.UserRoleAdmin)
+	if err != nil || !canCreate {
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create projects")
+	}
+
+	err = h.statusService.DeleteStatus(statusID, claims.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
@@ -66,9 +78,16 @@ func (h *StatusHandler) DeleteStatus(c echo.Context) error {
 
 func (h *StatusHandler) EditStatus(c echo.Context) error {
 	statusID := c.Param("statusId")
+	WorksapceID := c.Param("workspaceId")
 	claims := c.Get("user").(*types.Claims)
+
+	canCreate, err := h.projectService.CanUserPerformAction(claims.ID, WorksapceID, db.UserRoleAdmin)
+	if err != nil || !canCreate {
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to create projects")
+	}
+
 	var statusD types.StatusD
-	err := c.Bind(&statusD)
+	err = c.Bind(&statusD)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
