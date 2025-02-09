@@ -73,7 +73,7 @@ func (s *ProjectService) ListProjectsByWorkspace(userID, workspaceID string) ([]
 		db.UserWorkspace.UserID.Equals(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 	).Exec(context.Background())
-	
+
 	if err != nil {
 		fmt.Println(userID, workspaceID)
 		fmt.Println(err.Error())
