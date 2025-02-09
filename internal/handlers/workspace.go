@@ -129,7 +129,7 @@ func (h *workspaceHandler) InviteUser(c echo.Context) error {
 
 	canInvite, err := h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
 	if err != nil || !canInvite {
-		canInvite, err = h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleManager)
+		canInvite, err = h.srv.CanUserPerformAction(claims.ID, payload.WorkspaceID, db.UserRoleAdmin)
 	}
 	if err != nil || !canInvite {
 		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to invite users to this workspace")
