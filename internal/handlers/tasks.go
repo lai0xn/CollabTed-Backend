@@ -148,3 +148,12 @@ func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, userWorkspace)
 }
+
+func (h *TaskHandler) DeleteTaskHandler(c echo.Context) error {
+	taskId := c.Param("taskId")
+	err := h.TaskService.DeleteTask(taskId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+	return c.JSON(http.StatusOK, "Task deleted successfully")
+}
