@@ -10,6 +10,7 @@ model Task {
   statusId    String          @db.ObjectId
   assineesIds String[]        @db.ObjectId
   assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])
+  createdAt   DateTime        @default(now())
 }
 
 enum Priority {
