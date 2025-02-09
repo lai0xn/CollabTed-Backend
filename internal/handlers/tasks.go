@@ -109,7 +109,23 @@ func (h *TaskHandler) UpdateDescription(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	result, err := h.TaskService.UpdateTask(request, taskId)
+	result, err := h.TaskService.UpdateTask(request, taskId, "description")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func (h *TaskHandler) UpdateTaskTitle(c echo.Context) error {
+	var taskId = c.Param("taskId")
+
+	var request types.TaskD
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := h.TaskService.UpdateTask(request, taskId, "title")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -146,6 +162,19 @@ func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
+	return c.JSON(http.StatusOK, userWorkspace)
+}
+
+func (h *TaskHandler) RemoveAssigneeFromTaskHandler(c echo.Context) error {
+	taskID := c.Param("id")
+	assigneeID := c.Param("assigneeId")
+	workspaceId := c.QueryParam("workspaceId")
+
+	// Remove the assignee from the task
+	userWorkspace, err := h.TaskService.RemoveAssignee(workspaceId, taskID, assigneeID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"AAAAAAAAAAAAAAAAAA": err.Error()})
+	}
 	return c.JSON(http.StatusOK, userWorkspace)
 }
 

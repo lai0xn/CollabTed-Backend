@@ -60,19 +60,28 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 	return result, nil
 }
 
-func (s *TaskService) UpdateTask(data types.TaskD, taskId string) (*db.TaskModel, error) {
-	jsonElements, err := json.Marshal(data.Description)
-	if err != nil {
-		log.Fatalf("Error marshaling elements: %v", err)
+func (s *TaskService) UpdateTask(data types.TaskD, taskId string, field string) (*db.TaskModel, error) {
+	var updateParams []db.TaskSetParam
+
+	if field == "description" {
+		jsonElements, err := json.Marshal(data.Description)
+		if err != nil {
+			log.Printf("Error marshaling description: %v", err)
+			return nil, err
+		}
+		updateParams = append(updateParams, db.Task.Description.Set(jsonElements))
+	} else if field == "title" {
+		updateParams = append(updateParams, db.Task.Title.Set(data.Title))
 	}
 
 	updatedTask, err := prisma.Client.Task.FindUnique(
 		db.Task.ID.Equals(taskId),
 	).Update(
-		db.Task.Description.Set(jsonElements),
+		updateParams...,
 	).Exec(context.Background())
 
 	if err != nil {
+		log.Printf("Error updating task: %v", err)
 		return nil, err
 	}
 	return updatedTask, nil
@@ -115,6 +124,26 @@ func (s *TaskService) AddAssignee(workspaceID, taskID, userID string) (*db.UserW
 		db.Task.ID.Equals(taskID),
 	).Update(
 		db.Task.Assignees.Link(db.UserWorkspace.ID.Equals(user.ID)),
+	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *TaskService) RemoveAssignee(workspaceID, taskID, userID string) (*db.UserWorkspaceModel, error) {
+	ctx := context.Background()
+	user, err := prisma.Client.UserWorkspace.FindFirst(
+		db.UserWorkspace.UserID.Equals(userID),
+		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
+	).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	_, err = prisma.Client.Task.FindUnique(
+		db.Task.ID.Equals(taskID),
+	).Update(
+		db.Task.Assignees.Unlink(db.UserWorkspace.ID.Equals(user.ID)),
 	).Exec(ctx)
 	if err != nil {
 		return nil, err
