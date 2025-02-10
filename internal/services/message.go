@@ -43,6 +43,7 @@ func (s *MessageService) SendReply(data types.MessageD) (*db.MessageModel, error
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
+		db.Message.IsReply.Set(true),
 		db.Message.CreatedAt.Set(time.Now()),
 		db.Message.ReplyTo.Link(
 			db.Message.ID.Equals(data.ReplyTo),
