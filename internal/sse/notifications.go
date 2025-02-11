@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/labstack/echo/v4"
@@ -85,6 +86,27 @@ func (n *Notifier) NotifyPing(userID string, notif types.PingNotification) error
 		return err
 	}
 	fmt.Println(notif, "notification")
+	err = n.client.Publish(context.Background(), "notifs:"+userID, b).Err()
+	if err != nil {
+		log.Printf("Failed to publish notification: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (n *Notifier) NotifyKickUser(userID, workspaceID string) error {
+	notif := types.KickNotification{
+		Type:        types.KICK_NOTIFICATION,
+		WorkspaceID: workspaceID,
+	}
+
+	b, err := json.Marshal(notif)
+	if err != nil {
+		log.Printf("Failed to marshal call: %v", err)
+		return err
+	}
+
+	logger.LogInfo().Msgf("Publishing kick notification: %s", string(b))
 	err = n.client.Publish(context.Background(), "notifs:"+userID, b).Err()
 	if err != nil {
 		log.Printf("Failed to publish notification: %v", err)

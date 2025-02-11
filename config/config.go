@@ -65,7 +65,7 @@ func initOAuthConfigs() {
 			Config: &oauth2.Config{
 				ClientID:     mustGetEnv("GOOGLE_CLIENT_ID"),
 				ClientSecret: mustGetEnv("GOOGLE_CLIENT_SECRET"),
-				RedirectURL:  mustGetEnv("GOOGLE_REDIRECT_URL"),	
+				RedirectURL:  mustGetEnv("GOOGLE_REDIRECT_URL"),
 				Scopes:       []string{"profile", "email"},
 				Endpoint:     google.Endpoint,
 			},
