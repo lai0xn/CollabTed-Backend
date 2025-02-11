@@ -38,16 +38,14 @@ func (s *AuthService) CreateUser(name string, email string, password string, pro
 		db.User.Email.Equals(email),
 	).Exec(context.Background())
 	if err != nil {
-		if !(errors.Is(err, db.ErrNotFound)) {
+		if !errors.Is(err, db.ErrNotFound) {
 			return nil, err
 		}
-	}
-	if err == nil {
+	} else {
+		if user.IsOAuth {
+			return nil, errors.New("user is registered with Google OAuth, please log in with Google")
+		}
 		return nil, errors.New("user with this email already exists")
-	}
-
-	if user.IsOAuth {
-		return nil, errors.New("user is registered with google oauth, please log in with google")
 	}
 
 	// Create User

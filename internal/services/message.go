@@ -22,8 +22,8 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 			db.Channel.ID.Equals(data.ChannelID),
 		),
 		db.Message.IsReply.Set(data.IsReply),
-		db.Message.ReplyToName.Set(data.ReplyToMessage),
-		db.Message.ReplyToMessage.Set(data.ReplyToUserName),
+		db.Message.ReplyToUserName.Set(data.ReplyToUserName),
+		db.Message.ReplyToMessage.Set(data.ReplyToMessage),
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
