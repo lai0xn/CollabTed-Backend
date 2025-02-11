@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -22,10 +21,12 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 		db.Message.Channel.Link(
 			db.Channel.ID.Equals(data.ChannelID),
 		),
+		db.Message.IsReply.Set(data.IsReply),
+		db.Message.ReplyToName.Set(data.ReplyToMessage),
+		db.Message.ReplyToMessage.Set(data.ReplyToUserName),
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
-		db.Message.CreatedAt.Set(time.Now()),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to send message: %v", err)
@@ -34,26 +35,6 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 	return message, nil
 }
 
-func (s *MessageService) SendReply(data types.MessageD) (*db.MessageModel, error) {
-	message, err := prisma.Client.Message.CreateOne(
-		db.Message.Content.Set(data.Content),
-		db.Message.Channel.Link(
-			db.Channel.ID.Equals(data.ChannelID),
-		),
-		db.Message.Sender.Link(
-			db.User.ID.Equals(data.SenderID),
-		),
-		db.Message.CreatedAt.Set(time.Now()),
-		db.Message.ReplyTo.Link(
-			db.Message.ID.Equals(data.ReplyTo),
-		),
-	).Exec(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to send message: %v", err)
-	}
-
-	return message, nil
-}
 func (s *MessageService) GetMessagesByChannel(channelID string, page int) ([]db.MessageModel, error) {
 	messages, err := prisma.Client.Message.FindMany(
 		db.Message.ChannelID.Equals(channelID),
