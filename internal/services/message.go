@@ -22,11 +22,13 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 			db.Channel.ID.Equals(data.ChannelID),
 		),
 		db.Message.IsReply.Set(data.IsReply),
-		db.Message.ReplyToName.Set(data.ReplyToMessage),
+		db.Message.ReplyToUserName.Set(data.ReplyToMessage),
 		db.Message.ReplyToMessage.Set(data.ReplyToUserName),
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
+		db.Message.AttachmentTitle.Set(data.AttachmentTitle),
+		db.Message.AttachmentLink.Set(data.AttachmentLink),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("failed to send message: %v", err)
@@ -106,7 +108,6 @@ func (s *MessageService) GetPinnedMessages(channelID string, page int) ([]db.Mes
 func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.AttachmentModel, error) {
 	user, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(attachment.SenderID),
-		db.UserWorkspace.ID.Equals(attachment.WorkspaceID),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
@@ -116,7 +117,8 @@ func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.Att
 		db.Attachment.User.Link(
 			db.UserWorkspace.ID.Equals(user.ID),
 		),
-		db.Attachment.File.Set(attachment.File), db.Attachment.Title.Set(attachment.Title),
+		db.Attachment.File.Set(attachment.File),
+		db.Attachment.Title.Set(attachment.Title),
 	).Exec(context.Background())
 	return result, err
 }

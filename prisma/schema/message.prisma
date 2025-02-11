@@ -9,8 +9,11 @@ model Message {
   userWorkspaceId String?        @db.ObjectId
   createdAt       DateTime       @default(now())
   isPined         Boolean        @default(false)
-  
-  isReply         Boolean        @default(false)
-  replyToName     String         
+
+  isReply         Boolean @default(false)
+  ReplyToUserName String
   replyToMessage  String
+
+  attachmentLink  String
+  attachmentTitle String
 }

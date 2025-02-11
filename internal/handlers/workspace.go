@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
+	"github.com/CollabTED/CollabTed-Backend/internal/sse"
+	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
@@ -16,6 +18,7 @@ type workspaceHandler struct {
 	srv      services.WorkspaceService
 	csrv     services.ChannelService
 	boardSrv services.BoardService
+	notifier *sse.Notifier
 }
 
 func NewWorkspaceHandler() *workspaceHandler {
@@ -23,6 +26,7 @@ func NewWorkspaceHandler() *workspaceHandler {
 		srv:      *services.NewWorkspaceService(),
 		csrv:     *services.NewChannelService(),
 		boardSrv: *services.NewBoardService(),
+		notifier: sse.NewNotifier(),
 	}
 }
 
@@ -263,6 +267,13 @@ func (h *workspaceHandler) ChangeOwner(c echo.Context) error {
 func (h *workspaceHandler) KickUser(c echo.Context) error {
 	userId := c.Param("userId")
 	workspaceID := c.Param("workspaceId")
+
+	logger.LogInfo().Msg("TRYING")
+	err := h.notifier.NotifyKickUser(userId, workspaceID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	logger.LogInfo().Msg("OK")
 
 	claims := c.Get("user").(*types.Claims)
 	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)

@@ -21,4 +21,7 @@ type MessageD struct {
 	IsReply         bool   `json:"isReply"`
 	ReplyToMessage  string `json:"replyToMessage"`
 	ReplyToUserName string `json:"replyToUserName"`
+
+	AttachmentLink  string `json:"attachmentLink"`
+	AttachmentTitle string `json:"attachmentTitle"`
 }
