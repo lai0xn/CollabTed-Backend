@@ -9,8 +9,8 @@ model Message {
   userWorkspaceId String?        @db.ObjectId
   createdAt       DateTime       @default(now())
   isPined         Boolean        @default(false)
+  
   isReply         Boolean        @default(false)
-  replyToId       String?        @db.ObjectId
-  replyTo         Message?       @relation("MessageReply", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies         Message[]      @relation("MessageReply")
+  replyToName     String         
+  replyToMessage  String
 }

@@ -36,14 +36,18 @@ type Connection struct {
 }
 
 type Message struct {
-	Type        MessageType       `json:"type"`
-	SenderID    string            `json:"senderID"`
-	ChannelID   string            `json:"channelID"`
-	Content     string            `json:"content"`
-	WorkspaceID string            `json:"workspaceID"`
-	ReplyTo     string            `json:"reply_to"`
-	Elements    []json.RawMessage `json:"elements"`
-	Recievers   []db.UserWorkspaceModel
+	Type        MessageType `json:"type"`
+	SenderID    string      `json:"senderID"`
+	ChannelID   string      `json:"channelID"`
+	Content     string      `json:"content"`
+	WorkspaceID string      `json:"workspaceID"`
+
+	IsReply         bool   `json:"isReply"`
+	ReplyToMessage  string `json:"replyToMessage"`
+	ReplyToUserName string `json:"replyToUserName"`
+
+	Elements  []json.RawMessage `json:"elements"`
+	Recievers []db.UserWorkspaceModel
 }
 
 var (
@@ -177,22 +181,15 @@ func broadcastMessageToChannel(msg Message) error {
 		}
 
 	}
+
 	// Saving msgs to the db
-	if msg.ReplyTo != "" {
-		_, err := msgSrv.SendReply(types.MessageD{
-			Content:   msg.Content,
-			SenderID:  msg.SenderID,
-			ChannelID: msg.ChannelID,
-			ReplyTo:   msg.ReplyTo,
-		})
-		if err != nil {
-			return nil
-		}
-	}
 	_, err := msgSrv.SendMessage(types.MessageD{
-		Content:   msg.Content,
-		SenderID:  msg.SenderID,
-		ChannelID: msg.ChannelID,
+		Content:         msg.Content,
+		SenderID:        msg.SenderID,
+		ChannelID:       msg.ChannelID,
+		IsReply:         msg.IsReply,
+		ReplyToMessage:  msg.ReplyToMessage,
+		ReplyToUserName: msg.ReplyToUserName,
 	})
 	if err != nil {
 		return err
