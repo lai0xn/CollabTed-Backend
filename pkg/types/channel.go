@@ -1,7 +1,5 @@
 package types
 
-import "encoding/json"
-
 type ChannelD struct {
 	Name            string   `json:"name"`
 	WorkspaceID     string   `json:"workspaceID"`
@@ -24,5 +22,6 @@ type MessageD struct {
 	ReplyToMessage  string `json:"replyToMessage"`
 	ReplyToUserName string `json:"replyToUserName"`
 
-	Attachment json.RawMessage `json:"attachment"`
+	AttachmentLink  string `json:"attachmentLink"`
+	AttachmentTitle string `json:"attachmentTitle"`
 }

@@ -6,7 +6,4 @@ model Attachment {
   user      UserWorkspace @relation(fields: [userID], references: [id])
   file      String
   title     String
-
-  messageId String        @db.ObjectId
-  message   Message       @relation("MessageAttachments", fields: [messageId], references: [id])
 }

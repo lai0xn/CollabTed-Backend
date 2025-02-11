@@ -132,7 +132,7 @@ func (s *messageHandler) UploadAttachment(c echo.Context) error {
 		logger.Logger.Err(err).Msg("Failed to save attachment in database")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to upload file")
 	}
-	
+
 	return c.JSON(http.StatusOK, attachment)
 }
 

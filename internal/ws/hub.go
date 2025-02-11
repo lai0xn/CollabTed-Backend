@@ -46,7 +46,8 @@ type Message struct {
 	ReplyToMessage  string `json:"replyToMessage"`
 	ReplyToUserName string `json:"replyToUserName"`
 
-	Attachment json.RawMessage `json:"attachment"`
+	AttachmentTitle  string `json:"attachmentTitle"`
+	AttachmentLink   string `json:"attachmentLink"`
 
 	Elements  []json.RawMessage `json:"elements"`
 	Recievers []db.UserWorkspaceModel
@@ -192,7 +193,8 @@ func broadcastMessageToChannel(msg Message) error {
 		IsReply:         msg.IsReply,
 		ReplyToMessage:  msg.ReplyToMessage,
 		ReplyToUserName: msg.ReplyToUserName,
-		Attachment:      msg.Attachment,
+		AttachmentLink:  msg.AttachmentLink,
+		AttachmentTitle: msg.AttachmentTitle,
 	})
 	if err != nil {
 		return err
