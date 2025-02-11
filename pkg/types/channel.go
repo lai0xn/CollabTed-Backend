@@ -1,5 +1,7 @@
 package types
 
+import "encoding/json"
+
 type ChannelD struct {
 	Name            string   `json:"name"`
 	WorkspaceID     string   `json:"workspaceID"`
@@ -21,4 +23,6 @@ type MessageD struct {
 	IsReply         bool   `json:"isReply"`
 	ReplyToMessage  string `json:"replyToMessage"`
 	ReplyToUserName string `json:"replyToUserName"`
+
+	Attachment json.RawMessage `json:"attachment"`
 }

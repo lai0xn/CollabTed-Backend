@@ -13,4 +13,6 @@ model Message {
   isReply         Boolean @default(false)
   ReplyToUserName String
   replyToMessage  String
+
+  attachments     Attachment[]   @relation("MessageAttachments")
 }

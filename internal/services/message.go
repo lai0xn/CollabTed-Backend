@@ -106,7 +106,6 @@ func (s *MessageService) GetPinnedMessages(channelID string, page int) ([]db.Mes
 func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.AttachmentModel, error) {
 	user, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(attachment.SenderID),
-		db.UserWorkspace.ID.Equals(attachment.WorkspaceID),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err
