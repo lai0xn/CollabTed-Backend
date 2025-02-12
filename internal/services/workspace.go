@@ -247,7 +247,6 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 
 func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types.UserWorkspace, error) {
 	// Find the user-workspace relation based on userId and workspaceId
-	logger.LogInfo().Msg("####################")
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
