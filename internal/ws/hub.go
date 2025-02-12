@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/internal/sse"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
+	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/prisma/db"
 	"github.com/gorilla/websocket"
@@ -67,6 +69,8 @@ func Hub() {
 		case con := <-connection:
 			fmt.Printf("user: %s connected\n", con.userID)
 			mu.Lock()
+			rdb := redis.GetClient()
+			rdb.HSet(context.Background(), "connected", "user:"+con.userID, con.name)
 			users[con.userID] = con
 			mu.Unlock()
 

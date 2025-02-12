@@ -12,6 +12,7 @@ func WorkspaceRoutes(e *echo.Group) {
 	workspaces.GET("/", h.GetWorkspaces)
 	workspaces.POST("/create", h.CreateWorkspace)
 	workspaces.GET("/:workspaceId", h.GetWorkspaceById)
+	workspaces.GET("/connected/:workspaceId", h.GetConnectedUsers)
 	workspaces.POST("/invite", h.InviteUser)
 	workspaces.GET("/accept", h.AcceptInvitation)
 	workspaces.GET("/:workspaceId/users", h.GetAllUsersInWorkspace)

@@ -10,6 +10,7 @@ import (
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/pkg/logger"
 	"github.com/CollabTED/CollabTed-Backend/pkg/mail"
+	"github.com/CollabTED/CollabTed-Backend/pkg/redis"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
 	"github.com/CollabTED/CollabTed-Backend/pkg/utils"
 	"github.com/CollabTED/CollabTed-Backend/prisma"
@@ -50,6 +51,31 @@ func (s *WorkspaceService) CreateWorkspace(data types.WorkspaceD) (*db.Workspace
 	}
 
 	return result, nil
+}
+
+func (s *WorkspaceService) GetConnectedUsers(wokrkspacID string) ([]db.UserWorkspaceModel, error) {
+	var connectedUsers []db.UserWorkspaceModel
+	workspaceUsers, err := prisma.Client.UserWorkspace.FindMany(
+		db.UserWorkspace.WorkspaceID.Equals(wokrkspacID),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	rdb := redis.GetClient()
+
+	for _, user := range workspaceUsers {
+		res, err := rdb.HGet(context.Background(), "connected", "user:"+user.UserID).Result()
+		if err != nil {
+			continue
+		}
+		if res != "" {
+			connectedUsers = append(connectedUsers, user)
+		}
+	}
+
+	return connectedUsers, nil
 }
 
 func (s *WorkspaceService) ListWorkspaces(userID string) ([]db.WorkspaceModel, error) {
