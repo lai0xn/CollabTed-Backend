@@ -11,7 +11,7 @@ model Message {
   isPined         Boolean        @default(false)
 
   isReply         Boolean @default(false)
-  ReplyToUserName String
+  replyToUserName String
   replyToMessage  String
 
   attachmentLink  String

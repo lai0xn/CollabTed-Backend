@@ -114,3 +114,24 @@ func (n *Notifier) NotifyKickUser(userID, workspaceID string) error {
 	}
 	return nil
 }
+
+func (n *Notifier) NotifyJoinUser(userID, workspaceID string) error {
+	notif := types.JoinUser{
+		Type:        types.JOIN_NOTIFICATION,
+		WorkspaceID: workspaceID,
+	}
+
+	b, err := json.Marshal(notif)
+	if err != nil {
+		log.Printf("Failed to marshal call: %v", err)
+		return err
+	}
+
+	logger.LogInfo().Msgf("Publishing join notification: %s", string(b))
+	err = n.client.Publish(context.Background(), "notifs:"+userID, b).Err()
+	if err != nil {
+		log.Printf("Failed to publish notification: %v", err)
+		return err
+	}
+	return nil
+}
