@@ -111,44 +111,59 @@ func (s *TaskService) ListTasksByProject(projectID string) ([]db.TaskModel, erro
 }
 
 // AddAssignee adds a user to a task as an assignee.
-func (s *TaskService) AddAssignee(workspaceID, taskID, userID string) (*db.UserWorkspaceModel, error) {
+func (s *TaskService) AddAssignees(workspaceID, taskID string, userID []string) ([]db.UserWorkspaceModel, error) {
 	ctx := context.Background()
-	user, err := prisma.Client.UserWorkspace.FindFirst(
-		db.UserWorkspace.UserID.Equals(userID),
+	users, err := prisma.Client.UserWorkspace.FindMany(
+		db.UserWorkspace.UserID.In(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 	).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
-	_, err = prisma.Client.Task.FindUnique(
-		db.Task.ID.Equals(taskID),
-	).Update(
-		db.Task.Assignees.Link(db.UserWorkspace.ID.Equals(user.ID)),
-	).Exec(ctx)
-	if err != nil {
-		return nil, err
+
+	for _, user := range users {
+		_, err = prisma.Client.Task.FindUnique(
+			db.Task.ID.Equals(taskID),
+		).Update(
+			db.Task.Assignees.Link(db.UserWorkspace.ID.Equals(user.ID)),
+		).Exec(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
 	}
-	return user, nil
+
+	return users, nil
 }
 
-func (s *TaskService) RemoveAssignee(workspaceID, taskID, userID string) (*db.UserWorkspaceModel, error) {
+func (s *TaskService) RemoveAssignees(workspaceID, taskID string, userID []string) ([]db.UserWorkspaceModel, error) {
+	fmt.Println(userID)
 	ctx := context.Background()
-	user, err := prisma.Client.UserWorkspace.FindFirst(
-		db.UserWorkspace.UserID.Equals(userID),
+	users, err := prisma.Client.UserWorkspace.FindMany(
+		db.UserWorkspace.UserID.In(userID),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceID),
 	).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
-	_, err = prisma.Client.Task.FindUnique(
-		db.Task.ID.Equals(taskID),
-	).Update(
-		db.Task.Assignees.Unlink(db.UserWorkspace.ID.Equals(user.ID)),
-	).Exec(ctx)
-	if err != nil {
-		return nil, err
+	fmt.Println(len(users))
+	var usersIds []string
+
+	for _, user := range users {
+		_, err = prisma.Client.Task.FindUnique(
+			db.Task.ID.Equals(taskID),
+		).Update(
+			db.Task.Assignees.Unlink(db.UserWorkspace.ID.Equals(user.ID)),
+		).Exec(ctx)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
 	}
-	return user, nil
+
+	fmt.Println(usersIds)
+
+	return users, nil
 }
 
 // CanUserPerformAction checks if a user has the required role to perform an action on a task.

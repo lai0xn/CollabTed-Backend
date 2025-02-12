@@ -136,7 +136,7 @@ func (h *TaskHandler) UpdateTaskTitle(c echo.Context) error {
 // AddAssigneeToTaskHandler adds an assignee to a task
 func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 	var requestData struct {
-		UserID string `json:"userId" binding:"required"`
+		UserIDs []string `json:"userId" binding:"required"`
 	}
 
 	if err := c.Bind(&requestData); err != nil {
@@ -157,7 +157,7 @@ func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 	}
 
 	// Add the assignee to the task
-	userWorkspace, err := h.TaskService.AddAssignee(workspaceId, taskID, requestData.UserID)
+	userWorkspace, err := h.TaskService.AddAssignees(workspaceId, taskID, requestData.UserIDs)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
@@ -165,16 +165,34 @@ func (h *TaskHandler) AddAssigneeToTaskHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, userWorkspace)
 }
 
-func (h *TaskHandler) RemoveAssigneeFromTaskHandler(c echo.Context) error {
+func (h *TaskHandler) RemoveAssigneeToTaskHandler(c echo.Context) error {
+	var requestData struct {
+		UserIDs []string `json:"userIds" binding:"required"`
+	}
+
+	if err := c.Bind(&requestData); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
 	taskID := c.Param("id")
-	assigneeID := c.Param("assigneeId")
+	claims := c.Get("user").(*types.Claims) // Assume userId is extracted from JWT middleware
 	workspaceId := c.QueryParam("workspaceId")
 
-	// Remove the assignee from the task
-	userWorkspace, err := h.TaskService.RemoveAssignee(workspaceId, taskID, assigneeID)
+	// Check if user has permissions to add assignees (manager or project lead)
+	canPerform, err := h.TaskService.CanUserPerformAction(claims.ID, workspaceId, taskID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"AAAAAAAAAAAAAAAAAA": err.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
+
+	if !canPerform {
+		return c.JSON(http.StatusForbidden, map[string]string{"error": "You do not have permission to add assignees to this task"})
+	}
+
+	// Add the assignee to the task
+	userWorkspace, err := h.TaskService.RemoveAssignees(workspaceId, taskID, requestData.UserIDs)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
 	return c.JSON(http.StatusOK, userWorkspace)
 }
 
