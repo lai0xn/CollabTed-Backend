@@ -21,13 +21,14 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 		db.Message.Channel.Link(
 			db.Channel.ID.Equals(data.ChannelID),
 		),
+    
 		db.Message.Sender.Link(
 			db.User.ID.Equals(data.SenderID),
 		),
 
-		db.Message.ReplyToUserName.Set(data.ReplyToMessage),
-
-		db.Message.ReplyToMessage.Set(data.ReplyToUserName),
+		db.Message.ReplyToUserName.Set(data.ReplyToUserName),
+		db.Message.ReplyToMessage.Set(data.ReplyToMessage),
+    
 		db.Message.AttachmentLink.Set(data.AttachmentLink),
 		db.Message.AttachmentTitle.Set(data.AttachmentTitle),
 		db.Message.IsReply.Set(data.IsReply),

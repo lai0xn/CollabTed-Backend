@@ -6,6 +6,7 @@ const (
 	MESSAGE_NOTIFICATION NotifType = "message"
 	CALL_NOTIFICATION    NotifType = "call"
 	KICK_NOTIFICATION    NotifType = "kick"
+	JOIN_NOTIFICATION    NotifType = "join"
 )
 
 type PingNotification struct {
@@ -22,6 +23,11 @@ type CallNotification struct {
 }
 
 type KickNotification struct {
+	Type        NotifType `json:"type"`
+	WorkspaceID string    `json:"workspaceId"`
+}
+
+type JoinUser struct {
 	Type        NotifType `json:"type"`
 	WorkspaceID string    `json:"workspaceId"`
 }

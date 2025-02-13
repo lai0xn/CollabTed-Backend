@@ -154,10 +154,19 @@ func (h *workspaceHandler) AcceptInvitation(c echo.Context) error {
 	}
 
 	claims := c.Get("user").(*types.Claims)
-	err := h.srv.AcceptInvitation(claims.ID, token)
+	workspaceID, err := h.srv.AcceptInvitation(claims.ID, token)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	logger.LogDebug().Msgf("?????Workspace ID: %s", workspaceID)
+
+	err = h.notifier.NotifyJoinUser(claims.ID, workspaceID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	logger.LogDebug().Msgf("??????Invitation accepted for user ID: %s", claims.ID)
 
 	return c.JSON(http.StatusOK, "Successfully joined the workspace")
 }

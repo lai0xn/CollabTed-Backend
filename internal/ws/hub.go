@@ -48,8 +48,8 @@ type Message struct {
 	ReplyToMessage  string `json:"replyToMessage"`
 	ReplyToUserName string `json:"replyToUserName"`
 
-	AttachmentTitle  string `json:"attachmentTitle"`
-	AttachmentLink   string `json:"attachmentLink"`
+	AttachmentTitle string `json:"attachmentTitle"`
+	AttachmentLink  string `json:"attachmentLink"`
 
 	Elements  []json.RawMessage `json:"elements"`
 	Recievers []db.UserWorkspaceModel

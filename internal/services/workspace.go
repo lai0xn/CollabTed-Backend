@@ -158,28 +158,28 @@ func (s *WorkspaceService) SendInvitation(email, workspaceID string) error {
 	return nil
 }
 
-func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
+func (s *WorkspaceService) AcceptInvitation(userID, token string) (string, error) {
 	invitation, err := prisma.Client.Invitation.FindUnique(
 		db.Invitation.Token.Equals(token),
 	).Exec(context.Background())
 	if err != nil {
-		return fmt.Errorf("invitation not found")
+		return "", fmt.Errorf("invitation not found")
 	}
 
 	if invitation.Status != db.InvitationStatusPending {
-		return fmt.Errorf("invitation has already been accepted or declined")
+		return "", fmt.Errorf("invitation has already been accepted or declined")
 	}
 
 	user, err := prisma.Client.User.FindUnique(
 		db.User.ID.Equals(userID),
 	).Exec(context.Background())
 	if err != nil {
-		return fmt.Errorf("user not found")
+		return "", fmt.Errorf("user not found")
 	}
 
 	existingUsers, err := s.GetAllUsersInWorkspace(invitation.WorkspaceID)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve users in workspace: %v", err)
+		return "", fmt.Errorf("failed to retrieve users in workspace: %v", err)
 	}
 
 	uniqueName := utils.GenerateUniqueName(user.Name, existingUsers)
@@ -191,7 +191,7 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 			db.User.Name.Set(uniqueName),
 		).Exec(context.Background())
 		if err != nil {
-			return fmt.Errorf("failed to update user's name: %v", err)
+			return "", fmt.Errorf("failed to update user's name: %v", err)
 		}
 	}
 
@@ -207,7 +207,7 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 	).Exec(context.Background())
 
 	if err != nil {
-		return fmt.Errorf("failed to join workspace: %v", err)
+		return "", fmt.Errorf("failed to join workspace: %v", err)
 	}
 
 	_, err = prisma.Client.Invitation.FindUnique(
@@ -217,10 +217,10 @@ func (s *WorkspaceService) AcceptInvitation(userID, token string) error {
 	).Exec(context.Background())
 
 	if err != nil {
-		return fmt.Errorf("failed to update invitation status: %v", err)
+		return "", fmt.Errorf("failed to update invitation status: %v", err)
 	}
 
-	return nil
+	return invitation.WorkspaceID, nil
 }
 
 func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.UserWorkspace, error) {
@@ -273,10 +273,6 @@ func (s *WorkspaceService) GetAllUsersInWorkspace(workspaceId string) ([]types.U
 
 func (s *WorkspaceService) GetUserInWorkspace(userId, workspaceId string) (types.UserWorkspace, error) {
 	// Find the user-workspace relation based on userId and workspaceId
-	logger.LogInfo().Msg("####################")
-	logger.LogInfo().Msg(workspaceId)
-	logger.LogInfo().Msg(userId)
-	logger.LogInfo().Msg("####################")
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),
 		db.UserWorkspace.WorkspaceID.Equals(workspaceId),
