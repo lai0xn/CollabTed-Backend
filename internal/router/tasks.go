@@ -16,6 +16,8 @@ func TasksRoutes(e *echo.Group) {
 	tasks.DELETE("/:id/assignees", taskHandler.RemoveAssigneeToTaskHandler)
 	tasks.PATCH("/:taskId/description", taskHandler.UpdateDescription)
 	tasks.PATCH("/:taskId/title", taskHandler.UpdateTaskTitle)
+	tasks.PATCH("/:taskId/priority", taskHandler.UpdateTaskPriority)
+	tasks.PATCH("/:taskId/deadline", taskHandler.UpdateTaskDeadline)
 	tasks.PATCH("/:taskId/:statusId/status", taskHandler.ChangeTaskStatus)
 	tasks.DELETE("/:taskId", taskHandler.DeleteTaskHandler)
 }

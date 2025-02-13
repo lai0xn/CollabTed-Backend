@@ -60,33 +60,6 @@ func (s *TaskService) CreateTask(data types.TaskD) (*db.TaskModel, error) {
 	return result, nil
 }
 
-func (s *TaskService) UpdateTask(data types.TaskD, taskId string, field string) (*db.TaskModel, error) {
-	var updateParams []db.TaskSetParam
-
-	if field == "description" {
-		jsonElements, err := json.Marshal(data.Description)
-		if err != nil {
-			log.Printf("Error marshaling description: %v", err)
-			return nil, err
-		}
-		updateParams = append(updateParams, db.Task.Description.Set(jsonElements))
-	} else if field == "title" {
-		updateParams = append(updateParams, db.Task.Title.Set(data.Title))
-	}
-
-	updatedTask, err := prisma.Client.Task.FindUnique(
-		db.Task.ID.Equals(taskId),
-	).Update(
-		updateParams...,
-	).Exec(context.Background())
-
-	if err != nil {
-		log.Printf("Error updating task: %v", err)
-		return nil, err
-	}
-	return updatedTask, nil
-}
-
 // GetTaskById retrieves a task by its ID.
 func (s *TaskService) GetTaskById(taskID string) (*db.TaskModel, error) {
 	task, err := prisma.Client.Task.FindUnique(
@@ -96,6 +69,51 @@ func (s *TaskService) GetTaskById(taskID string) (*db.TaskModel, error) {
 		return nil, err
 	}
 	return task, nil
+}
+
+func (s *TaskService) UpdateTask(data types.TaskD, taskId string, field string) (*db.TaskModel, error) {
+
+	fieldUpdaters := map[string]func(types.TaskD) (db.TaskSetParam, error){
+		"description": func(data types.TaskD) (db.TaskSetParam, error) {
+			jsonElements, err := json.Marshal(data.Description)
+			if err != nil {
+				return nil, fmt.Errorf("error marshaling description: %w", err)
+			}
+			return db.Task.Description.Set(jsonElements), nil
+		},
+		"title": func(data types.TaskD) (db.TaskSetParam, error) {
+			return db.Task.Title.Set(data.Title), nil
+		},
+		"priority": func(data types.TaskD) (db.TaskSetParam, error) {
+			return db.Task.Priority.Set(db.Priority(data.Priority)), nil
+		},
+		"deadline": func(data types.TaskD) (db.TaskSetParam, error) {
+			return db.Task.DueDate.Set(data.DueDate), nil
+		},
+	}
+
+	updater, exists := fieldUpdaters[field]
+	if !exists {
+		return nil, fmt.Errorf("unsupported field: %s", field)
+	}
+
+	updateParam, err := updater(data)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedTask, err := prisma.Client.Task.FindUnique(
+		db.Task.ID.Equals(taskId),
+	).Update(
+		updateParam,
+	).Exec(context.Background())
+
+	if err != nil {
+		log.Printf("Error updating task: %v", err)
+		return nil, err
+	}
+
+	return updatedTask, nil
 }
 
 // ListTasksByProject lists all tasks in a project.
