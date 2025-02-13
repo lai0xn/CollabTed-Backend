@@ -189,6 +189,15 @@ func (h *workspaceHandler) GetAllUsersInWorkspace(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
+func (h *workspaceHandler) GetConnectedUsers(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+	data, err := h.srv.GetConnectedUsers(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
 func (h *workspaceHandler) GetUserInWorkspace(c echo.Context) error {
 	workspaceId := c.Param("workspaceId")
 	userId := c.Param("userId")

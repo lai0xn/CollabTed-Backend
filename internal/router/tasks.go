@@ -13,7 +13,7 @@ func TasksRoutes(e *echo.Group) {
 	tasks.GET("/:id", taskHandler.GetTaskByIdHandler)
 	tasks.GET("/:workspaceId/:projectId/tasks", taskHandler.ListTasksByProjectHandler)
 	tasks.POST("/:id/assignees", taskHandler.AddAssigneeToTaskHandler)
-	tasks.DELETE("/:id/assignees/:assigneeId", taskHandler.RemoveAssigneeFromTaskHandler)
+	tasks.DELETE("/:id/assignees", taskHandler.RemoveAssigneeToTaskHandler)
 	tasks.PATCH("/:taskId/description", taskHandler.UpdateDescription)
 	tasks.PATCH("/:taskId/title", taskHandler.UpdateTaskTitle)
 	tasks.PATCH("/:taskId/:statusId/status", taskHandler.ChangeTaskStatus)
