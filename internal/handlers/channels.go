@@ -38,6 +38,16 @@ func (h *channelHandler) GetChannel(c echo.Context) error {
 	return c.JSON(http.StatusOK, channel)
 }
 
+func (h *channelHandler) DeleteChannel(c echo.Context) error {
+	channelID := c.Param("channelId")
+	channel, err := h.srv.DeleteChannel(channelID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, channel)
+}
+
 func (h *channelHandler) CreateChannel(c echo.Context) error {
 	var data types.ChannelD
 	if err := c.Bind(&data); err != nil {
@@ -49,6 +59,24 @@ func (h *channelHandler) CreateChannel(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, globalRoomJoinToken)
+}
+
+func (h *channelHandler) EditChannelName(c echo.Context) error {
+	var data struct {
+		Name string `json:"name"`
+	}
+
+	channelId := c.Param("channelId")
+
+	if err := c.Bind(&data); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	channel, err := h.srv.EditChannelName(channelId, data.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, channel)
 }
 
 func (h *channelHandler) AddParticipants(c echo.Context) error {

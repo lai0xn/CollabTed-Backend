@@ -65,6 +65,30 @@ func (s *ChannelService) GetChannelById(channelID string) (*db.ChannelModel, err
 	return channel, nil
 }
 
+func (s *ChannelService) DeleteChannel(channelID string) (*db.ChannelModel, error) {
+	channel, err := prisma.Client.Channel.FindUnique(
+		db.Channel.ID.Equals(channelID),
+	).Delete().Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return channel, nil
+}
+
+func (s *ChannelService) EditChannelName(channelID, name string) (*db.ChannelModel, error) {
+	channel, err := prisma.Client.Channel.FindUnique(
+		db.Channel.ID.Equals(channelID),
+	).Update(
+		db.Channel.Name.Set(name),
+	).Exec(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return channel, nil
+}
+
 // ListChannelsByWorkspace lists all channels in a workspace.
 func (s *ChannelService) ListChannelsByWorkspace(workspaceID string) ([]db.ChannelModel, error) {
 	channels, err := prisma.Client.Channel.FindMany(
