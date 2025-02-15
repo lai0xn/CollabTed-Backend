@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/otiai10/opengraph v1.1.3
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.45.1-0.20250113222512-7ec4d1eff9d2
 	github.com/swaggo/echo-swagger v1.4.1
@@ -63,6 +64,7 @@ require (
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/rs/zerolog v1.33.0
 	github.com/swaggo/files/v2 v2.0.1 // indirect
+	github.com/teambition/rrule-go v1.8.2
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/net v0.27.0 // indirect

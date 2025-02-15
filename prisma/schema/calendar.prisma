@@ -10,8 +10,8 @@ model Event {
   assineesIds String[]        @db.ObjectId
   assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])
   meetLink    String
-
-  Workspace Workspace @relation(fields: [workspaceId], references: [id])
+  rrule        String?         @db.String
+  Workspace   Workspace       @relation(fields: [workspaceId], references: [id])
 }
 
 enum EventType {

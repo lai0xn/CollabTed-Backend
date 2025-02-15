@@ -293,16 +293,6 @@ func (h *workspaceHandler) KickUser(c echo.Context) error {
 	}
 	logger.LogInfo().Msg("OK")
 
-	claims := c.Get("user").(*types.Claims)
-	canPerform, err := h.srv.CanUserPerformAction(claims.ID, workspaceID, db.UserRoleAdmin)
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	if !canPerform {
-		return echo.NewHTTPError(http.StatusForbidden, "you are not authorized to perform this action")
-	}
-
 	workspace, err := h.srv.KickUser(workspaceID, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

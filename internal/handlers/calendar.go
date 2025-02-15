@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
@@ -60,14 +61,31 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 //	@Success	200		{array}		types.EventD
 //	@Router		/workspaces/{workspaceId}/events [get]
 func (h *calendarHandler) ListEvents(c echo.Context) error {
+	start := c.QueryParam("start")
+	end := c.QueryParam("end")
 	workspaceID := c.Param("workspaceId")
-	if workspaceID == "" {
+
+	if workspaceID == "" {	
 		return echo.NewHTTPError(http.StatusBadRequest, "workspaceId is required")
 	}
 
-	data, err := h.srv.ListEventsByWorkspace(workspaceID)
+	if start == "" || end == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "both start and end parameters are required")
+	}
+
+	startTime, err := time.Parse(time.RFC3339, start)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid start time format")
+	}
+
+	endTime, err := time.Parse(time.RFC3339, end)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid end time format")
+	}
+
+	data, err := h.srv.ListEventsByWorkspace(workspaceID, startTime, endTime)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, data)
