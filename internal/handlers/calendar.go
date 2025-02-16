@@ -65,7 +65,7 @@ func (h *calendarHandler) ListEvents(c echo.Context) error {
 	end := c.QueryParam("end")
 	workspaceID := c.Param("workspaceId")
 
-	if workspaceID == "" {	
+	if workspaceID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "workspaceId is required")
 	}
 
