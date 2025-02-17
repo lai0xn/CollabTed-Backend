@@ -106,6 +106,16 @@ func (s *WorkspaceService) GetWorkspaceById(workspaceId string) (*db.WorkspaceMo
 	return result, nil
 }
 
+func (s *WorkspaceService) DeleteWorkspace(workspaceId string) (*db.WorkspaceModel, error) {
+	result, err := prisma.Client.Workspace.FindUnique(
+		db.Workspace.ID.Equals(workspaceId),
+	).Delete().Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (s *WorkspaceService) CanUserPerformAction(userId, workspaceId string, requiredRole db.UserRole) (bool, error) {
 	userWorkspace, err := prisma.Client.UserWorkspace.FindFirst(
 		db.UserWorkspace.UserID.Equals(userId),

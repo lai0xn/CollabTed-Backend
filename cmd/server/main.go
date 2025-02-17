@@ -20,5 +20,7 @@ func main() {
 	s := server.NewServer(":8080")
 	prisma.Connect()
 	go ws.Hub()
+	go ws.WatchConnect()
+	go ws.WatchDisconnect()
 	s.Run()
 }

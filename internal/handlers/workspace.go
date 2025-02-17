@@ -113,6 +113,23 @@ func (h *workspaceHandler) GetWorkspaceById(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
+func (h *workspaceHandler) DeleteWorkspace(c echo.Context) error {
+	workspaceId := c.Param("workspaceId")
+
+	claims := c.Get("user").(*types.Claims)
+
+	canDelete, err := h.srv.CanUserPerformAction(claims.ID, workspaceId, db.UserRoleAdmin)
+	if err != nil || !canDelete {
+		return echo.NewHTTPError(http.StatusForbidden, "You do not have permission to invite users to this workspace")
+	}
+
+	data, err := h.srv.DeleteWorkspace(workspaceId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, data)
+}
+
 // InviteUser example
 //
 //	@Summary	Invite a user to a workspace
