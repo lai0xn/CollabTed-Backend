@@ -3,7 +3,7 @@ model Message {
   content         String
   channelID       String         @db.ObjectId
   senderID        String         @db.ObjectId
-  channel         Channel        @relation(fields: [channelID], references: [id])
+  channel         Channel        @relation(fields: [channelID], references: [id], onDelete: Cascade)
   sender          User           @relation(fields: [senderID], references: [id])
   UserWorkspace   UserWorkspace? @relation(fields: [userWorkspaceId], references: [id])
   userWorkspaceId String?        @db.ObjectId

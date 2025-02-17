@@ -1,12 +1,12 @@
 model Task {
   id          String          @id @default(auto()) @map("_id") @db.ObjectId
   projectId   String          @db.ObjectId
-  project     Project         @relation(fields: [projectId], references: [id],onDelete: Cascade)
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   title       String
   description Json
   dueDate     DateTime
   priority    Priority
-  status      Status          @relation(fields: [statusId], references: [id],onDelete: Cascade)
+  status      Status          @relation(fields: [statusId], references: [id], onDelete: Cascade)
   statusId    String          @db.ObjectId
   assineesIds String[]        @db.ObjectId
   assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])

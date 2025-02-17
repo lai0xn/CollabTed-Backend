@@ -22,6 +22,7 @@ func SetRoutes(e *echo.Echo) {
 	})
 
 	e.GET("/ws", ws.WsChatHandler{}.Chat, middlewares.AuthMiddleware)
+	e.GET("/online", ws.WsChatHandler{}.Connections, middlewares.AuthMiddleware)
 	e.GET("/notifications", sse.NotificationHandler)
 
 	v1 := e.Group("/api/v1")

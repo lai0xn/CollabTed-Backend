@@ -3,6 +3,7 @@ package ws
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/CollabTED/CollabTed-Backend/config"
 	"github.com/CollabTED/CollabTed-Backend/internal/services"
@@ -21,6 +22,66 @@ var (
 
 type WsChatHandler struct {
 	srv services.ChannelService
+}
+
+func (ws WsChatHandler) Connections(c echo.Context) error {
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  readBufferSize,
+		WriteBufferSize: writeBufferSize,
+		CheckOrigin:     func(r *http.Request) bool { return true },
+	}
+	cookie, err := c.Cookie("jwt")
+	fmt.Println("cookie", cookie)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if cookie.Value == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "token is required")
+	}
+
+	token, err := jwt.ParseWithClaims(cookie.Value, &types.Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.JWT_SECRET), nil
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	claims := token.Claims.(*types.Claims)
+	conn, err := upgrader.Upgrade(c.Response().Writer, c.Request(), nil)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	workspacID := c.QueryParam("workspaceID")
+
+	online <- User{
+		UserID:      claims.ID,
+		WorkspaceID: workspacID,
+		Conn:        conn,
+	}
+
+	conn.SetCloseHandler(func(code int, text string) error {
+		fmt.Println("disconnected")
+		disconnected <- User{
+			UserID:      claims.ID,
+			WorkspaceID: workspacID,
+			Conn:        conn,
+		}
+		return nil
+	})
+	for {
+		// Send a ping message to the client to keep the connection alive
+		if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			// If the ping fails, assume the connection is closed
+			fmt.Println("Connection closed:", err)
+			break
+		}
+
+		// Sleep for a while before sending the next ping
+		time.Sleep(30 * time.Second)
+	}
+
+	return nil
 }
 
 func (ws WsChatHandler) Chat(c echo.Context) error {
