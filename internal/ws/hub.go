@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -62,6 +63,18 @@ var (
 	users      = make(map[string]Connection)
 	mu         sync.RWMutex
 )
+
+var (
+	notifierOnce sync.Once
+	notifier     *sse.Notifier
+)
+
+func getNotifier() *sse.Notifier {
+	notifierOnce.Do(func() {
+		notifier = sse.NewNotifier()
+	})
+	return notifier
+}
 
 func Hub() {
 	for {
@@ -164,7 +177,12 @@ func sendPrivateMessage(userID string, msg Message) error {
 
 func broadcastMessageToChannel(msg Message) error {
 	//this notifier needs to be initialized somewhere else asap
-	notifier := sse.NewNotifier()
+
+	n := getNotifier()
+	if n == nil {
+		return errors.New("SSE notifier not initialized")
+	}
+
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -177,7 +195,7 @@ func broadcastMessageToChannel(msg Message) error {
 		if err != nil {
 			log.Printf("Error sending message to user %s: %v\n", user.UserID, err)
 		}
-		err = notifier.NotifyPing(user.UserID, types.PingNotification{
+		err = n.NotifyPing(user.UserID, types.PingNotification{
 			Type:    types.MESSAGE_NOTIFICATION,
 			Sender:  con.name,
 			Content: msg.Content,

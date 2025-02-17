@@ -13,7 +13,7 @@ type PingNotification struct {
 	Type    NotifType `json:"type"`
 	Content string    `json:"content"`
 	Sender  string    `json:"senderName"`
-	Channel string    `json:"channelName"`
+	Channel string    `json:"channelID"`
 }
 
 type CallNotification struct {
