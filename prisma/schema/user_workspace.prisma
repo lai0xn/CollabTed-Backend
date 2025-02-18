@@ -18,7 +18,6 @@ model UserWorkspace {
   Event        Event[]      @relation(fields: [eventIds], references: [id])
   LiveBoard    LiveBoard?   @relation(fields: [liveBoardId], references: [id])
   liveBoardId  String?      @db.ObjectId
-  Attachment   Attachment[]
 }
 
 enum UserRole {

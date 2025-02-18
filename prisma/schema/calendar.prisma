@@ -10,7 +10,8 @@ model Event {
   assineesIds String[]        @db.ObjectId
   assignees   UserWorkspace[] @relation(fields: [assineesIds], references: [id])
   meetLink    String
-  rrule        String?         @db.String
+  rrule       String?         @db.String
+  allDay      Boolean         @default(false)
   Workspace   Workspace       @relation(fields: [workspaceId], references: [id])
 }
 

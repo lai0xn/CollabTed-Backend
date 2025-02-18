@@ -32,6 +32,7 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 		db.Event.Description.Set(data.Description),
 		db.Event.Rrule.SetIfPresent(data.RRule),
 		db.Event.Type.Set(db.EventType(data.Type)),
+		db.Event.AllDay.Set(data.AllDay),
 	).Exec(context.Background())
 	if err != nil {
 		return nil, err

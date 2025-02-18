@@ -13,6 +13,7 @@ type EventD struct {
 	Assignees   []string  `json:"assineesIds"`
 	MeetLink    string    `json:"meetLink,omitempty"`
 	RRule       *string   `json:"rrule,omitempty"`
+	AllDay      bool      `json:"allDay"`
 }
 
 type EventInstance struct {
