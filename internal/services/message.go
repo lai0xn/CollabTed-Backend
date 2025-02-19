@@ -70,9 +70,10 @@ func (s *MessageService) GetMessageById(messageID string) (*db.MessageModel, err
 	return message, nil
 }
 
-func (s *MessageService) DeleteMessage(messageID string) error {
-	_, err := prisma.Client.Message.FindUnique(
+func (s *MessageService) DeleteMessage(userId, messageID string) error {
+	_, err := prisma.Client.Message.FindMany(
 		db.Message.ID.Equals(messageID),
+		db.Message.SenderID.Equals(userId),
 	).Delete().Exec(context.Background())
 	if err != nil {
 		return err
@@ -123,9 +124,10 @@ func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.Att
 	).Exec(context.Background())
 	return result, err
 }
-func (s *MessageService) DeleteAttachment(attachmentID string) error {
-	_, err := prisma.Client.Attachment.FindUnique(
+func (s *MessageService) DeleteAttachment(userId, attachmentID string) error {
+	_, err := prisma.Client.Attachment.FindMany(
 		db.Attachment.ID.Equals(attachmentID),
+		db.Attachment.UserID.Equals(userId),
 	).Delete().Exec(context.Background())
 	if err != nil {
 		return err

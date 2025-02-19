@@ -12,7 +12,7 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/otiai10/opengraph v1.1.3
 	github.com/shopspring/decimal v1.4.0
-	github.com/steebchen/prisma-client-go v0.45.1-0.20250113222512-7ec4d1eff9d2
+	github.com/steebchen/prisma-client-go v0.46.0
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
 	golang.org/x/crypto v0.29.0

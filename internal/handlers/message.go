@@ -72,16 +72,20 @@ func (h *messageHandler) SendMessage(c echo.Context) error {
 }
 
 func (h *messageHandler) DeleteMessage(c echo.Context) error {
-	messageId := c.Param("messageID")
-	err := h.srv.DeleteMessage(messageId)
+	messageId := c.Param("messageId")
+	claims := c.Get("user").(*types.Claims)
+
+	err := h.srv.DeleteMessage(claims.ID, messageId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "Message deleted successfully")
 }
 func (h *messageHandler) DeleteAttachment(c echo.Context) error {
-	attachmentID := c.Param("attachmentID")
-	err := h.srv.DeleteMessage(attachmentID)
+	attachmentID := c.Param("attachmentId")
+	claims := c.Get("user").(*types.Claims)
+
+	err := h.srv.DeleteAttachment(claims.ID, attachmentID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

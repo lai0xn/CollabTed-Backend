@@ -15,6 +15,7 @@ func MessageRoutes(e *echo.Group) {
 	messages.GET("/:channelId", h.GetMessages)
 	messages.GET("/attachments/:channelId", h.GetAttachments)
 	messages.DELETE("/:messageId", h.DeleteMessage)
+	messages.DELETE("/:attachmentId", h.DeleteMessage)
 	messages.POST("/attachment", h.UploadAttachment)
 	messages.DELETE("/attachment/:id", h.DeleteAttachment)
 }

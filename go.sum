@@ -194,6 +194,8 @@ github.com/shopspring/decimal v1.4.0/go.mod h1:gawqmDU56v4yIKSwfBSFip1HdCCXN8/+D
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/steebchen/prisma-client-go v0.45.1-0.20250113222512-7ec4d1eff9d2 h1:bYtrYLydmDg9gNnFUVjjooXFLi+Qy07xt3ELRN/sdD0=
 github.com/steebchen/prisma-client-go v0.45.1-0.20250113222512-7ec4d1eff9d2/go.mod h1:DLojQco1oiaIRjdy5ExwkGGx0GEXDYew7brUc+3nOQU=
+github.com/steebchen/prisma-client-go v0.46.0 h1:VRKN6ui1s/vE2oWO4CSPossbDtZl5jbTVTkPvLpulvs=
+github.com/steebchen/prisma-client-go v0.46.0/go.mod h1:DLojQco1oiaIRjdy5ExwkGGx0GEXDYew7brUc+3nOQU=
 github.com/stoewer/go-strcase v1.3.0 h1:g0eASXYtp+yvN9fK8sH94oCIk0fau9uV1/ZdJ0AVEzs=
 github.com/stoewer/go-strcase v1.3.0/go.mod h1:fAH5hQ5pehh+j3nZfvwdk2RgEgQjAoM8wodgtPmh1xo=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

@@ -90,3 +90,17 @@ func (h *calendarHandler) ListEvents(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, data)
 }
+
+func (h *calendarHandler) DeleteEvent(c echo.Context) error {
+	claims := c.Get("user").(*types.Claims)
+	eventId := c.Param("eventId")
+	err := h.srv.DeleteEvent(claims.ID, eventId)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "event deleted",
+	})
+}
