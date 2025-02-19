@@ -54,6 +54,19 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 	return result, nil
 }
 
+func (s *EventService) DeleteEvent(userId, eventId string) error {
+	_, err := prisma.Client.Event.FindMany(
+		db.Event.CreatorID.Equals(userId),
+		db.Event.ID.Equals(eventId),
+	).Delete().Exec(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *EventService) ListEventsByWorkspace(workspaceID string, startTime, endTime time.Time) ([]types.EventInstance, error) {
 	dbEvents, err := prisma.Client.Event.FindMany(
 		db.Event.Workspace.Where(
