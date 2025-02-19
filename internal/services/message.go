@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
@@ -70,8 +71,20 @@ func (s *MessageService) GetMessageById(messageID string) (*db.MessageModel, err
 	return message, nil
 }
 
-func (s *MessageService) DeleteMessage(messageID string) error {
-	_, err := prisma.Client.Message.FindUnique(
+func (s *MessageService) DeleteMessage(userId, messageID string) error {
+	msg, err := prisma.Client.Message.FindUnique(
+		db.Message.ID.Equals(messageID),
+	).Exec(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	if msg.UserWorkspaceID != userId {
+		return errors.New("You are not allowed to delete a message that is not yours")
+	}
+
+	_, err = prisma.Client.Message.FindUnique(
 		db.Message.ID.Equals(messageID),
 	).Delete().Exec(context.Background())
 	if err != nil {
