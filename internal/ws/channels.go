@@ -2,6 +2,7 @@ package ws
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -30,12 +31,12 @@ func (ws WsChatHandler) Connections(c echo.Context) error {
 		WriteBufferSize: writeBufferSize,
 		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
+
+	// Authentication handling
 	cookie, err := c.Cookie("jwt")
-	fmt.Println("cookie", cookie)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
 	if cookie.Value == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "token is required")
 	}
@@ -46,41 +47,73 @@ func (ws WsChatHandler) Connections(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	claims := token.Claims.(*types.Claims)
 	conn, err := upgrader.Upgrade(c.Response().Writer, c.Request(), nil)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	workspacID := c.QueryParam("workspaceID")
-
-	online <- User{
+	// Get workspace ID and create user
+	workspaceID := c.QueryParam("workspaceID") // Fixed typo
+	user := User{
 		UserID:      claims.ID,
-		WorkspaceID: workspacID,
+		WorkspaceID: workspaceID,
 		Conn:        conn,
 	}
 
-	conn.SetCloseHandler(func(code int, text string) error {
-		fmt.Println("disconnected")
-		disconnected <- User{
-			UserID:      claims.ID,
-			WorkspaceID: workspacID,
-			Conn:        conn,
-		}
-		return nil
-	})
-	for {
-		// Send a ping message to the client to keep the connection alive
-		if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-			// If the ping fails, assume the connection is closed
-			fmt.Println("Connection closed:", err)
-			break
-		}
+	// Register user
+	online <- user
 
-		// Sleep for a while before sending the next ping
-		time.Sleep(30 * time.Second)
-	}
+	// Setup connection lifecycle management
+	done := make(chan struct{})
+	defer close(done)
 
+	// Reader goroutine (handles pongs and connection closure)
+	go func() {
+		defer conn.Close()
+		conn.SetPongHandler(func(string) error {
+			conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+			return nil
+		})
+
+		for {
+			_, _, err := conn.ReadMessage()
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
+					log.Printf("connection closed unexpectedly: %v", err)
+				}
+				// Trigger disconnect
+				disconnected <- user
+				return
+			}
+		}
+	}()
+
+	// Writer goroutine (handles pings)
+	go func() {
+		ticker := time.NewTicker(25 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				user.WriteMu.Lock()
+				err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(5*time.Second))
+				user.WriteMu.Unlock()
+
+				if err != nil {
+					log.Println("ping failed:", err)
+					return
+				}
+			case <-done:
+				return
+			}
+		}
+	}()
+
+	// Wait until connection is closed
+	<-done
 	return nil
 }
 

@@ -11,11 +11,13 @@ type User struct {
 	UserID      string
 	WorkspaceID string
 	Conn        *websocket.Conn
+	WriteMu     sync.Mutex
 }
 
 type OnlineEvent struct {
-	UserID string `json:"userID"`
-	Event  string `json:"event"`
+	UserID string   `json:"userID"`
+	Event  string   `json:"event"`
+	Users  []string `json:"users,omitempty"`
 }
 
 var (
@@ -36,9 +38,14 @@ func broadcastEvent(workspaceID string, event OnlineEvent) {
 	}
 
 	for _, user := range users {
-		if err := user.Conn.WriteJSON(event); err != nil {
-			log.Printf("Failed to send event to user %s: %v", user.UserID, err)
-		}
+		go func(u User) {
+			u.WriteMu.Lock()
+			defer u.WriteMu.Unlock()
+
+			if err := u.Conn.WriteJSON(event); err != nil {
+				log.Printf("Failed to send event to user %s: %v", u.UserID, err)
+			}
+		}(user)
 	}
 }
 
@@ -47,12 +54,36 @@ func WatchConnect() {
 	for user := range online {
 		workspaceLock.Lock()
 
-		// Add the user to the workspace
-		workspaces[user.WorkspaceID] = append(workspaces[user.WorkspaceID], user)
+		// Get existing users BEFORE adding new user
+		existingUsers := workspaces[user.WorkspaceID]
+
+		// Add the new user to the workspace
+		workspaces[user.WorkspaceID] = append(existingUsers, user)
 
 		workspaceLock.Unlock()
 
-		// Broadcast the "connected" event to all users in the workspace
+		// Send initial users to new connection
+		if len(existingUsers) > 0 {
+			initialUserIDs := make([]string, len(existingUsers))
+			for i, u := range existingUsers {
+				initialUserIDs[i] = u.UserID
+			}
+
+			initialEvent := OnlineEvent{
+				Event: "initial",
+				Users: initialUserIDs,
+			}
+
+			user.WriteMu.Lock()
+			err := user.Conn.WriteJSON(initialEvent)
+			user.WriteMu.Unlock()
+
+			if err != nil {
+				log.Printf("Failed to send initial users to %s: %v", user.UserID, err)
+			}
+		}
+
+		// Broadcast the "connected" event to everyone
 		broadcastEvent(user.WorkspaceID, OnlineEvent{
 			UserID: user.UserID,
 			Event:  "connected",
