@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/CollabTED/CollabTed-Backend/pkg/types"
@@ -72,20 +71,9 @@ func (s *MessageService) GetMessageById(messageID string) (*db.MessageModel, err
 }
 
 func (s *MessageService) DeleteMessage(userId, messageID string) error {
-	msg, err := prisma.Client.Message.FindUnique(
+	_, err := prisma.Client.Message.FindMany(
 		db.Message.ID.Equals(messageID),
-	).Exec(context.Background())
-
-	if err != nil {
-		return err
-	}
-
-	if msg.UserWorkspaceID != userId {
-		return errors.New("You are not allowed to delete a message that is not yours")
-	}
-
-	_, err = prisma.Client.Message.FindUnique(
-		db.Message.ID.Equals(messageID),
+		db.Message.SenderID.Equals(userId),
 	).Delete().Exec(context.Background())
 	if err != nil {
 		return err
@@ -136,9 +124,10 @@ func (s *MessageService) CreateAttachment(attachment types.AttachmentD) (*db.Att
 	).Exec(context.Background())
 	return result, err
 }
-func (s *MessageService) DeleteAttachment(attachmentID string) error {
-	_, err := prisma.Client.Attachment.FindUnique(
+func (s *MessageService) DeleteAttachment(userId, attachmentID string) error {
+	_, err := prisma.Client.Attachment.FindMany(
 		db.Attachment.ID.Equals(attachmentID),
+		db.Attachment.UserID.Equals(userId),
 	).Delete().Exec(context.Background())
 	if err != nil {
 		return err
