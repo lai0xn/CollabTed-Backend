@@ -43,7 +43,7 @@ func (s *MessageService) SendMessage(data types.MessageD) (*db.MessageModel, err
 func (s *MessageService) GetMessagesByChannel(channelID string, page int) ([]db.MessageModel, error) {
 	messages, err := prisma.Client.Message.FindMany(
 		db.Message.ChannelID.Equals(channelID),
-	).Skip((page - 1) * 10).Take(10).Exec(context.Background())
+	).Skip((page - 1) * 10000).Take(10000).Exec(context.Background())
 	if err != nil {
 		return nil, err
 	}
