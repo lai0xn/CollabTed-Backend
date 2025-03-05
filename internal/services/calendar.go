@@ -54,6 +54,41 @@ func (s *EventService) CreateEvent(data types.EventD) (*db.EventModel, error) {
 	return result, nil
 }
 
+func (s *EventService) EditEvent(eventId string, data types.EventD) (*db.EventModel, error) {
+	startTime := data.StartTime
+	endTime := data.EndTime
+
+	result, err := prisma.Client.Event.FindUnique(
+		db.Event.ID.Equals(eventId),
+	).Update(
+		db.Event.Name.Set(data.Name),
+		db.Event.StartTime.Set(startTime),
+		db.Event.EndTime.Set(endTime),
+		db.Event.Description.Set(data.Description),
+		db.Event.Rrule.SetIfPresent(data.RRule),
+		db.Event.Type.Set(db.EventType(data.Type)),
+		db.Event.AllDay.Set(data.AllDay),
+	).Exec(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, assigneeID := range data.Assignees {
+		_, err = prisma.Client.UserWorkspace.FindUnique(
+			db.UserWorkspace.ID.Equals(assigneeID),
+		).Update(
+			db.UserWorkspace.Event.Link(
+				db.Event.ID.Equals(result.ID),
+			),
+		).Exec(context.Background())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
 func (s *EventService) DeleteEvent(userId, eventId string) error {
 	_, err := prisma.Client.Event.FindMany(
 		db.Event.CreatorID.Equals(userId),

@@ -99,7 +99,7 @@ func WatchDisconnect() {
 		users, ok := workspaces[user.WorkspaceID]
 		if ok {
 
-			updatedUsers := make([]User, 0, len(users)-1)
+			updatedUsers := make([]User, 0, max(0, len(users)-1))
 			for _, u := range users {
 				if u.UserID != user.UserID {
 					updatedUsers = append(updatedUsers, u)

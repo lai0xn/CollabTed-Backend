@@ -50,6 +50,23 @@ func (h *calendarHandler) CreateEvent(c echo.Context) error {
 	return c.JSON(http.StatusCreated, data)
 }
 
+func (h *calendarHandler) EditEvent(c echo.Context) error {
+	var payload types.EventD
+	// Bind and validate payload
+	if err := c.Bind(&payload); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload: "+err.Error())
+	}
+
+	eventId := c.Param("eventId")
+	// Call the service to create the event
+	data, err := h.srv.EditEvent(eventId, payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error creating event: "+err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, data)
+}
+
 // ListEvents example
 //
 //	@Summary	List events for a workspace
